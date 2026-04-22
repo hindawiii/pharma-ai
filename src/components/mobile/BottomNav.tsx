@@ -1,18 +1,18 @@
-import { ScanLine, MapPin, Pill, FileHeart } from "lucide-react";
+import { Sparkles, ScanLine, MapPin, User } from "lucide-react";
 
-export type TabKey = "scanner" | "map" | "medication" | "record";
+export type TabKey = "home" | "scanner" | "map" | "profile";
 
 interface Props {
   active: TabKey;
   onChange: (key: TabKey) => void;
 }
 
-// Order from RIGHT to LEFT (Arabic): scanner first
+// Order from RIGHT to LEFT (Arabic): home first
 const tabs: { key: TabKey; label: string; icon: typeof ScanLine }[] = [
+  { key: "home", label: "الرئيسية", icon: Sparkles },
   { key: "scanner", label: "الماسح", icon: ScanLine },
   { key: "map", label: "الخريطة", icon: MapPin },
-  { key: "medication", label: "الأدوية", icon: Pill },
-  { key: "record", label: "ملفي الطبي", icon: FileHeart },
+  { key: "profile", label: "حسابي", icon: User },
 ];
 
 export const BottomNav = ({ active, onChange }: Props) => {
