@@ -45,9 +45,7 @@ export const ScannerScreen = () => {
       toast.error("شغّل الكاميرا أولاً");
       return;
     }
-    // @ts-expect-error - torch is not in standard TS lib
-    const caps = track.getCapabilities?.() ?? {};
-    // @ts-expect-error - torch capability
+    const caps = (track.getCapabilities?.() ?? {}) as { torch?: boolean };
     if (!caps.torch) {
       toast.error("الفلاش غير مدعوم على هذا الجهاز");
       return;
