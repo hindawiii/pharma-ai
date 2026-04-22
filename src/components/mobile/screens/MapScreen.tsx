@@ -1,13 +1,49 @@
-import { MapPin, Navigation, Clock, Cross, Search, Phone } from "lucide-react";
+import { MapPin, Navigation, Clock, Cross, Search, Phone, LocateFixed } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-const places = [
-  { name: "صيدلية النور", type: "صيدلية · 24 ساعة", distance: "320م", open: true, badge: "24/7", color: "secondary" },
-  { name: "مستشفى الأمل", type: "مستشفى حكومي", distance: "1.2كم", open: true, badge: "طوارئ", color: "primary" },
-  { name: "الهلال الأحمر", type: "إسعاف", distance: "850م", open: true, badge: "SOS", color: "destructive" },
-  { name: "صيدلية الشفاء", type: "صيدلية", distance: "450م", open: false, color: "muted" },
+interface Place {
+  name: string;
+  type: string;
+  distanceKm: number;
+  open: boolean;
+  badge?: string;
+  color: "secondary" | "primary" | "destructive" | "muted";
+}
+
+const basePlaces: Place[] = [
+  { name: "صيدلية النور", type: "صيدلية · 24 ساعة", distanceKm: 0.32, open: true, badge: "24/7", color: "secondary" },
+  { name: "مستشفى الأمل", type: "مستشفى حكومي", distanceKm: 1.2, open: true, badge: "طوارئ", color: "primary" },
+  { name: "الهلال الأحمر", type: "إسعاف", distanceKm: 0.85, open: true, badge: "SOS", color: "destructive" },
+  { name: "صيدلية الشفاء", type: "صيدلية", distanceKm: 0.45, open: false, color: "muted" },
 ];
 
 export const MapScreen = () => {
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const locate = () => {
+    if (!("geolocation" in navigator)) {
+      toast.error("خدمة الموقع غير مدعومة على جهازك");
+      return;
+    }
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLoading(false);
+        toast.success("تم تحديد موقعك");
+      },
+      (err) => {
+        setLoading(false);
+        toast.error("تعذر الحصول على الموقع: " + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
+  const formatDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)}م` : `${km.toFixed(1)}كم`);
+
   return (
     <div className="relative min-h-[calc(100dvh-9rem)] flex flex-col">
       {/* Map */}
@@ -32,10 +68,20 @@ export const MapScreen = () => {
               placeholder="ابحث عن دواء أو صيدلية..."
               className="flex-1 bg-transparent border-0 outline-none px-3 text-sm"
             />
-            <button className="h-8 w-8 rounded-xl gradient-primary flex items-center justify-center text-white">
+            <button
+              onClick={locate}
+              className="h-8 w-8 rounded-xl gradient-primary flex items-center justify-center text-white"
+              aria-label="موقعي"
+            >
               <Navigation className="h-4 w-4" />
             </button>
           </div>
+          {coords && (
+            <div className="mt-2 mx-1 text-[11px] text-muted-foreground bg-card/80 backdrop-blur rounded-full px-3 py-1 inline-flex items-center gap-1.5">
+              <LocateFixed className="h-3 w-3 text-secondary" />
+              {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
+            </div>
+          )}
         </div>
 
         {/* Pins */}
@@ -62,17 +108,27 @@ export const MapScreen = () => {
             <div className="relative h-5 w-5 rounded-full gradient-primary border-4 border-white shadow-glow" />
           </div>
         </div>
+
+        {/* Locate FAB */}
+        <button
+          onClick={locate}
+          disabled={loading}
+          className="absolute bottom-4 left-4 z-10 h-12 w-12 rounded-full gradient-primary text-white shadow-elegant flex items-center justify-center active:scale-95 transition-bounce"
+          aria-label="حدد موقعي"
+        >
+          <LocateFixed className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+        </button>
       </div>
 
       {/* Bottom sheet of places */}
       <div className="bg-card rounded-t-3xl shadow-elegant -mt-6 relative z-10 p-4 pb-24">
         <div className="mx-auto h-1 w-12 rounded-full bg-muted mb-3" />
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-base">الأقرب إليك</h2>
+          <h2 className="font-bold text-base">{coords ? "الأقرب إليك" : "اضغط على الموقع لتفعيل GPS"}</h2>
           <button className="text-xs text-primary font-bold">عرض الكل</button>
         </div>
         <div className="space-y-2">
-          {places.map((p, i) => (
+          {basePlaces.map((p, i) => (
             <div
               key={i}
               className="flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth"
@@ -95,7 +151,7 @@ export const MapScreen = () => {
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                   <Clock className="h-3 w-3" />
-                  {p.type} · {p.distance}
+                  {p.type} · {formatDist(p.distanceKm)}
                 </p>
               </div>
               <button className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center" aria-label="اتصال">
