@@ -1,27 +1,14 @@
-import { Navbar } from "@/components/Navbar";
-import { Hero } from "@/components/Hero";
-import { SmartScanner } from "@/components/SmartScanner";
-import { Features } from "@/components/Features";
-import { MapSection } from "@/components/MapSection";
-import { SosSection } from "@/components/SosSection";
-import { Pricing } from "@/components/Pricing";
-import { Footer } from "@/components/Footer";
-import { AiAssistant } from "@/components/AiAssistant";
+import { useState } from "react";
+import { SplashScreen } from "@/components/mobile/SplashScreen";
+import { MobileApp } from "@/components/mobile/MobileApp";
 
 const Index = () => {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main>
-        <Hero />
-        <SmartScanner />
-        <Features />
-        <MapSection />
-        <SosSection />
-        <Pricing />
-      </main>
-      <Footer />
-      <AiAssistant />
+    <div className="min-h-dvh bg-gradient-to-b from-primary/5 via-background to-secondary/5">
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+      <MobileApp />
     </div>
   );
 };
