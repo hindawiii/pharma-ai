@@ -1,8 +1,10 @@
-import { Image as ImageIcon, Zap, ScanBarcode, Sparkles, AlertTriangle, X } from "lucide-react";
+import { Image as ImageIcon, Zap, ScanBarcode, Sparkles, AlertTriangle, X, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useSpeak } from "@/hooks/useSpeak";
 
 export const ScannerScreen = () => {
+  const speak = useSpeak();
   const [flash, setFlash] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
