@@ -1,6 +1,17 @@
-import { Sparkles, Phone, Facebook, Instagram, Twitter } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, Phone, Facebook, Instagram, Twitter, Lightbulb, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
 import logo from "@/assets/pharma-i-logo.png";
+
+const DAILY_TIPS = [
+  "اشرب ٨ أكواب ماء يومياً للحفاظ على صحة الكلى ونضارة البشرة.",
+  "لا تتناول المضاد الحيوي بدون وصفة طبية حتى لا تفقد فاعليته.",
+  "احفظ الأدوية في مكان جاف بعيداً عن الشمس وحرارة المطبخ.",
+  "قس ضغط الدم في نفس التوقيت يومياً للحصول على قراءة دقيقة.",
+  "تناول دواء الضغط حتى لو شعرت بتحسن — التوقف المفاجئ خطر.",
+  "افحص تاريخ صلاحية الأدوية شهرياً وتخلّص من المنتهية بأمان.",
+  "المشي ٣٠ دقيقة يومياً يقلل خطر السكري وأمراض القلب.",
+  "تجنّب دمج المسكنات مع مضادات التجلط دون استشارة الصيدلي.",
+];
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
@@ -17,12 +28,16 @@ const socials = [
 
 export const HomeScreen = () => {
   const [sosArmed, setSosArmed] = useState(false);
+  const initialTip = useMemo(() => Math.floor(Math.random() * DAILY_TIPS.length), []);
+  const [tipIdx, setTipIdx] = useState(initialTip);
 
   const triggerSos = () => {
     setSosArmed(true);
     window.location.href = "tel:911";
     setTimeout(() => setSosArmed(false), 1500);
   };
+
+  const nextTip = () => setTipIdx((i) => (i + 1) % DAILY_TIPS.length);
 
   return (
     <div className="relative min-h-[calc(100dvh-9rem)] overflow-hidden">
