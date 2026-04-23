@@ -1,8 +1,10 @@
-import { Image as ImageIcon, Zap, ScanBarcode, Sparkles, AlertTriangle, X } from "lucide-react";
+import { Image as ImageIcon, Zap, ScanBarcode, Sparkles, AlertTriangle, X, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useSpeak } from "@/hooks/useSpeak";
 
 export const ScannerScreen = () => {
+  const speak = useSpeak();
   const [flash, setFlash] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
@@ -112,9 +114,27 @@ export const ScannerScreen = () => {
           >
             <X className="h-5 w-5" />
           </button>
-          <img src={capturedUrl} alt="معاينة" className="max-h-[60vh] rounded-2xl shadow-elegant" />
-          <div className="mt-4 inline-flex items-center gap-2 bg-secondary/90 px-4 py-2 rounded-full text-sm font-bold">
+          <img src={capturedUrl} alt="معاينة" className="max-h-[55vh] rounded-2xl shadow-elegant" />
+          <div className="mt-4 inline-flex items-center gap-2 bg-secondary/90 px-4 py-2 rounded-full text-sm font-bold text-white">
             <Sparkles className="h-4 w-4" /> AI يحلل الروشتة...
+          </div>
+
+          {/* Sample detected drug with audio verification */}
+          <div className="mt-4 w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur p-3 border border-white/15">
+            <p className="text-[11px] text-white/60 mb-1">تم التعرّف على:</p>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm">أوجمنتين 1g</p>
+                <p className="text-[11px] text-white/70">قرص واحد كل ١٢ ساعة بعد الأكل</p>
+              </div>
+              <button
+                onClick={() => speak("أوجمنتين واحد جرام، الجرعة: قرص واحد كل اثنتي عشرة ساعة بعد الأكل")}
+                aria-label="نطق اسم الدواء والجرعة"
+                className="h-10 w-10 rounded-full gradient-primary text-white flex items-center justify-center shadow-card active:scale-95 transition-bounce"
+              >
+                <Volume2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}

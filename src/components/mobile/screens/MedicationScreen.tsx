@@ -1,6 +1,7 @@
-import { Pill, Search, ShieldAlert, Bell, Plus, Clock, X, AlertTriangle, CheckCircle2, Trash2 } from "lucide-react";
+import { Pill, Search, ShieldAlert, Bell, Plus, Clock, AlertTriangle, CheckCircle2, Trash2, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useSpeak } from "@/hooks/useSpeak";
 
 // Local drug library (sample)
 const DRUGS = [
@@ -39,6 +40,7 @@ type Reminder = { id: string; title: string; time: string; timeoutId?: number };
 const STORAGE_KEY = "pharma-i:reminders";
 
 export const MedicationScreen = () => {
+  const speak = useSpeak();
   const [tab, setTab] = useState<"library" | "interactions" | "reminders">("library");
 
   // ---- Library ----
@@ -189,6 +191,13 @@ export const MedicationScreen = () => {
                   <p className="font-bold text-sm truncate">{d.name}</p>
                   <p className="text-[11px] text-muted-foreground">{d.category} · {d.company}</p>
                 </div>
+                <button
+                  onClick={() => speak(`${d.name}. الفئة: ${d.category}`)}
+                  aria-label={`نطق ${d.name}`}
+                  className="h-9 w-9 rounded-full bg-secondary/10 text-secondary flex items-center justify-center active:scale-95 transition-bounce"
+                >
+                  <Volume2 className="h-4 w-4" />
+                </button>
                 <button className="text-[11px] font-bold text-primary px-3 py-1 rounded-full bg-primary/10">
                   تفاصيل
                 </button>
