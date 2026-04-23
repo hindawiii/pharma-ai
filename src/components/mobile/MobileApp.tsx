@@ -6,12 +6,13 @@ import { HomeScreen } from "./screens/HomeScreen";
 import { ScannerScreen } from "./screens/ScannerScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { RecordScreen } from "./screens/RecordScreen";
+import { MedicationScreen } from "./screens/MedicationScreen";
 
-// Order matches BottomNav (right→left in RTL)
-const tabs: TabKey[] = ["home", "scanner", "map", "profile"];
+const tabs: TabKey[] = ["home", "scanner", "medication", "map", "profile"];
 const titles: Record<TabKey, string> = {
   home: "Pharma-i",
   scanner: "الماسح الذكي",
+  medication: "مكتبة الدواء",
   map: "خريطة الصيدليات",
   profile: "ملفي الطبي",
 };
@@ -58,6 +59,7 @@ export const MobileApp = () => {
         <div className="flex">
           <div className="flex-[0_0_100%] min-w-0"><HomeScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><ScannerScreen /></div>
+          <div className="flex-[0_0_100%] min-w-0"><MedicationScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><MapScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><RecordScreen /></div>
         </div>

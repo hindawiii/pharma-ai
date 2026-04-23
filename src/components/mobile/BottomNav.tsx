@@ -1,6 +1,6 @@
-import { Sparkles, ScanLine, MapPin, User } from "lucide-react";
+import { Sparkles, ScanLine, MapPin, User, Pill } from "lucide-react";
 
-export type TabKey = "home" | "scanner" | "map" | "profile";
+export type TabKey = "home" | "scanner" | "medication" | "map" | "profile";
 
 interface Props {
   active: TabKey;
@@ -11,6 +11,7 @@ interface Props {
 const tabs: { key: TabKey; label: string; icon: typeof ScanLine }[] = [
   { key: "home", label: "الرئيسية", icon: Sparkles },
   { key: "scanner", label: "الماسح", icon: ScanLine },
+  { key: "medication", label: "الأدوية", icon: Pill },
   { key: "map", label: "الخريطة", icon: MapPin },
   { key: "profile", label: "حسابي", icon: User },
 ];
@@ -21,7 +22,7 @@ export const BottomNav = ({ active, onChange }: Props) => {
       className="fixed bottom-0 inset-x-0 z-40 glass border-t border-border/50 pb-[env(safe-area-inset-bottom)]"
       aria-label="القائمة السفلية"
     >
-      <ul className="grid grid-cols-4 max-w-md mx-auto">
+      <ul className="grid grid-cols-5 max-w-md mx-auto">
         {tabs.map((tab) => {
           const isActive = active === tab.key;
           const Icon = tab.icon;
@@ -34,10 +35,10 @@ export const BottomNav = ({ active, onChange }: Props) => {
                 aria-label={tab.label}
               >
                 {isActive && (
-                  <span className="absolute top-0 inset-x-6 h-0.5 rounded-full gradient-primary" />
+                  <span className="absolute top-0 inset-x-4 h-0.5 rounded-full gradient-primary" />
                 )}
                 <span
-                  className={`h-10 w-10 rounded-2xl flex items-center justify-center transition-bounce ${
+                  className={`h-9 w-9 rounded-2xl flex items-center justify-center transition-bounce ${
                     isActive
                       ? "gradient-primary text-white shadow-glow scale-110"
                       : "text-muted-foreground"
@@ -46,7 +47,7 @@ export const BottomNav = ({ active, onChange }: Props) => {
                   <Icon className="h-5 w-5" />
                 </span>
                 <span
-                  className={`text-[11px] font-bold ${
+                  className={`text-[10px] font-bold ${
                     isActive ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
