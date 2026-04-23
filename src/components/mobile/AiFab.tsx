@@ -44,13 +44,13 @@ export const AiFab = () => {
 
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-20 left-3 z-50 group"
+        className="fixed bottom-[5.5rem] left-3 z-50 group"
         aria-label="مساعد الذكاء الاصطناعي"
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         <span className="absolute inset-0 rounded-full gradient-ai animate-pulse-ring" />
-        <span className="relative flex items-center justify-center h-11 w-11 rounded-full gradient-ai text-white shadow-card group-active:scale-95 transition-bounce">
-          <Sparkles className="h-5 w-5" />
+        <span className="relative flex items-center justify-center h-9 w-9 rounded-full gradient-ai text-white shadow-card group-active:scale-95 transition-bounce">
+          <Sparkles className="h-4 w-4" />
         </span>
       </button>
     </>

@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { SplashScreen } from "@/components/mobile/SplashScreen";
 import { MobileApp } from "@/components/mobile/MobileApp";
+import { useTheme } from "@/hooks/useTheme";
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
+  // Initializes/persists theme from localStorage
+  useTheme();
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-primary/5 via-background to-secondary/5">
+    <div className="min-h-dvh bg-background">
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
       <MobileApp />
     </div>
