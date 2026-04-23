@@ -20,46 +20,41 @@ export const HomeScreen = () => {
 
   const triggerSos = () => {
     setSosArmed(true);
-    // Best-effort tel link
     window.location.href = "tel:911";
     setTimeout(() => setSosArmed(false), 1500);
   };
 
   return (
     <div className="relative min-h-[calc(100dvh-9rem)] overflow-hidden">
-      {/* Soft mesh background */}
       <div className="absolute inset-0 gradient-mesh opacity-70" />
 
-      <div className="relative px-5 pt-6 pb-28 flex flex-col items-center">
-        {/* AI Halo */}
-        <div className="relative mt-4 mb-6 flex items-center justify-center">
-          {/* Outer pulsing rings */}
-          <span className="absolute h-56 w-56 rounded-full border-2 border-primary/20 animate-pulse-ring" />
+      <div className="relative px-5 pt-4 pb-28 flex flex-col items-center">
+        {/* Larger AI Halo */}
+        <div className="relative mt-2 mb-5 flex items-center justify-center">
+          <span className="absolute h-72 w-72 rounded-full border-2 border-primary/20 animate-pulse-ring" />
           <span
-            className="absolute h-44 w-44 rounded-full border-2 border-secondary/30 animate-pulse-ring"
+            className="absolute h-60 w-60 rounded-full border-2 border-secondary/30 animate-pulse-ring"
             style={{ animationDelay: "0.6s" }}
           />
           <span
-            className="absolute h-64 w-64 rounded-full opacity-60 blur-2xl gradient-ai"
+            className="absolute h-80 w-80 rounded-full opacity-60 blur-3xl gradient-ai"
             aria-hidden
           />
 
-          {/* Rotating gradient halo */}
-          <div className="relative h-40 w-40 rounded-full p-[3px] gradient-primary shadow-elegant">
+          <div className="relative h-56 w-56 rounded-full p-[4px] gradient-primary shadow-elegant">
             <div className="h-full w-full rounded-full bg-card flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 gradient-mesh opacity-70" />
-              <img src={logo} alt="Pharma-i" className="relative h-20 w-20 object-contain animate-float" />
-              <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-secondary/90 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                <Sparkles className="h-2.5 w-2.5" /> AI
+              <img src={logo} alt="Pharma-i" className="relative h-32 w-32 object-contain animate-float" />
+              <span className="absolute top-4 right-4 inline-flex items-center gap-1 bg-secondary/90 text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-card">
+                <Sparkles className="h-3 w-3" /> AI
               </span>
             </div>
           </div>
         </div>
 
-        <h2 className="text-xl font-extrabold text-gradient">Pharma-i جاهز للمساعدة</h2>
+        <h2 className="text-2xl font-extrabold text-gradient">Pharma-i جاهز للمساعدة</h2>
         <p className="text-sm text-muted-foreground mt-1 mb-5">كيف يمكنني مساعدتك اليوم؟</p>
 
-        {/* Quick prompts */}
         <div className="grid grid-cols-2 gap-2 w-full max-w-sm mb-6">
           {["تحليل روشتة", "تذكير دواء", "بديل علاجي", "أقرب صيدلية"].map((p) => (
             <button
@@ -71,31 +66,25 @@ export const HomeScreen = () => {
           ))}
         </div>
 
-        {/* SOS FAB */}
+        {/* Rectangular SOS button */}
         <button
           onClick={triggerSos}
           aria-label="طوارئ SOS"
-          className="relative group mt-2 active:scale-95 transition-bounce"
+          className="relative group w-full max-w-sm active:scale-[0.98] transition-bounce"
         >
-          <span className="absolute inset-0 rounded-full bg-destructive/40 animate-pulse-ring" />
+          <span className="absolute inset-0 rounded-2xl bg-destructive/30 animate-pulse-ring" />
           <span
-            className="absolute inset-0 rounded-full bg-destructive/40 animate-pulse-ring"
-            style={{ animationDelay: "0.7s" }}
-          />
-          <span
-            className={`relative flex flex-col items-center justify-center h-28 w-28 rounded-full text-white shadow-elegant ${
-              sosArmed ? "bg-destructive scale-105" : "bg-[hsl(0_75%_38%)]"
+            className={`relative flex items-center justify-center gap-3 w-full h-16 rounded-2xl text-white shadow-elegant border border-white/10 ${
+              sosArmed ? "scale-[1.01]" : ""
             }`}
-            style={{ background: sosArmed ? undefined : "linear-gradient(135deg, hsl(0 80% 38%), hsl(0 70% 28%))" }}
+            style={{ background: "linear-gradient(135deg, hsl(0 80% 38%), hsl(0 70% 25%))" }}
           >
-            <Phone className="h-6 w-6 mb-0.5" />
-            <span className="text-base font-black tracking-tight">SOS</span>
-            <span className="text-[10px] font-bold opacity-90">طوارئ</span>
+            <Phone className="h-6 w-6" />
+            <span className="text-xl font-black tracking-tight">SOS طوارئ</span>
           </span>
         </button>
-        <p className="text-[11px] text-muted-foreground mt-3">اضغط للاتصال الفوري بالطوارئ</p>
+        <p className="text-[11px] text-muted-foreground mt-2">اضغط للاتصال الفوري بالطوارئ</p>
 
-        {/* Social share */}
         <div className="mt-6 w-full max-w-sm">
           <p className="text-[11px] text-muted-foreground text-center mb-2">شارك التطبيق</p>
           <div className="flex items-center justify-center gap-3">

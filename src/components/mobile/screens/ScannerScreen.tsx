@@ -130,18 +130,18 @@ export const ScannerScreen = () => {
         </div>
       </div>
 
-      {/* Scan frame */}
+      {/* Scan frame — smaller, centered, professional */}
       <div className="relative z-10 flex-1 flex items-center justify-center p-6">
-        <div className="relative w-full max-w-xs aspect-[3/4] rounded-3xl border-2 border-primary-glow/60">
-          <span className="absolute -top-1 -right-1 h-8 w-8 border-t-4 border-r-4 border-secondary rounded-tr-3xl" />
-          <span className="absolute -top-1 -left-1 h-8 w-8 border-t-4 border-l-4 border-secondary rounded-tl-3xl" />
-          <span className="absolute -bottom-1 -right-1 h-8 w-8 border-b-4 border-r-4 border-secondary rounded-br-3xl" />
-          <span className="absolute -bottom-1 -left-1 h-8 w-8 border-b-4 border-l-4 border-secondary rounded-bl-3xl" />
+        <div className="relative w-56 h-56 rounded-2xl border-2 border-primary-glow/60">
+          <span className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-secondary rounded-tr-2xl" />
+          <span className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-secondary rounded-tl-2xl" />
+          <span className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-secondary rounded-br-2xl" />
+          <span className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-secondary rounded-bl-2xl" />
           <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-secondary-glow to-transparent shadow-green-glow animate-scan-line" />
-          <div className="absolute bottom-4 inset-x-4 text-center text-white/90 text-sm font-medium bg-black/40 backdrop-blur rounded-full py-2">
-            {streaming ? "ضع الروشتة داخل الإطار" : "اضغط الزر لتشغيل الكاميرا"}
+          <div className="absolute -bottom-10 inset-x-0 text-center text-white/90 text-xs font-medium">
+            {streaming ? "ضع الباركود داخل المربع" : "اضغط الزر لتشغيل الكاميرا"}
           </div>
-          <div className="absolute top-3 right-3 inline-flex items-center gap-1 bg-secondary/90 px-2 py-1 rounded-full text-[10px] font-bold">
+          <div className="absolute top-2 right-2 inline-flex items-center gap-1 bg-secondary/90 px-2 py-0.5 rounded-full text-[10px] font-bold">
             <Sparkles className="h-3 w-3" /> AI
           </div>
         </div>
