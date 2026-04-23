@@ -98,7 +98,35 @@ export const HomeScreen = () => {
             <span className="text-xl font-black tracking-tight">SOS طوارئ</span>
           </span>
         </button>
-        <p className="text-[11px] text-muted-foreground mt-2">اضغط للاتصال الفوري بالطوارئ</p>
+        <div className="w-full max-w-sm mt-4 text-center">
+          <p className="text-base font-extrabold text-gradient">Pharma-i</p>
+          <p className="text-xs text-muted-foreground mt-1">جاهز لمساعدتك.. كيف يمكنني مساعدتك اليوم؟</p>
+        </div>
+
+        {/* Daily medical tip */}
+        <div className="w-full max-w-sm mt-4">
+          <div className="rounded-2xl p-4 bg-card border border-border shadow-soft relative overflow-hidden">
+            <div className="absolute -top-8 -left-8 w-28 h-28 rounded-full bg-secondary/10 blur-2xl" />
+            <div className="relative flex items-start gap-3">
+              <div className="h-10 w-10 rounded-2xl gradient-ai text-white flex items-center justify-center flex-shrink-0 shadow-card">
+                <Lightbulb className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[11px] font-bold text-primary">نصيحة طبية اليوم</p>
+                  <button
+                    onClick={nextTip}
+                    aria-label="نصيحة جديدة"
+                    className="h-7 w-7 rounded-full bg-muted text-muted-foreground hover:text-primary flex items-center justify-center"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <p className="text-xs leading-relaxed text-foreground/80">{DAILY_TIPS[tipIdx]}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="mt-6 w-full max-w-sm">
           <p className="text-[11px] text-muted-foreground text-center mb-2">شارك التطبيق</p>
