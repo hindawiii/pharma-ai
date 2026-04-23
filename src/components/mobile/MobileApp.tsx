@@ -7,6 +7,7 @@ import { ScannerScreen } from "./screens/ScannerScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { RecordScreen } from "./screens/RecordScreen";
 import { MedicationScreen } from "./screens/MedicationScreen";
+import { AiFab } from "./AiFab";
 
 const tabs: TabKey[] = ["home", "scanner", "medication", "map", "profile"];
 const titles: Record<TabKey, string> = {
@@ -56,7 +57,7 @@ export const MobileApp = () => {
       <MobileTopBar title={titles[active]} />
 
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
+        <div className="flex items-start">
           <div className="flex-[0_0_100%] min-w-0"><HomeScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><ScannerScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><MedicationScreen /></div>
@@ -65,6 +66,7 @@ export const MobileApp = () => {
         </div>
       </div>
 
+      <AiFab />
       <BottomNav active={active} onChange={handleChange} />
     </div>
   );
