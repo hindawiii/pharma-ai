@@ -1,4 +1,4 @@
-import { Sparkles, ScanLine, MapPin, User, Pill } from "lucide-react";
+import { Sparkles, ScanLine, MapPin, Settings, Pill } from "lucide-react";
 
 export type TabKey = "home" | "scanner" | "medication" | "map" | "profile";
 
@@ -13,7 +13,7 @@ const tabs: { key: TabKey; label: string; icon: typeof ScanLine }[] = [
   { key: "scanner", label: "الماسح", icon: ScanLine },
   { key: "medication", label: "الأدوية", icon: Pill },
   { key: "map", label: "الخريطة", icon: MapPin },
-  { key: "profile", label: "حسابي", icon: User },
+  { key: "profile", label: "الإعدادات", icon: Settings },
 ];
 
 export const BottomNav = ({ active, onChange }: Props) => {
@@ -47,7 +47,7 @@ export const BottomNav = ({ active, onChange }: Props) => {
                   <Icon className="h-5 w-5" />
                 </span>
                 <span
-                  className={`text-[10px] font-bold ${
+                  className={`text-[12px] font-extrabold ${
                     isActive ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
