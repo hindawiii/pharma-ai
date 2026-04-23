@@ -1,4 +1,4 @@
-import { Sparkles, Phone, Facebook, Instagram, Twitter, Lightbulb, RefreshCw } from "lucide-react";
+import { Sparkles, Facebook, Instagram, Twitter, Lightbulb, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import logo from "@/assets/pharma-i-logo.png";
 
@@ -27,109 +27,76 @@ const socials = [
 ];
 
 export const HomeScreen = () => {
-  const [sosArmed, setSosArmed] = useState(false);
   const initialTip = useMemo(() => Math.floor(Math.random() * DAILY_TIPS.length), []);
   const [tipIdx, setTipIdx] = useState(initialTip);
-
-  const triggerSos = () => {
-    setSosArmed(true);
-    window.location.href = "tel:911";
-    setTimeout(() => setSosArmed(false), 1500);
-  };
-
   const nextTip = () => setTipIdx((i) => (i + 1) % DAILY_TIPS.length);
 
   return (
-    <div className="relative min-h-[calc(100dvh-9rem)] overflow-hidden">
+    <div className="relative overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-70" />
 
-      <div className="relative px-5 pt-4 pb-28 flex flex-col items-center">
-        {/* Larger AI Halo */}
-        <div className="relative mt-2 mb-5 flex items-center justify-center">
-          <span className="absolute h-72 w-72 rounded-full border-2 border-primary/20 animate-pulse-ring" />
+      <div className="relative px-5 pt-3 pb-24 flex flex-col items-center">
+        {/* AI Halo */}
+        <div className="relative mt-1 mb-4 flex items-center justify-center">
+          <span className="absolute h-64 w-64 rounded-full border-2 border-primary/20 animate-pulse-ring" />
           <span
-            className="absolute h-60 w-60 rounded-full border-2 border-secondary/30 animate-pulse-ring"
+            className="absolute h-52 w-52 rounded-full border-2 border-secondary/30 animate-pulse-ring"
             style={{ animationDelay: "0.6s" }}
           />
-          <span
-            className="absolute h-80 w-80 rounded-full opacity-60 blur-3xl gradient-ai"
-            aria-hidden
-          />
+          <span className="absolute h-72 w-72 rounded-full opacity-60 blur-3xl gradient-ai" aria-hidden />
 
-          <div className="relative h-56 w-56 rounded-full p-[4px] gradient-primary shadow-elegant">
+          <div className="relative h-48 w-48 rounded-full p-[4px] gradient-primary shadow-elegant">
             <div className="h-full w-full rounded-full bg-card flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 gradient-mesh opacity-70" />
-              <img src={logo} alt="Pharma-i" className="relative h-32 w-32 object-contain animate-float" />
-              <span className="absolute top-4 right-4 inline-flex items-center gap-1 bg-secondary/90 text-white px-2.5 py-1 rounded-full text-[11px] font-bold shadow-card">
-                <Sparkles className="h-3 w-3" /> AI
+              <img src={logo} alt="Pharma-i" className="relative h-28 w-28 object-contain animate-float" />
+              <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-secondary/90 text-white px-2.5 py-1 rounded-full text-xs font-extrabold shadow-card">
+                <Sparkles className="h-3.5 w-3.5" /> AI
               </span>
             </div>
           </div>
         </div>
 
-        <h2 className="text-2xl font-extrabold text-gradient">Pharma-i جاهز للمساعدة</h2>
-        <p className="text-sm text-muted-foreground mt-1 mb-5">كيف يمكنني مساعدتك اليوم؟</p>
+        <h2 className="text-2xl font-extrabold text-gradient text-center">Pharma-i جاهز للمساعدة</h2>
+        <p className="text-base font-bold text-foreground/70 mt-1 mb-4 text-center">كيف يمكنني مساعدتك اليوم؟</p>
 
-        <div className="grid grid-cols-2 gap-2 w-full max-w-sm mb-6">
+        <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm mb-4">
           {["تحليل روشتة", "تذكير دواء", "بديل علاجي", "أقرب صيدلية"].map((p) => (
             <button
               key={p}
-              className="px-3 py-2.5 rounded-2xl bg-card border border-border text-xs font-bold shadow-soft hover:shadow-card transition-smooth text-foreground/80 hover:text-primary"
+              className="px-3 py-3 rounded-2xl bg-card border border-border text-base font-extrabold shadow-soft hover:shadow-card transition-smooth text-foreground/85 hover:text-primary"
             >
               {p}
             </button>
           ))}
         </div>
 
-        {/* Rectangular SOS button */}
-        <button
-          onClick={triggerSos}
-          aria-label="طوارئ SOS"
-          className="relative group w-full max-w-sm active:scale-[0.98] transition-bounce"
-        >
-          <span className="absolute inset-0 rounded-2xl bg-destructive/30 animate-pulse-ring" />
-          <span
-            className={`relative flex items-center justify-center gap-3 w-full h-16 rounded-2xl text-white shadow-elegant border border-white/10 ${
-              sosArmed ? "scale-[1.01]" : ""
-            }`}
-            style={{ background: "linear-gradient(135deg, hsl(0 80% 38%), hsl(0 70% 25%))" }}
-          >
-            <Phone className="h-6 w-6" />
-            <span className="text-xl font-black tracking-tight">SOS طوارئ</span>
-          </span>
-        </button>
-        <div className="w-full max-w-sm mt-4 text-center">
-          <p className="text-base font-extrabold text-gradient">Pharma-i</p>
-          <p className="text-xs text-muted-foreground mt-1">جاهز لمساعدتك.. كيف يمكنني مساعدتك اليوم؟</p>
-        </div>
-
         {/* Daily medical tip */}
-        <div className="w-full max-w-sm mt-4">
+        <div className="w-full max-w-sm">
           <div className="rounded-2xl p-4 bg-card border border-border shadow-soft relative overflow-hidden">
             <div className="absolute -top-8 -left-8 w-28 h-28 rounded-full bg-secondary/10 blur-2xl" />
             <div className="relative flex items-start gap-3">
-              <div className="h-10 w-10 rounded-2xl gradient-ai text-white flex items-center justify-center flex-shrink-0 shadow-card">
+              <div className="h-11 w-11 rounded-2xl gradient-ai text-white flex items-center justify-center flex-shrink-0 shadow-card">
                 <Lightbulb className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-[11px] font-bold text-primary">نصيحة طبية اليوم</p>
+                  <p className="text-sm font-extrabold text-primary">نصيحة طبية اليوم</p>
                   <button
                     onClick={nextTip}
                     aria-label="نصيحة جديدة"
-                    className="h-7 w-7 rounded-full bg-muted text-muted-foreground hover:text-primary flex items-center justify-center"
+                    className="h-8 w-8 rounded-full bg-muted text-muted-foreground hover:text-primary flex items-center justify-center"
                   >
-                    <RefreshCw className="h-3.5 w-3.5" />
+                    <RefreshCw className="h-4 w-4" />
                   </button>
                 </div>
-                <p className="text-xs leading-relaxed text-foreground/80">{DAILY_TIPS[tipIdx]}</p>
+                <p className="text-base font-bold leading-relaxed text-foreground/85">{DAILY_TIPS[tipIdx]}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 w-full max-w-sm">
-          <p className="text-[11px] text-muted-foreground text-center mb-2">شارك التطبيق</p>
+        <div className="mt-5 w-full max-w-sm">
+          <p className="text-sm font-bold text-muted-foreground text-center mb-2">شارك التطبيق</p>
           <div className="flex items-center justify-center gap-3">
             {socials.map(({ name, Icon, color }) => (
               <button

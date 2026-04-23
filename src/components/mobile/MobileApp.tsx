@@ -7,6 +7,7 @@ import { ScannerScreen } from "./screens/ScannerScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { RecordScreen } from "./screens/RecordScreen";
 import { MedicationScreen } from "./screens/MedicationScreen";
+import { SettingsScreen } from "./screens/SettingsScreen";
 import { AiFab } from "./AiFab";
 
 const tabs: TabKey[] = ["home", "scanner", "medication", "map", "profile"];
@@ -15,7 +16,7 @@ const titles: Record<TabKey, string> = {
   scanner: "الماسح الذكي",
   medication: "مكتبة الدواء",
   map: "خريطة الصيدليات",
-  profile: "ملفي الطبي",
+  profile: "الإعدادات",
 };
 
 export const MobileApp = () => {
@@ -62,7 +63,7 @@ export const MobileApp = () => {
           <div className="flex-[0_0_100%] min-w-0"><ScannerScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><MedicationScreen /></div>
           <div className="flex-[0_0_100%] min-w-0"><MapScreen /></div>
-          <div className="flex-[0_0_100%] min-w-0"><RecordScreen /></div>
+          <div className="flex-[0_0_100%] min-w-0"><SettingsScreen /></div>
         </div>
       </div>
 
