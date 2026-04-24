@@ -1,4 +1,4 @@
-import { Sparkles, Facebook, Instagram, Twitter, Lightbulb, RefreshCw } from "lucide-react";
+import { Sparkles, Facebook, Instagram, Twitter, Lightbulb, RefreshCw, MapPin, ChevronLeft } from "lucide-react";
 import { useMemo, useState } from "react";
 import logo from "@/assets/pharma-i-logo.png";
 
