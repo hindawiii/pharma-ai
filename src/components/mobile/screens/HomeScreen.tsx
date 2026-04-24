@@ -35,7 +35,7 @@ export const HomeScreen = () => {
     <div className="relative overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-70" />
 
-      <div className="relative px-5 pt-3 pb-24 flex flex-col items-center">
+      <div className="relative px-5 pt-3 pb-6 flex flex-col items-center">
         {/* Nearby services status */}
         <div className="w-full max-w-sm mb-3">
           <button className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border shadow-soft active:scale-[0.99] transition-bounce text-right">

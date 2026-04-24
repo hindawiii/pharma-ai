@@ -20,7 +20,7 @@ interface Props {
 export const BottomNav = memo(({ active, onChange }: Props) => {
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 glass border-t border-border/50 pb-[env(safe-area-inset-bottom)]"
+      className="relative z-40 glass border-t border-border/50 pb-[env(safe-area-inset-bottom)] flex-shrink-0"
       aria-label="القائمة السفلية"
     >
       <ul className="grid grid-cols-5 max-w-md mx-auto px-1">
