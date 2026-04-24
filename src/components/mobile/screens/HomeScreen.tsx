@@ -1,4 +1,4 @@
-import { Sparkles, Facebook, Instagram, Twitter, Lightbulb, RefreshCw, MapPin, ChevronLeft } from "lucide-react";
+import { Facebook, Instagram, Twitter, Lightbulb, RefreshCw, MapPin, ChevronLeft } from "lucide-react";
 import { useMemo, useState } from "react";
 import logo from "@/assets/pharma-i-logo.png";
 
@@ -53,38 +53,14 @@ export const HomeScreen = () => {
           </button>
         </div>
 
-        {/* AI Halo */}
-        <div className="relative mt-1 mb-4 flex items-center justify-center">
-          <span className="absolute h-64 w-64 rounded-full border-2 border-primary/20 animate-pulse-ring" />
-          <span
-            className="absolute h-52 w-52 rounded-full border-2 border-secondary/30 animate-pulse-ring"
-            style={{ animationDelay: "0.6s" }}
-          />
-          <span className="absolute h-72 w-72 rounded-full opacity-60 blur-3xl gradient-ai" aria-hidden />
-
-          <div className="relative h-48 w-48 rounded-full p-[4px] gradient-primary shadow-elegant">
-            <div className="h-full w-full rounded-full bg-card flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 gradient-mesh opacity-70" />
-              <img src={logo} alt="Pharma-i" className="relative h-28 w-28 object-contain animate-float" />
-              <span className="absolute top-3 right-3 inline-flex items-center gap-1 bg-secondary/90 text-white px-2.5 py-1 rounded-full text-xs font-extrabold shadow-card">
-                <Sparkles className="h-3.5 w-3.5" /> AI
-              </span>
+        {/* Brand mark */}
+        <div className="relative mt-2 mb-5 flex items-center justify-center">
+          <span className="absolute h-40 w-40 rounded-full opacity-50 blur-3xl gradient-ai" aria-hidden />
+          <div className="relative h-24 w-24 rounded-full p-[3px] gradient-primary shadow-elegant">
+            <div className="h-full w-full rounded-full bg-card flex items-center justify-center overflow-hidden">
+              <img src={logo} alt="Pharma-i" className="h-16 w-16 object-contain" />
             </div>
           </div>
-        </div>
-
-        <h2 className="text-2xl font-extrabold text-gradient text-center">Pharma-i جاهز للمساعدة</h2>
-        <p className="text-base font-bold text-foreground/70 mt-1 mb-4 text-center">كيف يمكنني مساعدتك اليوم؟</p>
-
-        <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm mb-4">
-          {["تحليل روشتة", "تذكير دواء", "بديل علاجي", "أقرب صيدلية"].map((p) => (
-            <button
-              key={p}
-              className="px-3 py-3 rounded-2xl bg-card border border-border text-base font-extrabold shadow-soft hover:shadow-card transition-smooth text-foreground/85 hover:text-primary"
-            >
-              {p}
-            </button>
-          ))}
         </div>
 
         {/* Daily medical tip */}

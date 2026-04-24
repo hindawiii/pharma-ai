@@ -45,9 +45,9 @@ export const MapScreen = () => {
   const formatDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)}م` : `${km.toFixed(1)}كم`);
 
   return (
-    <div className="relative h-full overflow-hidden flex flex-col items-stretch">
+    <div className="relative min-h-full flex flex-col items-stretch">
       {/* Map */}
-      <div className="relative flex-1 bg-gradient-to-br from-primary/10 via-background to-secondary/10 overflow-hidden">
+      <div className="relative h-[55vh] flex-shrink-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10 overflow-hidden">
         <svg className="absolute inset-0 w-full h-full opacity-25" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="mgrid" width="36" height="36" patternUnits="userSpaceOnUse">
@@ -121,7 +121,7 @@ export const MapScreen = () => {
       </div>
 
       {/* Bottom sheet of places */}
-      <div className="bg-card rounded-t-3xl shadow-elegant -mt-6 relative z-10 p-4 pb-2 max-h-[44%] overflow-y-auto">
+      <div className="bg-card rounded-t-3xl shadow-elegant -mt-6 relative z-10 p-4 pb-6">
         <div className="mx-auto h-1 w-12 rounded-full bg-muted mb-3" />
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-bold text-base">{coords ? "الأقرب إليك" : "اضغط على الموقع لتفعيل GPS"}</h2>
