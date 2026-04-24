@@ -90,7 +90,7 @@ export const ScannerScreen = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100dvh-9rem)] flex flex-col bg-slate-950 text-white overflow-hidden">
+    <div className="relative h-[calc(100dvh-3.5rem-64px)] flex flex-col items-stretch bg-slate-950 text-white overflow-hidden">
       {/* Camera view */}
       <video
         ref={videoRef}
