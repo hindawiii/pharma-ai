@@ -63,16 +63,16 @@ export const MobileApp = () => {
   );
 
   return (
-    <div className="relative mx-auto max-w-md min-h-dvh bg-background shadow-elegant">
+    <div className="relative mx-auto max-w-md h-dvh overflow-hidden bg-background shadow-elegant flex flex-col">
       <MobileTopBar title={titles[active]} />
 
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex items-start">
-          <div className="flex-[0_0_100%] min-w-0"><MemoHome /></div>
-          <div className="flex-[0_0_100%] min-w-0"><MemoScanner /></div>
-          <div className="flex-[0_0_100%] min-w-0"><MemoMedication /></div>
-          <div className="flex-[0_0_100%] min-w-0"><MemoMap /></div>
-          <div className="flex-[0_0_100%] min-w-0"><MemoRecord /></div>
+      <div className="flex-1 overflow-hidden" ref={emblaRef}>
+        <div className="flex items-stretch h-full">
+          <div className="flex-[0_0_100%] min-w-0 h-full overflow-y-auto"><MemoHome /></div>
+          <div className="flex-[0_0_100%] min-w-0 h-full"><MemoScanner /></div>
+          <div className="flex-[0_0_100%] min-w-0 h-full overflow-y-auto"><MemoMedication /></div>
+          <div className="flex-[0_0_100%] min-w-0 h-full"><MemoMap /></div>
+          <div className="flex-[0_0_100%] min-w-0 h-full overflow-y-auto"><MemoRecord /></div>
         </div>
       </div>
 
