@@ -1,10 +1,13 @@
-import { Image as ImageIcon, Zap, ScanBarcode, Sparkles, AlertTriangle, X, Volume2 } from "lucide-react";
+import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, X, Volume2, FileText, ScanBarcode } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSpeak } from "@/hooks/useSpeak";
 
+type ScanMode = "prescription" | "barcode";
+
 export const ScannerScreen = () => {
   const speak = useSpeak();
+  const [mode, setMode] = useState<ScanMode>("prescription");
   const [flash, setFlash] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
@@ -90,7 +93,7 @@ export const ScannerScreen = () => {
   };
 
   return (
-    <div className="relative h-[calc(100dvh-3.5rem-64px)] flex flex-col items-stretch bg-slate-950 text-white overflow-hidden">
+    <div className="relative h-full flex flex-col items-stretch bg-slate-950 text-white overflow-hidden">
       {/* Camera view */}
       <video
         ref={videoRef}
@@ -139,27 +142,54 @@ export const ScannerScreen = () => {
         </div>
       )}
 
-      {/* Mode pill */}
-      <div className="relative z-10 flex justify-center pt-3">
-        <div className="inline-flex rounded-full bg-black/40 backdrop-blur p-1 text-xs">
-          <button className="px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold">
-            روشتة
+      {/* Mode toggle — Glassmorphic */}
+      <div className="relative z-10 flex justify-center pt-3 px-4">
+        <div className="relative inline-flex rounded-full p-1 text-sm border border-white/20 bg-white/10 backdrop-blur-xl shadow-card">
+          <span
+            aria-hidden
+            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-300 ease-out ${
+              mode === "prescription" ? "right-1" : "right-[calc(50%+0px)] translate-x-[-2px]"
+            }`}
+            style={{
+              right: mode === "prescription" ? "4px" : "calc(50% + 0px)",
+            }}
+          />
+          <button
+            onClick={() => setMode("prescription")}
+            className={`relative z-10 px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5 transition-colors ${
+              mode === "prescription" ? "text-white" : "text-white/70"
+            }`}
+          >
+            <FileText className="h-4 w-4" /> روشتة
           </button>
-          <button className="px-4 py-1.5 rounded-full text-white/70">باركود</button>
-          <button className="px-4 py-1.5 rounded-full text-white/70">دواء</button>
+          <button
+            onClick={() => setMode("barcode")}
+            className={`relative z-10 px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5 transition-colors ${
+              mode === "barcode" ? "text-white" : "text-white/70"
+            }`}
+          >
+            <ScanBarcode className="h-4 w-4" /> باركود
+          </button>
         </div>
       </div>
 
-      {/* Scan frame — smaller, centered, professional */}
+      {/* Scan frame — Lens style */}
       <div className="relative z-10 flex-1 flex items-center justify-center p-6">
-        <div className="relative w-56 h-56 rounded-2xl border-2 border-primary-glow/60">
-          <span className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-secondary rounded-tr-2xl" />
-          <span className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-secondary rounded-tl-2xl" />
-          <span className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-secondary rounded-br-2xl" />
-          <span className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-secondary rounded-bl-2xl" />
-          <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-secondary-glow to-transparent shadow-green-glow animate-scan-line" />
-          <div className="absolute -bottom-10 inset-x-0 text-center text-white/90 text-xs font-medium">
-            {streaming ? "ضع الباركود داخل المربع" : "اضغط الزر لتشغيل الكاميرا"}
+        {/* Dark vignette */}
+        <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 pointer-events-none" />
+        <div
+          key={mode}
+          className={`relative rounded-3xl border-2 border-white/40 transition-all duration-500 ease-out animate-fade-up ${
+            mode === "prescription" ? "w-60 h-72" : "w-64 h-40"
+          }`}
+        >
+          <span className="absolute -top-1 -right-1 h-7 w-7 border-t-4 border-r-4 border-secondary rounded-tr-3xl" />
+          <span className="absolute -top-1 -left-1 h-7 w-7 border-t-4 border-l-4 border-secondary rounded-tl-3xl" />
+          <span className="absolute -bottom-1 -right-1 h-7 w-7 border-b-4 border-r-4 border-secondary rounded-br-3xl" />
+          <span className="absolute -bottom-1 -left-1 h-7 w-7 border-b-4 border-l-4 border-secondary rounded-bl-3xl" />
+          <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-secondary-glow to-transparent shadow-green-glow animate-scan-line rounded-full" />
+          <div className="absolute -bottom-9 inset-x-0 text-center text-white/90 text-xs font-bold">
+            {mode === "prescription" ? "وجّه الكاميرا نحو الروشتة" : "ضع الباركود داخل الإطار"}
           </div>
           <div className="absolute top-2 right-2 inline-flex items-center gap-1 bg-secondary/90 px-2 py-0.5 rounded-full text-[10px] font-bold">
             <Sparkles className="h-3 w-3" /> AI
@@ -173,8 +203,8 @@ export const ScannerScreen = () => {
         ثبّت يدك للحصول على دقة أعلى
       </div>
 
-      {/* Action bar */}
-      <div className="relative z-10 px-6 pb-6 pt-4 bg-gradient-to-t from-black/80 to-transparent">
+      {/* Action bar — Glassmorphic */}
+      <div className="relative z-10 mx-4 mb-4 px-5 pb-4 pt-4 rounded-3xl border border-white/15 bg-white/10 backdrop-blur-xl shadow-elegant">
         <input
           ref={fileInputRef}
           type="file"
@@ -208,11 +238,6 @@ export const ScannerScreen = () => {
             }`}
           >
             <Zap className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="flex justify-center mt-3">
-          <button className="inline-flex items-center gap-1.5 text-xs text-white/70">
-            <ScanBarcode className="h-4 w-4" /> التبديل لقراءة الباركود
           </button>
         </div>
       </div>
