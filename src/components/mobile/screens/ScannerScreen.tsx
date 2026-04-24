@@ -1,11 +1,15 @@
 import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, X, Volume2, FileText, ScanBarcode } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSpeak } from "@/hooks/useSpeak";
 
 type ScanMode = "prescription" | "barcode";
 
-export const ScannerScreen = () => {
+interface Props {
+  isActive?: boolean;
+}
+
+export const ScannerScreen = ({ isActive = true }: Props) => {
   const speak = useSpeak();
   const [mode, setMode] = useState<ScanMode>("prescription");
   const [flash, setFlash] = useState(false);
@@ -15,34 +19,58 @@ export const ScannerScreen = () => {
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const startCamera = async () => {
+  const stopCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setStreaming(false);
+    setFlash(false);
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    if (streamRef.current) return; // Already running
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        await videoRef.current.play().catch(() => {});
       }
       setStreaming(true);
     } catch (err) {
       console.error(err);
       toast.error("تعذر الوصول إلى الكاميرا. يرجى السماح بالإذن.");
     }
-  };
-
-  const stopCamera = () => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-    setStreaming(false);
-    setFlash(false);
-  };
-
-  useEffect(() => {
-    return () => stopCamera();
   }, []);
+
+  // Auto-manage camera lifecycle based on tab visibility
+  useEffect(() => {
+    if (isActive) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+    return () => stopCamera();
+  }, [isActive, startCamera, stopCamera]);
+
+  // Pause when tab hidden (background)
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) stopCamera();
+      else if (isActive) startCamera();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [isActive, startCamera, stopCamera]);
 
   const toggleFlash = async () => {
     const track = streamRef.current?.getVideoTracks()[0];
@@ -93,13 +121,16 @@ export const ScannerScreen = () => {
   };
 
   return (
-    <div className="relative h-full flex flex-col items-stretch bg-slate-950 text-white overflow-hidden">
+    <div className="relative h-full w-full flex flex-col items-stretch bg-slate-950 text-white overflow-hidden">
       {/* Camera view */}
       <video
         ref={videoRef}
         playsInline
         muted
-        className={`absolute inset-0 w-full h-full object-cover ${streaming ? "opacity-100" : "opacity-0"}`}
+        autoPlay
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+          streaming ? "opacity-100" : "opacity-0"
+        }`}
       />
       {!streaming && (
         <>
@@ -117,12 +148,11 @@ export const ScannerScreen = () => {
           >
             <X className="h-5 w-5" />
           </button>
-          <img src={capturedUrl} alt="معاينة" className="max-h-[55vh] rounded-2xl shadow-elegant" />
+          <img src={capturedUrl} alt="معاينة" className="max-h-[50vh] rounded-2xl shadow-elegant" />
           <div className="mt-4 inline-flex items-center gap-2 bg-secondary/90 px-4 py-2 rounded-full text-sm font-bold text-white">
             <Sparkles className="h-4 w-4" /> AI يحلل الروشتة...
           </div>
 
-          {/* Sample detected drug with audio verification */}
           <div className="mt-4 w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur p-3 border border-white/15">
             <p className="text-[11px] text-white/60 mb-1">تم التعرّف على:</p>
             <div className="flex items-center gap-3">
@@ -143,13 +173,11 @@ export const ScannerScreen = () => {
       )}
 
       {/* Mode toggle — Glassmorphic */}
-      <div className="relative z-10 flex justify-center pt-3 px-4">
+      <div className="relative z-10 flex justify-center pt-3 px-4 flex-shrink-0">
         <div className="relative inline-flex rounded-full p-1 text-sm border border-white/20 bg-white/10 backdrop-blur-xl shadow-card">
           <span
             aria-hidden
-            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-300 ease-out ${
-              mode === "prescription" ? "right-1" : "right-[calc(50%+0px)] translate-x-[-2px]"
-            }`}
+            className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-300 ease-out"
             style={{
               right: mode === "prescription" ? "4px" : "calc(50% + 0px)",
             }}
@@ -173,22 +201,23 @@ export const ScannerScreen = () => {
         </div>
       </div>
 
-      {/* Scan frame — Lens style */}
-      <div className="relative z-10 flex-1 flex items-center justify-center p-6">
-        {/* Dark vignette */}
+      {/* Scan frame — Lens style (smaller, fluid) */}
+      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 pointer-events-none" />
         <div
           key={mode}
           className={`relative rounded-3xl border-2 border-white/40 transition-all duration-500 ease-out animate-fade-up ${
-            mode === "prescription" ? "w-60 h-72" : "w-64 h-40"
+            mode === "prescription"
+              ? "w-[55vw] max-w-[220px] aspect-[4/5]"
+              : "w-[60vw] max-w-[240px] aspect-[5/3]"
           }`}
         >
-          <span className="absolute -top-1 -right-1 h-7 w-7 border-t-4 border-r-4 border-secondary rounded-tr-3xl" />
-          <span className="absolute -top-1 -left-1 h-7 w-7 border-t-4 border-l-4 border-secondary rounded-tl-3xl" />
-          <span className="absolute -bottom-1 -right-1 h-7 w-7 border-b-4 border-r-4 border-secondary rounded-br-3xl" />
-          <span className="absolute -bottom-1 -left-1 h-7 w-7 border-b-4 border-l-4 border-secondary rounded-bl-3xl" />
+          <span className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-secondary rounded-tr-3xl" />
+          <span className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-secondary rounded-tl-3xl" />
+          <span className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-secondary rounded-br-3xl" />
+          <span className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-secondary rounded-bl-3xl" />
           <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-secondary-glow to-transparent shadow-green-glow animate-scan-line rounded-full" />
-          <div className="absolute -bottom-9 inset-x-0 text-center text-white/90 text-xs font-bold">
+          <div className="absolute -bottom-8 inset-x-0 text-center text-white/90 text-[11px] font-bold whitespace-nowrap">
             {mode === "prescription" ? "وجّه الكاميرا نحو الروشتة" : "ضع الباركود داخل الإطار"}
           </div>
           <div className="absolute top-2 right-2 inline-flex items-center gap-1 bg-secondary/90 px-2 py-0.5 rounded-full text-[10px] font-bold">
@@ -198,13 +227,13 @@ export const ScannerScreen = () => {
       </div>
 
       {/* Floating tip */}
-      <div className="absolute top-16 right-4 z-20 max-w-[180px] rounded-2xl bg-warning/90 text-warning-foreground p-2.5 shadow-card text-[11px] font-medium flex gap-1.5">
+      <div className="absolute top-16 right-3 z-20 max-w-[170px] rounded-2xl bg-warning/90 text-warning-foreground p-2 shadow-card text-[11px] font-medium flex gap-1.5">
         <AlertTriangle className="h-4 w-4 flex-shrink-0" />
         ثبّت يدك للحصول على دقة أعلى
       </div>
 
       {/* Action bar — Glassmorphic */}
-      <div className="relative z-10 mx-4 mb-4 px-5 pb-4 pt-4 rounded-3xl border border-white/15 bg-white/10 backdrop-blur-xl shadow-elegant">
+      <div className="relative z-10 mx-3 mb-3 px-4 pb-3 pt-3 rounded-3xl border border-white/15 bg-white/10 backdrop-blur-xl shadow-elegant flex-shrink-0">
         <input
           ref={fileInputRef}
           type="file"
@@ -216,7 +245,7 @@ export const ScannerScreen = () => {
           <button
             aria-label="من المعرض"
             onClick={() => fileInputRef.current?.click()}
-            className="h-12 w-12 rounded-2xl bg-white/10 backdrop-blur flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-bounce"
+            className="h-11 w-11 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center active:scale-95 transition-bounce"
           >
             <ImageIcon className="h-5 w-5" />
           </button>
@@ -224,7 +253,7 @@ export const ScannerScreen = () => {
           <button
             aria-label="التقاط"
             onClick={capture}
-            className="relative h-20 w-20 rounded-full bg-white p-1.5 active:scale-95 transition-bounce"
+            className="relative h-16 w-16 rounded-full bg-white p-1.5 active:scale-95 transition-bounce"
           >
             <span className="absolute inset-0 rounded-full animate-pulse-ring" />
             <span className="block h-full w-full rounded-full gradient-primary" />
@@ -233,7 +262,7 @@ export const ScannerScreen = () => {
           <button
             aria-label="فلاش"
             onClick={toggleFlash}
-            className={`h-12 w-12 rounded-2xl backdrop-blur flex items-center justify-center active:scale-95 transition-bounce ${
+            className={`h-11 w-11 rounded-2xl backdrop-blur flex items-center justify-center active:scale-95 transition-bounce ${
               flash ? "bg-warning text-warning-foreground" : "bg-white/10"
             }`}
           >
