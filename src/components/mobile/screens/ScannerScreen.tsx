@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode } from "lucide-react";
+import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode, Camera, Power } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ScanResultsOverlay } from "./ScanResultsOverlay";
@@ -51,25 +51,20 @@ export const ScannerScreen = ({ isActive = true }: Props) => {
     }
   }, []);
 
-  // Auto-manage camera lifecycle based on tab visibility
+  // Stop camera when leaving the tab; do NOT auto-start (manual activation)
   useEffect(() => {
-    if (isActive) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
+    if (!isActive) stopCamera();
     return () => stopCamera();
-  }, [isActive, startCamera, stopCamera]);
+  }, [isActive, stopCamera]);
 
   // Pause when tab hidden (background)
   useEffect(() => {
     const onVisibility = () => {
       if (document.hidden) stopCamera();
-      else if (isActive) startCamera();
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [isActive, startCamera, stopCamera]);
+  }, [stopCamera]);
 
   const toggleFlash = async () => {
     const track = streamRef.current?.getVideoTracks()[0];
@@ -135,6 +130,28 @@ export const ScannerScreen = ({ isActive = true }: Props) => {
         <>
           <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black" />
           <div className="absolute inset-0 opacity-30 gradient-mesh" />
+          {/* Manual Start overlay */}
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 px-6 text-center">
+            <div className="relative">
+              <span className="absolute inset-0 rounded-full animate-pulse-ring bg-secondary/30" />
+              <div className="relative h-24 w-24 rounded-full gradient-primary flex items-center justify-center shadow-elegant ring-4 ring-white/20">
+                <Camera className="h-11 w-11 text-white" strokeWidth={2} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-extrabold text-white">جاهز للمسح</h2>
+              <p className="text-sm text-white/75 max-w-[260px] leading-relaxed">
+                الكاميرا متوقفة لتوفير البطارية. اضغط أدناه لبدء المسح الآن.
+              </p>
+            </div>
+            <button
+              onClick={startCamera}
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3 bg-white text-primary font-extrabold shadow-card active:scale-95 transition-bounce"
+            >
+              <Power className="h-5 w-5" />
+              ابدأ المسح
+            </button>
+          </div>
         </>
       )}
 

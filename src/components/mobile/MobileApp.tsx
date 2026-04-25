@@ -9,7 +9,7 @@ import { HomeScreen } from "./screens/HomeScreen";
 import { AiFab } from "./AiFab";
 
 const titles: Record<TabKey, string> = {
-  home: "العيان منو",
+  home: "Pharma-i",
   scanner: "الماسح الذكي",
   medication: "مكتبة الدواء",
   map: "خريطة الصيدليات",

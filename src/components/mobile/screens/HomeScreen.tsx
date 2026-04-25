@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import {
   Sparkles,
   ScanLine,
@@ -10,6 +10,7 @@ import {
   Shield,
   ChevronLeft,
 } from "lucide-react";
+import { AiChatPanel } from "../AiChatPanel";
 
 // Social brand icons (inline SVGs for crisp rendering)
 const WhatsAppIcon = ({ className = "" }: { className?: string }) => (
@@ -36,7 +37,7 @@ const XIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
-const SHARE_TEXT = "اكتشف العيان منو — مساعدك الطبي الذكي";
+const SHARE_TEXT = "اكتشف Pharma-i — مساعدك الطبي الذكي";
 const buildShare = (base: string) => `${base}${encodeURIComponent("https://lovable.dev")}`;
 
 const tip = {
@@ -57,7 +58,9 @@ interface Props {
   onOpenScanner?: () => void;
 }
 
-export const HomeScreen = memo(({ onOpenScanner }: Props) => {
+export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
+  const [chatOpen, setChatOpen] = useState(false);
+
   return (
     <div className="relative min-h-full pb-32">
       {/* Ambient mesh background */}
@@ -66,17 +69,17 @@ export const HomeScreen = memo(({ onOpenScanner }: Props) => {
       <div className="px-4 pt-4 space-y-6">
         {/* ===== Hero greeting ===== */}
         <header className="text-center space-y-1.5 pt-2">
-          <p className="text-xs font-semibold text-secondary tracking-wide">العيان منو</p>
+          <p className="text-xs font-semibold text-secondary tracking-wide">Pharma-i</p>
           <h1 className="text-2xl font-extrabold text-foreground leading-tight">
             مرحباً بك في رفيقك <span className="text-gradient">الصحي</span>
           </h1>
-          <p className="text-sm text-muted-foreground">اضغط على المساعد لبدء أي خدمة فوراً</p>
+          <p className="text-sm text-muted-foreground">اضغط على المساعد للدردشة الفورية</p>
         </header>
 
         {/* ===== Pulsing AI Centerpiece ===== */}
         <section className="flex items-center justify-center py-4">
           <button
-            onClick={onOpenScanner}
+            onClick={() => setChatOpen(true)}
             aria-label="افتح المساعد الذكي"
             className="relative group focus:outline-none"
           >
@@ -113,7 +116,7 @@ export const HomeScreen = memo(({ onOpenScanner }: Props) => {
             </span>
 
             <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-bold text-primary">
-              ابدأ الآن
+              اسأل المساعد
             </span>
           </button>
         </section>
@@ -151,7 +154,7 @@ export const HomeScreen = memo(({ onOpenScanner }: Props) => {
         <section aria-labelledby="features-title">
           <div className="flex items-center justify-between mb-3 px-1">
             <h2 id="features-title" className="text-base font-extrabold text-foreground">
-              ماذا يقدم لك العيان منو؟
+              ماذا يقدم لك Pharma-i؟
             </h2>
             <ChevronLeft className="h-4 w-4 text-muted-foreground" />
           </div>
@@ -238,6 +241,8 @@ export const HomeScreen = memo(({ onOpenScanner }: Props) => {
           </div>
         </div>
       </div>
+      {/* AI Chat Pop-up */}
+      {chatOpen && <AiChatPanel onClose={() => setChatOpen(false)} variant="centered" />}
     </div>
   );
 });
