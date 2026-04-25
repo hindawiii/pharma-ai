@@ -86,7 +86,7 @@ export const MobileTopBar = memo(({ title }: Props) => {
                 <img src={logo} alt="" className="h-10 w-10 object-contain" />
               </div>
               <div>
-                <h3 className="text-xl font-extrabold">العيان منو</h3>
+                <h3 className="text-xl font-extrabold">Pharma-i</h3>
                 <p className="text-xs opacity-90">الإصدار 1.0.0</p>
               </div>
             </div>
@@ -166,7 +166,7 @@ export const MobileTopBar = memo(({ title }: Props) => {
                   <img src={logo} alt="" className="h-12 w-12 object-contain" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-extrabold">العيان منو</h3>
+                  <h3 className="text-2xl font-extrabold">Pharma-i</h3>
                   <p className="text-sm opacity-90">الإصدار 1.0.0</p>
                 </div>
               </div>
@@ -210,7 +210,7 @@ export const MobileTopBar = memo(({ title }: Props) => {
               </div>
             </div>
             <div className="p-5 space-y-3 text-base leading-relaxed text-foreground/85 max-h-[60vh] overflow-y-auto">
-              <p>نحن في <b>العيان منو</b> نحترم خصوصيتك ونلتزم بحماية بياناتك.</p>
+              <p>نحن في <b>Pharma-i</b> نحترم خصوصيتك ونلتزم بحماية بياناتك.</p>
               <ul className="list-disc pr-5 space-y-2">
                 <li>لا نجمع أي بيانات شخصية بدون إذنك الصريح.</li>
                 <li>الموقع الجغرافي يُستخدم فقط لإيجاد أقرب الصيدليات والمستشفيات.</li>
