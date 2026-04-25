@@ -43,6 +43,7 @@ const STORAGE_KEY = "pharma-i:reminders";
 export const MedicationScreen = () => {
   const speak = useSpeak();
   const [tab, setTab] = useState<"library" | "interactions" | "reminders">("library");
+  const [selectedDrug, setSelectedDrug] = useState<typeof DRUGS[number] | null>(null);
 
   // ---- Library ----
   const [query, setQuery] = useState("");
