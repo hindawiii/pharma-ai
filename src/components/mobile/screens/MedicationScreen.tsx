@@ -2,6 +2,7 @@ import { Pill, Search, ShieldAlert, Bell, Plus, Clock, AlertTriangle, CheckCircl
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSpeak } from "@/hooks/useSpeak";
+import { MedicineDetailView } from "./MedicineDetailView";
 
 // Local drug library (sample)
 const DRUGS = [
