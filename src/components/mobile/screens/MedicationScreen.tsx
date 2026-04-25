@@ -2,6 +2,7 @@ import { Pill, Search, ShieldAlert, Bell, Plus, Clock, AlertTriangle, CheckCircl
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSpeak } from "@/hooks/useSpeak";
+import { MedicineDetailView } from "./MedicineDetailView";
 
 // Local drug library (sample)
 const DRUGS = [
@@ -42,6 +43,7 @@ const STORAGE_KEY = "pharma-i:reminders";
 export const MedicationScreen = () => {
   const speak = useSpeak();
   const [tab, setTab] = useState<"library" | "interactions" | "reminders">("library");
+  const [selectedDrug, setSelectedDrug] = useState<typeof DRUGS[number] | null>(null);
 
   // ---- Library ----
   const [query, setQuery] = useState("");
@@ -198,7 +200,10 @@ export const MedicationScreen = () => {
                 >
                   <Volume2 className="h-4 w-4" />
                 </button>
-                <button className="text-[11px] font-bold text-primary px-3 py-1 rounded-full bg-primary/10">
+                <button
+                  onClick={() => setSelectedDrug(d)}
+                  className="text-[11px] font-bold text-primary px-3 py-1 rounded-full bg-primary/10 active:scale-95 transition-bounce"
+                >
                   تفاصيل
                 </button>
               </div>
@@ -330,6 +335,17 @@ export const MedicationScreen = () => {
           </div>
         </div>
       )}
+
+      <MedicineDetailView
+        drug={selectedDrug}
+        onClose={() => setSelectedDrug(null)}
+        onAddReminder={(name) => {
+          const now = new Date();
+          const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+          setReminders((arr) => [...arr, { id: crypto.randomUUID(), title: name, time }]);
+          setTab("reminders");
+        }}
+      />
     </div>
   );
 };
