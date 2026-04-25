@@ -335,6 +335,17 @@ export const MedicationScreen = () => {
           </div>
         </div>
       )}
+
+      <MedicineDetailView
+        drug={selectedDrug}
+        onClose={() => setSelectedDrug(null)}
+        onAddReminder={(name) => {
+          const now = new Date();
+          const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+          setReminders((arr) => [...arr, { id: crypto.randomUUID(), title: name, time }]);
+          setTab("reminders");
+        }}
+      />
     </div>
   );
 };
