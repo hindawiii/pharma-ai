@@ -200,7 +200,10 @@ export const MedicationScreen = () => {
                 >
                   <Volume2 className="h-4 w-4" />
                 </button>
-                <button className="text-[11px] font-bold text-primary px-3 py-1 rounded-full bg-primary/10">
+                <button
+                  onClick={() => setSelectedDrug(d)}
+                  className="text-[11px] font-bold text-primary px-3 py-1 rounded-full bg-primary/10 active:scale-95 transition-bounce"
+                >
                   تفاصيل
                 </button>
               </div>
