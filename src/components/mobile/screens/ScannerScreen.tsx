@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode } from "lucide-react";
+import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode, Camera, Power } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ScanResultsOverlay } from "./ScanResultsOverlay";
@@ -51,25 +51,20 @@ export const ScannerScreen = ({ isActive = true }: Props) => {
     }
   }, []);
 
-  // Auto-manage camera lifecycle based on tab visibility
+  // Stop camera when leaving the tab; do NOT auto-start (manual activation)
   useEffect(() => {
-    if (isActive) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
+    if (!isActive) stopCamera();
     return () => stopCamera();
-  }, [isActive, startCamera, stopCamera]);
+  }, [isActive, stopCamera]);
 
   // Pause when tab hidden (background)
   useEffect(() => {
     const onVisibility = () => {
       if (document.hidden) stopCamera();
-      else if (isActive) startCamera();
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [isActive, startCamera, stopCamera]);
+  }, [stopCamera]);
 
   const toggleFlash = async () => {
     const track = streamRef.current?.getVideoTracks()[0];
