@@ -1,10 +1,11 @@
-import { ScanLine, MapPin, Pill, UserCircle2 } from "lucide-react";
+import { ScanLine, MapPin, Pill, UserCircle2, Home } from "lucide-react";
 import { memo } from "react";
 
-export type TabKey = "scanner" | "medication" | "map" | "profile";
+export type TabKey = "home" | "scanner" | "medication" | "map" | "profile";
 
-// Order from RIGHT to LEFT (Arabic): scanner first
+// Order from RIGHT to LEFT (Arabic): home first
 const tabs: { key: TabKey; label: string; icon: typeof ScanLine }[] = [
+  { key: "home", label: "الرئيسية", icon: Home },
   { key: "scanner", label: "الماسح", icon: ScanLine },
   { key: "medication", label: "الأدوية", icon: Pill },
   { key: "map", label: "الخريطة", icon: MapPin },
@@ -22,7 +23,7 @@ export const BottomNav = memo(({ active, onChange }: Props) => {
       className="relative z-40 glass border-t border-border/50 pb-[env(safe-area-inset-bottom)] flex-shrink-0"
       aria-label="القائمة السفلية"
     >
-      <ul className="grid grid-cols-4 max-w-md mx-auto px-2">
+      <ul className="grid grid-cols-5 max-w-md mx-auto px-2">
         {tabs.map((tab) => {
           const isActive = active === tab.key;
           const Icon = tab.icon;

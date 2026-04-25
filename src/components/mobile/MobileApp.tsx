@@ -5,22 +5,25 @@ import { ScannerScreen } from "./screens/ScannerScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { RecordScreen } from "./screens/RecordScreen";
 import { MedicationScreen } from "./screens/MedicationScreen";
+import { HomeScreen } from "./screens/HomeScreen";
 import { AiFab } from "./AiFab";
 
 const titles: Record<TabKey, string> = {
+  home: "العيان منو",
   scanner: "الماسح الذكي",
   medication: "مكتبة الدواء",
   map: "خريطة الصيدليات",
   profile: "حسابي",
 };
 
+const MemoHome = memo(HomeScreen);
 const MemoScanner = memo(ScannerScreen);
 const MemoMedication = memo(MedicationScreen);
 const MemoMap = memo(MapScreen);
 const MemoRecord = memo(RecordScreen);
 
 export const MobileApp = () => {
-  const [active, setActive] = useState<TabKey>("scanner");
+  const [active, setActive] = useState<TabKey>("home");
 
   const handleChange = useCallback((key: TabKey) => {
     setActive(key);
@@ -38,6 +41,7 @@ export const MobileApp = () => {
           isFixedLayout ? "overflow-hidden" : "overflow-y-auto overscroll-contain"
         }`}
       >
+        {active === "home" && <MemoHome onOpenScanner={() => setActive("scanner")} />}
         {/* Keep Scanner mounted to preserve camera stream; toggle visibility */}
         <div className={active === "scanner" ? "h-full" : "hidden"}>
           <MemoScanner isActive={active === "scanner"} />
