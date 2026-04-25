@@ -241,6 +241,8 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
           </div>
         </div>
       </div>
+      {/* AI Chat Pop-up */}
+      {chatOpen && <AiChatPanel onClose={() => setChatOpen(false)} variant="centered" />}
     </div>
   );
 });
