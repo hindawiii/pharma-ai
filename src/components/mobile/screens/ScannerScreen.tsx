@@ -1,7 +1,7 @@
-import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, X, Volume2, FileText, ScanBarcode } from "lucide-react";
+import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useSpeak } from "@/hooks/useSpeak";
+import { ScanResultsOverlay } from "./ScanResultsOverlay";
 
 type ScanMode = "prescription" | "barcode";
 
