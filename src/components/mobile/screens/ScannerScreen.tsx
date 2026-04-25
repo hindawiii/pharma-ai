@@ -10,7 +10,6 @@ interface Props {
 }
 
 export const ScannerScreen = ({ isActive = true }: Props) => {
-  const speak = useSpeak();
   const [mode, setMode] = useState<ScanMode>("prescription");
   const [flash, setFlash] = useState(false);
   const [streaming, setStreaming] = useState(false);
