@@ -27,6 +27,28 @@ const haversineKm = (a: { lat: number; lng: number }, b: { lat: number; lng: num
 export const MapScreen = () => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("pharmacies")
+        .select("id, name, address, city, lat, lng, phone, open_24h");
+      setPharmacies((data as Pharmacy[]) ?? []);
+      setLoadingList(false);
+    })();
+  }, []);
+
+  const sortedPlaces = pharmacies
+    .map((p) => ({
+      ...p,
+      distanceKm:
+        coords && p.lat != null && p.lng != null
+          ? haversineKm(coords, { lat: Number(p.lat), lng: Number(p.lng) })
+          : null,
+    }))
+    .sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
 
   const locate = () => {
     if (!("geolocation" in navigator)) {
