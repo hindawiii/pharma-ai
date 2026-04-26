@@ -1,22 +1,28 @@
-import { MapPin, Navigation, Clock, Cross, Search, Phone, LocateFixed } from "lucide-react";
-import { useState } from "react";
+import { MapPin, Navigation, Clock, Cross, Search, Phone, LocateFixed, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-interface Place {
+interface Pharmacy {
+  id: string;
   name: string;
-  type: string;
-  distanceKm: number;
-  open: boolean;
-  badge?: string;
-  color: "secondary" | "primary" | "destructive" | "muted";
+  address: string | null;
+  city: string | null;
+  lat: number | null;
+  lng: number | null;
+  phone: string | null;
+  open_24h: boolean | null;
 }
 
-const basePlaces: Place[] = [
-  { name: "صيدلية النور", type: "صيدلية · 24 ساعة", distanceKm: 0.32, open: true, badge: "24/7", color: "secondary" },
-  { name: "مستشفى الأمل", type: "مستشفى حكومي", distanceKm: 1.2, open: true, badge: "طوارئ", color: "primary" },
-  { name: "الهلال الأحمر", type: "إسعاف", distanceKm: 0.85, open: true, badge: "SOS", color: "destructive" },
-  { name: "صيدلية الشفاء", type: "صيدلية", distanceKm: 0.45, open: false, color: "muted" },
-];
+const haversineKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+};
 
 export const MapScreen = () => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
