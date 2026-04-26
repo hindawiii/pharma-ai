@@ -14,16 +14,223 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      drug_interactions: {
+        Row: {
+          created_at: string
+          description_ar: string
+          drug_a: string
+          drug_b: string
+          id: string
+          severity: Database["public"]["Enums"]["interaction_severity"]
+        }
+        Insert: {
+          created_at?: string
+          description_ar: string
+          drug_a: string
+          drug_b: string
+          id?: string
+          severity: Database["public"]["Enums"]["interaction_severity"]
+        }
+        Update: {
+          created_at?: string
+          description_ar?: string
+          drug_a?: string
+          drug_b?: string
+          id?: string
+          severity?: Database["public"]["Enums"]["interaction_severity"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drug_interactions_drug_a_fkey"
+            columns: ["drug_a"]
+            isOneToOne: false
+            referencedRelation: "drugs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drug_interactions_drug_b_fkey"
+            columns: ["drug_b"]
+            isOneToOne: false
+            referencedRelation: "drugs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drugs: {
+        Row: {
+          brand_ar: string
+          brand_en: string
+          category_ar: string | null
+          created_at: string
+          description_ar: string | null
+          form: string | null
+          id: string
+          manufacturer: string | null
+          price_sdg: number | null
+          scientific_ar: string
+          scientific_en: string
+          search_doc: unknown
+        }
+        Insert: {
+          brand_ar: string
+          brand_en: string
+          category_ar?: string | null
+          created_at?: string
+          description_ar?: string | null
+          form?: string | null
+          id?: string
+          manufacturer?: string | null
+          price_sdg?: number | null
+          scientific_ar: string
+          scientific_en: string
+          search_doc?: unknown
+        }
+        Update: {
+          brand_ar?: string
+          brand_en?: string
+          category_ar?: string | null
+          created_at?: string
+          description_ar?: string | null
+          form?: string | null
+          id?: string
+          manufacturer?: string | null
+          price_sdg?: number | null
+          scientific_ar?: string
+          scientific_en?: string
+          search_doc?: unknown
+        }
+        Relationships: []
+      }
+      pharmacies: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          open_24h: boolean | null
+          phone: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          open_24h?: boolean | null
+          phone?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          open_24h?: boolean | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          allergies: string[]
+          chronic_conditions: string[]
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          allergies?: string[]
+          chronic_conditions?: string[]
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          allergies?: string[]
+          chronic_conditions?: string[]
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          active: boolean
+          created_at: string
+          drug_id: string | null
+          drug_name: string
+          frequency: Database["public"]["Enums"]["reminder_frequency"]
+          id: string
+          interval_hours: number | null
+          notes: string | null
+          start_date: string
+          times: string[] | null
+          user_id: string
+          weekdays: number[] | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          drug_id?: string | null
+          drug_name: string
+          frequency?: Database["public"]["Enums"]["reminder_frequency"]
+          id?: string
+          interval_hours?: number | null
+          notes?: string | null
+          start_date?: string
+          times?: string[] | null
+          user_id: string
+          weekdays?: number[] | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          drug_id?: string | null
+          drug_name?: string
+          frequency?: Database["public"]["Enums"]["reminder_frequency"]
+          id?: string
+          interval_hours?: number | null
+          notes?: string | null
+          start_date?: string
+          times?: string[] | null
+          user_id?: string
+          weekdays?: number[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_drug_id_fkey"
+            columns: ["drug_id"]
+            isOneToOne: false
+            referencedRelation: "drugs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
-      [_ in never]: never
+      interaction_severity: "danger" | "warning" | "safe"
+      reminder_frequency: "daily" | "weekdays" | "interval"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +357,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      interaction_severity: ["danger", "warning", "safe"],
+      reminder_frequency: ["daily", "weekdays", "interval"],
+    },
   },
 } as const
