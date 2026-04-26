@@ -133,38 +133,38 @@ export const MapScreen = () => {
           <h2 className="font-bold text-base">{coords ? "الأقرب إليك" : "اضغط على الموقع لتفعيل GPS"}</h2>
           <button className="text-xs text-primary font-bold">عرض الكل</button>
         </div>
+        {loadingList && (
+          <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 text-primary animate-spin" /></div>
+        )}
         <div className="space-y-2">
-          {basePlaces.map((p, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth"
-            >
-              <div
-                className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-soft ${
-                  p.open ? `bg-${p.color}` : "bg-muted text-muted-foreground"
-                }`}
-              >
+          {sortedPlaces.map((p) => (
+            <div key={p.id} className="flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth">
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-soft ${p.open_24h ? "bg-secondary" : "bg-primary"}`}>
                 <Cross className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-sm truncate">{p.name}</p>
-                  {p.badge && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-warning/20 text-warning-foreground font-bold">
-                      {p.badge}
-                    </span>
+                  {p.open_24h && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-warning/20 text-warning-foreground font-bold">24/7</span>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                   <Clock className="h-3 w-3" />
-                  {p.type} · {formatDist(p.distanceKm)}
+                  {p.address ?? p.city ?? "صيدلية"}
+                  {p.distanceKm != null && ` · ${formatDist(p.distanceKm)}`}
                 </p>
               </div>
-              <button className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center" aria-label="اتصال">
-                <Phone className="h-4 w-4" />
-              </button>
+              {p.phone && (
+                <a href={`tel:${p.phone}`} className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center" aria-label="اتصال">
+                  <Phone className="h-4 w-4" />
+                </a>
+              )}
             </div>
           ))}
+          {!loadingList && sortedPlaces.length === 0 && (
+            <p className="text-center text-sm text-muted-foreground py-6">لا توجد صيدليات في قاعدة البيانات</p>
+          )}
         </div>
       </div>
     </div>
