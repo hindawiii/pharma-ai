@@ -1,156 +1,287 @@
-import { Pill, Search, ShieldAlert, Bell, Plus, Clock, AlertTriangle, CheckCircle2, Trash2, Volume2 } from "lucide-react";
+import { Pill, Search, ShieldAlert, Bell, Plus, Clock, AlertTriangle, CheckCircle2, ShieldCheck, Trash2, Volume2, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSpeak } from "@/hooks/useSpeak";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { MedicineDetailView } from "./MedicineDetailView";
+import { PulseAlert } from "../PulseAlert";
 
-// Local drug library (sample)
-const DRUGS = [
-  { id: "augmentin", name: "أوجمنتين 1g", category: "مضاد حيوي", company: "GSK" },
-  { id: "panadol", name: "بانادول إكسترا", category: "مسكن وخافض حرارة", company: "GSK" },
-  { id: "concor", name: "كونكور 5mg", category: "ضغط الدم", company: "Merck" },
-  { id: "glucophage", name: "جلوكوفاج 500mg", category: "السكري", company: "Merck" },
-  { id: "warfarin", name: "وارفارين 5mg", category: "مضاد تجلط", company: "Pfizer" },
-  { id: "aspirin", name: "أسبرين 81mg", category: "مضاد تجلط", company: "Bayer" },
-  { id: "ibuprofen", name: "بروفين 400mg", category: "مسكن", company: "Abbott" },
-  { id: "omeprazole", name: "أوميبرازول 20mg", category: "حموضة المعدة", company: "Astra" },
-  { id: "amlodipine", name: "أملوديبين 5mg", category: "ضغط الدم", company: "Pfizer" },
-  { id: "metformin", name: "ميتفورمين 850mg", category: "السكري", company: "Sanofi" },
-];
+interface Drug {
+  id: string;
+  brand_ar: string;
+  brand_en: string;
+  scientific_ar: string;
+  scientific_en: string;
+  category_ar: string | null;
+  manufacturer: string | null;
+  price_sdg: number | null;
+  form: string | null;
+  description_ar: string | null;
+}
 
-type Severity = "danger" | "caution" | "safe";
+type Severity = "danger" | "warning" | "safe";
 
-const INTERACTIONS: Record<string, { severity: Severity; note: string }> = {
-  "warfarin|aspirin": { severity: "danger", note: "خطر نزيف شديد عند الجمع بين مضادي تجلط." },
-  "warfarin|ibuprofen": { severity: "danger", note: "زيادة كبيرة في خطر النزيف." },
-  "aspirin|ibuprofen": { severity: "caution", note: "قد يقلل بروفين من تأثير الأسبرين القلبي." },
-  "concor|amlodipine": { severity: "caution", note: "هبوط شديد في ضغط الدم — مراقبة لازمة." },
-  "glucophage|metformin": { severity: "danger", note: "نفس المادة الفعالة — احتمال جرعة زائدة." },
-  "omeprazole|warfarin": { severity: "caution", note: "قد يزيد من تأثير الوارفارين." },
+interface InteractionResult {
+  severity: Severity;
+  description_ar: string;
+  personalWarnings: string[];
+}
+
+interface DBReminder {
+  id: string;
+  drug_name: string;
+  frequency: "daily" | "weekdays" | "interval";
+  weekdays: number[] | null;
+  interval_hours: number | null;
+  times: string[] | null;
+  active: boolean;
+  notes: string | null;
+}
+
+const WEEKDAY_LABELS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+
+// ---- helper: cross-reference allergies & chronic conditions ----
+const personalRisksFor = (drug: Drug | undefined, allergies: string[], chronic: string[]): string[] => {
+  if (!drug) return [];
+  const risks: string[] = [];
+  const haystack = `${drug.scientific_ar} ${drug.scientific_en} ${drug.brand_ar} ${drug.brand_en} ${drug.category_ar ?? ""}`.toLowerCase();
+  for (const a of allergies) {
+    const t = a.trim().toLowerCase();
+    if (t && haystack.includes(t)) risks.push(`خطر: لديك حساسية مسجّلة من «${a}» وهذا الدواء يحتويها أو يشبهها.`);
+  }
+  // simple chronic→category map
+  const chronicMap: Record<string, string[]> = {
+    "ضغط": ["مسكن", "كورتيزون", "احتقان"],
+    "سكري": ["كورتيزون", "شراب"],
+    "قلب": ["مضاد التهاب", "احتقان"],
+    "كلى": ["مضاد التهاب", "مسكن"],
+    "ربو": ["حاصر بيتا", "اسبرين", "أسبرين"],
+  };
+  for (const cond of chronic) {
+    for (const [keyword, badCats] of Object.entries(chronicMap)) {
+      if (cond.includes(keyword)) {
+        for (const cat of badCats) {
+          if (haystack.includes(cat.toLowerCase())) {
+            risks.push(`تحذير: هذا الدواء قد يتعارض مع حالة «${cond}» المسجّلة في ملفّك.`);
+          }
+        }
+      }
+    }
+  }
+  return Array.from(new Set(risks));
 };
-
-const pairKey = (a: string, b: string) => [a, b].sort().join("|");
-
-const checkInteraction = (a: string, b: string) => {
-  if (!a || !b || a === b) return null;
-  return INTERACTIONS[pairKey(a, b)] ?? { severity: "safe" as Severity, note: "لا توجد تداخلات معروفة في قاعدة البيانات." };
-};
-
-type Reminder = { id: string; title: string; time: string; timeoutId?: number };
-
-const STORAGE_KEY = "pharma-i:reminders";
 
 export const MedicationScreen = () => {
   const speak = useSpeak();
+  const { user } = useAuth();
+  const { profile } = useProfile();
   const [tab, setTab] = useState<"library" | "interactions" | "reminders">("library");
-  const [selectedDrug, setSelectedDrug] = useState<typeof DRUGS[number] | null>(null);
+  const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
 
-  // ---- Library ----
+  // ---- Library: live search ----
   const [query, setQuery] = useState("");
-  const filtered = useMemo(
-    () =>
-      DRUGS.filter(
-        (d) => d.name.includes(query) || d.category.includes(query) || d.company.toLowerCase().includes(query.toLowerCase()),
-      ),
-    [query],
-  );
+  const [drugs, setDrugs] = useState<Drug[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      setSearching(true);
+      let q = supabase.from("drugs").select("*").order("brand_ar").limit(40);
+      const term = query.trim();
+      if (term) {
+        // Match brand AR/EN, scientific AR/EN, category — case-insensitive partial
+        const like = `%${term}%`;
+        q = supabase
+          .from("drugs")
+          .select("*")
+          .or(`brand_ar.ilike.${like},brand_en.ilike.${like},scientific_ar.ilike.${like},scientific_en.ilike.${like},category_ar.ilike.${like}`)
+          .limit(40);
+      }
+      const { data, error } = await q;
+      if (cancelled) return;
+      if (error) {
+        toast.error("تعذّر تحميل قاعدة الأدوية");
+      } else {
+        setDrugs((data ?? []) as Drug[]);
+      }
+      setSearching(false);
+    };
+    const id = setTimeout(run, 250);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [query]);
 
   // ---- Interactions ----
   const [drugA, setDrugA] = useState("");
   const [drugB, setDrugB] = useState("");
-  const result = checkInteraction(drugA, drugB);
+  const [interaction, setInteraction] = useState<InteractionResult | null>(null);
+  const [checkingInter, setCheckingInter] = useState(false);
 
-  // ---- Reminders ----
-  const [reminders, setReminders] = useState<Reminder[]>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as Reminder[]) : [];
-    } catch {
-      return [];
-    }
-  });
-  const [rTitle, setRTitle] = useState("");
+  useEffect(() => {
+    const run = async () => {
+      if (!drugA || !drugB || drugA === drugB) {
+        setInteraction(null);
+        return;
+      }
+      setCheckingInter(true);
+      const { data } = await supabase
+        .from("drug_interactions")
+        .select("severity, description_ar")
+        .or(`and(drug_a.eq.${drugA},drug_b.eq.${drugB}),and(drug_a.eq.${drugB},drug_b.eq.${drugA})`)
+        .maybeSingle();
+
+      const drugAObj = drugs.find((d) => d.id === drugA);
+      const drugBObj = drugs.find((d) => d.id === drugB);
+      const personal = [
+        ...personalRisksFor(drugAObj, profile?.allergies ?? [], profile?.chronic_conditions ?? []),
+        ...personalRisksFor(drugBObj, profile?.allergies ?? [], profile?.chronic_conditions ?? []),
+      ];
+
+      let result: InteractionResult;
+      if (data) {
+        result = {
+          severity: data.severity as Severity,
+          description_ar: data.description_ar,
+          personalWarnings: personal,
+        };
+      } else {
+        result = {
+          severity: personal.length > 0 ? "warning" : "safe",
+          description_ar:
+            personal.length > 0
+              ? "لا يوجد تعارض دوائي مسجّل، لكن لديك تنبيهات شخصية في الأسفل."
+              : "آمن: لا يوجد تعارض معروف بين هذين الدوائين في قاعدة البيانات.",
+          personalWarnings: personal,
+        };
+      }
+      setInteraction(result);
+      setCheckingInter(false);
+    };
+    run();
+  }, [drugA, drugB, drugs, profile]);
+
+  // ---- Reminders (DB-backed) ----
+  const [reminders, setReminders] = useState<DBReminder[]>([]);
+  const [rName, setRName] = useState("");
+  const [rFreq, setRFreq] = useState<"daily" | "weekdays" | "interval">("daily");
+  const [rDays, setRDays] = useState<number[]>([]);
+  const [rInterval, setRInterval] = useState<number>(8);
   const [rTime, setRTime] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders.map(({ timeoutId, ...r }) => r)));
-  }, [reminders]);
+  // Pulse alert state
+  const [alert, setAlert] = useState<{ title: string; body?: string } | null>(null);
 
-  // Schedule alarms whenever reminders or permission change
+  const loadReminders = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("reminders")
+      .select("id, drug_name, frequency, weekdays, interval_hours, times, active, notes")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setReminders((data as DBReminder[]) ?? []);
+  };
+
+  useEffect(() => { loadReminders(); /* eslint-disable-next-line */ }, [user]);
+
+  // Schedule alarms in-app
   useEffect(() => {
     const timers: number[] = [];
-    reminders.forEach((r) => {
-      const [hh, mm] = r.time.split(":").map(Number);
-      if (Number.isNaN(hh) || Number.isNaN(mm)) return;
-      const now = new Date();
-      const next = new Date();
-      next.setHours(hh, mm, 0, 0);
-      if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1);
-      const delay = next.getTime() - now.getTime();
-      const id = window.setTimeout(() => {
-        const body = `حان الآن: ${r.title}`;
-        if ("Notification" in window && Notification.permission === "granted") {
-          new Notification("Pharma-i — تذكير", { body, icon: "/favicon.ico" });
-        }
-        toast(`⏰ ${r.title}`, { description: `الموعد: ${r.time}` });
-        try {
-          const audio = new Audio(
-            "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=",
-          );
-          audio.play().catch(() => {});
-        } catch {}
-      }, delay);
-      timers.push(id);
+    const now = new Date();
+
+    reminders.filter((r) => r.active).forEach((r) => {
+      if (r.frequency === "interval" && r.interval_hours) {
+        const ms = r.interval_hours * 3600 * 1000;
+        const id = window.setTimeout(() => fire(r.drug_name, `كل ${r.interval_hours} ساعات`), ms);
+        timers.push(id);
+      } else {
+        (r.times ?? []).forEach((t) => {
+          const [hh, mm] = t.split(":").map(Number);
+          if (Number.isNaN(hh)) return;
+          const next = new Date();
+          next.setHours(hh, mm ?? 0, 0, 0);
+          if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1);
+          if (r.frequency === "weekdays" && r.weekdays && r.weekdays.length > 0) {
+            while (!r.weekdays.includes(next.getDay())) {
+              next.setDate(next.getDate() + 1);
+            }
+          }
+          const delay = next.getTime() - now.getTime();
+          if (delay > 0 && delay < 24 * 3600 * 1000 * 2) {
+            const id = window.setTimeout(() => fire(r.drug_name, `الموعد: ${t}`), delay);
+            timers.push(id);
+          }
+        });
+      }
     });
+
     return () => timers.forEach((t) => clearTimeout(t));
   }, [reminders]);
 
-  const requestNotifPermission = async () => {
-    if (!("Notification" in window)) {
-      toast.error("التنبيهات غير مدعومة على هذا الجهاز");
-      return;
+  const fire = (name: string, sub: string) => {
+    setAlert({ title: name, body: sub });
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("Pharma-i — تذكير دواء", { body: `${name} — ${sub}`, icon: "/favicon.ico" });
     }
+  };
+
+  const requestNotifPermission = async () => {
+    if (!("Notification" in window)) return;
     const p = await Notification.requestPermission();
     if (p === "granted") toast.success("تم تفعيل التنبيهات");
-    else toast.error("لم يتم منح الإذن");
   };
 
-  const addReminder = () => {
-    if (!rTitle.trim() || !rTime) {
-      toast.error("اكتب عنوان التذكير ووقت التنبيه");
-      return;
-    }
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-    setReminders((arr) => [...arr, { id: crypto.randomUUID(), title: rTitle.trim(), time: rTime }]);
-    setRTitle("");
-    setRTime("");
+  const addReminder = async () => {
+    if (!user) { toast.error("سجّل الدخول أولاً"); return; }
+    if (!rName.trim()) { toast.error("اكتب اسم الدواء"); return; }
+    if (rFreq !== "interval" && !rTime) { toast.error("اختر وقت التذكير"); return; }
+    if (rFreq === "weekdays" && rDays.length === 0) { toast.error("اختر أيام الأسبوع"); return; }
+
+    const payload: any = {
+      user_id: user.id,
+      drug_name: rName.trim(),
+      frequency: rFreq,
+      times: rFreq === "interval" ? [] : [rTime],
+      weekdays: rFreq === "weekdays" ? rDays : [],
+      interval_hours: rFreq === "interval" ? rInterval : null,
+      active: true,
+    };
+    const { error } = await supabase.from("reminders").insert(payload);
+    if (error) { toast.error(error.message); return; }
     toast.success("تم ضبط التذكير");
+    setRName(""); setRTime(""); setRDays([]);
+    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+    loadReminders();
   };
 
-  const removeReminder = (id: string) => setReminders((arr) => arr.filter((r) => r.id !== id));
-
-  // ---- UI helpers ----
-  const sevStyles: Record<Severity, { bg: string; text: string; label: string; icon: typeof AlertTriangle }> = {
-    danger: { bg: "bg-destructive/15 border-destructive/40", text: "text-destructive", label: "خطر — تجنّب الدمج", icon: AlertTriangle },
-    caution: { bg: "bg-warning/15 border-warning/40", text: "text-warning-foreground", label: "تحذير — مراقبة طبية", icon: AlertTriangle },
-    safe: { bg: "bg-success/15 border-success/40", text: "text-success", label: "آمن — لا تداخل معروف", icon: CheckCircle2 },
+  const removeReminder = async (id: string) => {
+    await supabase.from("reminders").delete().eq("id", id);
+    loadReminders();
   };
+
+  const toggleDay = (d: number) =>
+    setRDays((arr) => (arr.includes(d) ? arr.filter((x) => x !== d) : [...arr, d]));
+
+  // ---- traffic-light styling ----
+  const sevStyle = (s: Severity) =>
+    s === "danger"
+      ? { wrap: "bg-destructive/10 border-destructive", title: "text-destructive", label: "🔴 خطر — لا تجمع بينهما", icon: AlertTriangle }
+      : s === "warning"
+        ? { wrap: "bg-warning/15 border-warning", title: "text-warning", label: "🟡 تحذير — استشر الطبيب", icon: AlertTriangle }
+        : { wrap: "bg-success/10 border-success", title: "text-success", label: "🟢 آمن — يمكن استخدامهما معاً", icon: ShieldCheck };
 
   return (
     <div className="min-h-[calc(100dvh-9rem)] bg-background pb-24">
-      {/* Header */}
       <div className="px-4 pt-4">
         <div className="rounded-3xl gradient-hero p-4 text-white shadow-elegant relative overflow-hidden">
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           <p className="text-xs font-bold opacity-80">مكتبة الدواء</p>
           <h2 className="text-xl font-extrabold mt-1">إدارة ذكية لأدويتك</h2>
-          <p className="text-xs opacity-90 mt-1">بحث · تداخلات · تنبيهات ذكية</p>
+          <p className="text-xs opacity-90 mt-1">بحث · تداخلات · تنبيهات شخصية</p>
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="px-4 mt-3">
         <div className="grid grid-cols-3 rounded-2xl bg-muted p-1">
           {[
@@ -171,7 +302,7 @@ export const MedicationScreen = () => {
         </div>
       </div>
 
-      {/* Library */}
+      {/* LIBRARY */}
       {tab === "library" && (
         <div className="px-4 mt-4">
           <div className="relative mb-3">
@@ -179,23 +310,24 @@ export const MedicationScreen = () => {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="ابحث عن دواء، فئة، أو شركة..."
-              className="w-full h-12 rounded-2xl bg-card border border-border pr-10 pl-3 text-sm outline-none focus:border-primary shadow-soft"
+              placeholder="ابحث بالاسم التجاري أو العلمي (عربي/English)..."
+              className="w-full h-12 rounded-2xl bg-card border border-border pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary shadow-soft"
             />
+            {searching && <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />}
           </div>
           <div className="space-y-2">
-            {filtered.map((d) => (
+            {drugs.map((d) => (
               <div key={d.id} className="rounded-2xl p-3 bg-card border border-border shadow-soft flex items-center gap-3">
                 <div className="h-11 w-11 rounded-2xl bg-primary/15 text-primary flex items-center justify-center">
                   <Pill className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{d.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{d.category} · {d.company}</p>
+                  <p className="font-bold text-sm truncate">{d.brand_ar} <span className="text-muted-foreground font-normal">· {d.brand_en}</span></p>
+                  <p className="text-[11px] text-muted-foreground truncate">{d.scientific_ar} · {d.category_ar ?? ""}</p>
                 </div>
                 <button
-                  onClick={() => speak(`${d.name}. الفئة: ${d.category}`)}
-                  aria-label={`نطق ${d.name}`}
+                  onClick={() => speak(`${d.brand_ar}. ${d.scientific_ar}`)}
+                  aria-label={`نطق ${d.brand_ar}`}
                   className="h-9 w-9 rounded-full bg-secondary/10 text-secondary flex items-center justify-center active:scale-95 transition-bounce"
                 >
                   <Volume2 className="h-4 w-4" />
@@ -208,70 +340,77 @@ export const MedicationScreen = () => {
                 </button>
               </div>
             ))}
-            {filtered.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8">لا توجد نتائج</p>
+            {!searching && drugs.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-8">لا توجد نتائج لبحثك</p>
             )}
           </div>
         </div>
       )}
 
-      {/* Interactions */}
+      {/* INTERACTIONS */}
       {tab === "interactions" && (
         <div className="px-4 mt-4">
           <div className="rounded-2xl p-4 bg-card border border-border shadow-soft">
             <div className="flex items-center gap-2 mb-3">
               <ShieldAlert className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm">ركن التداخلات الدوائية</h3>
+              <h3 className="font-bold text-sm">إشارة المرور للتداخلات الدوائية</h3>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <select
                 value={drugA}
                 onChange={(e) => setDrugA(e.target.value)}
-                className="h-11 rounded-xl bg-background border border-border px-3 text-xs outline-none focus:border-primary"
+                className="h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
               >
                 <option value="">الدواء الأول</option>
-                {DRUGS.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
+                {drugs.map((d) => (
+                  <option key={d.id} value={d.id}>{d.brand_ar}</option>
                 ))}
               </select>
               <select
                 value={drugB}
                 onChange={(e) => setDrugB(e.target.value)}
-                className="h-11 rounded-xl bg-background border border-border px-3 text-xs outline-none focus:border-primary"
+                className="h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
               >
                 <option value="">الدواء الثاني</option>
-                {DRUGS.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
+                {drugs.map((d) => (
+                  <option key={d.id} value={d.id}>{d.brand_ar}</option>
                 ))}
               </select>
             </div>
 
-            {result && (() => {
-              const s = sevStyles[result.severity];
+            {checkingInter && <p className="text-xs text-muted-foreground mt-3">جارٍ التحقق...</p>}
+
+            {interaction && (() => {
+              const s = sevStyle(interaction.severity);
               const Icon = s.icon;
               return (
-                <div className={`mt-3 rounded-2xl border p-3 ${s.bg}`}>
-                  <div className={`flex items-center gap-2 font-bold text-sm ${s.text}`}>
-                    <Icon className="h-4 w-4" />
+                <div className={`mt-3 rounded-2xl border-2 p-3 ${s.wrap}`}>
+                  <div className={`flex items-center gap-2 font-extrabold text-sm ${s.title}`}>
+                    <Icon className="h-5 w-5" />
                     {s.label}
                   </div>
-                  <p className="text-xs text-foreground/80 mt-1 leading-relaxed">{result.note}</p>
+                  <p className="text-xs text-foreground/85 mt-2 leading-relaxed font-medium">{interaction.description_ar}</p>
+                  {interaction.personalWarnings.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {interaction.personalWarnings.map((w, i) => (
+                        <div key={i} className="rounded-xl bg-destructive/10 border border-destructive/40 p-2 text-xs font-bold text-destructive flex items-start gap-2">
+                          <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                          <span>{w}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })()}
-
-            {drugA && drugB && drugA === drugB && (
-              <p className="text-xs text-muted-foreground mt-3">اختر دوائين مختلفين للمقارنة.</p>
-            )}
           </div>
-
           <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-            * هذه القاعدة للأغراض التوعوية. استشر الصيدلي أو الطبيب قبل أي تعديل.
+            * نتائج توعوية. استشر الصيدلي قبل أي تعديل في العلاج.
           </p>
         </div>
       )}
 
-      {/* Reminders / Smart Alarm */}
+      {/* REMINDERS */}
       {tab === "reminders" && (
         <div className="px-4 mt-4">
           <div className="rounded-2xl p-4 bg-card border border-border shadow-soft">
@@ -280,38 +419,80 @@ export const MedicationScreen = () => {
                 <Bell className="h-4 w-4 text-primary" />
                 <h3 className="font-bold text-sm">منبّه ذكي</h3>
               </div>
-              <button
-                onClick={requestNotifPermission}
-                className="text-[11px] font-bold text-primary"
-              >
-                تفعيل التنبيهات
+              <button onClick={requestNotifPermission} className="text-[11px] font-bold text-primary">
+                تفعيل الإشعارات
               </button>
             </div>
 
             <input
-              value={rTitle}
-              onChange={(e) => setRTitle(e.target.value)}
-              placeholder="عنوان التذكير (مثال: أخذ الإنسولين)"
-              className="w-full h-11 rounded-xl bg-background border border-border px-3 text-sm outline-none focus:border-primary mb-2"
+              value={rName}
+              onChange={(e) => setRName(e.target.value)}
+              placeholder="اسم الدواء (مثال: أوجمنتين)"
+              className="w-full h-11 rounded-xl bg-background border border-input px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary mb-2"
             />
-            <div className="flex gap-2">
+
+            <div className="grid grid-cols-3 gap-1 bg-muted p-1 rounded-xl mb-2">
+              {[
+                { k: "daily", l: "يومياً" },
+                { k: "weekdays", l: "أيام محددة" },
+                { k: "interval", l: "كل عدة ساعات" },
+              ].map((o) => (
+                <button
+                  key={o.k}
+                  onClick={() => setRFreq(o.k as typeof rFreq)}
+                  className={`py-1.5 rounded-lg text-[11px] font-bold ${rFreq === o.k ? "bg-card text-primary shadow-soft" : "text-muted-foreground"}`}
+                >
+                  {o.l}
+                </button>
+              ))}
+            </div>
+
+            {rFreq === "weekdays" && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {WEEKDAY_LABELS.map((l, i) => (
+                  <button
+                    key={i}
+                    onClick={() => toggleDay(i)}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border ${rDays.includes(i) ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-input"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {rFreq === "interval" ? (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs text-foreground font-bold">كل</span>
+                <input
+                  type="number"
+                  min={1} max={24}
+                  value={rInterval}
+                  onChange={(e) => setRInterval(parseInt(e.target.value) || 8)}
+                  className="w-20 h-11 rounded-xl bg-background border border-input px-3 text-sm text-foreground outline-none focus:border-primary text-center"
+                />
+                <span className="text-xs text-foreground font-bold">ساعات</span>
+              </div>
+            ) : (
               <input
                 type="time"
                 value={rTime}
                 onChange={(e) => setRTime(e.target.value)}
-                className="flex-1 h-11 rounded-xl bg-background border border-border px-3 text-sm outline-none focus:border-primary"
+                className="w-full h-11 rounded-xl bg-background border border-input px-3 text-sm text-foreground outline-none focus:border-primary mb-2"
               />
-              <button
-                onClick={addReminder}
-                className="h-11 px-4 rounded-xl gradient-primary text-white text-sm font-bold flex items-center gap-1 shadow-card"
-              >
-                <Plus className="h-4 w-4" /> ضبط
-              </button>
-            </div>
+            )}
+
+            <button
+              onClick={addReminder}
+              className="w-full h-11 rounded-xl gradient-primary text-white text-sm font-bold flex items-center justify-center gap-1 shadow-card active:scale-[.98]"
+            >
+              <Plus className="h-4 w-4" /> إضافة تذكير
+            </button>
           </div>
 
           <div className="mt-4 space-y-2">
-            {reminders.length === 0 && (
+            {!user && <p className="text-center text-xs text-muted-foreground">سجّل الدخول لحفظ تذكيراتك في السحابة</p>}
+            {user && reminders.length === 0 && (
               <p className="text-center text-sm text-muted-foreground py-6">لا توجد تذكيرات بعد</p>
             )}
             {reminders.map((r) => (
@@ -320,14 +501,14 @@ export const MedicationScreen = () => {
                   <Clock className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{r.title}</p>
-                  <p className="text-[11px] text-muted-foreground">يومياً عند {r.time}</p>
+                  <p className="font-bold text-sm truncate">{r.drug_name}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {r.frequency === "daily" && `يومياً عند ${(r.times ?? []).join(", ")}`}
+                    {r.frequency === "weekdays" && `${(r.weekdays ?? []).map((d) => WEEKDAY_LABELS[d]).join("، ")} عند ${(r.times ?? []).join(", ")}`}
+                    {r.frequency === "interval" && `كل ${r.interval_hours} ساعات`}
+                  </p>
                 </div>
-                <button
-                  onClick={() => removeReminder(r.id)}
-                  className="h-9 w-9 rounded-full bg-destructive/10 text-destructive flex items-center justify-center"
-                  aria-label="حذف"
-                >
+                <button onClick={() => removeReminder(r.id)} className="h-9 w-9 rounded-full bg-destructive/10 text-destructive flex items-center justify-center" aria-label="حذف">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
@@ -337,14 +518,22 @@ export const MedicationScreen = () => {
       )}
 
       <MedicineDetailView
-        drug={selectedDrug}
+        drug={selectedDrug as any}
         onClose={() => setSelectedDrug(null)}
         onAddReminder={(name) => {
+          setRName(name);
+          setRFreq("daily");
           const now = new Date();
-          const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-          setReminders((arr) => [...arr, { id: crypto.randomUUID(), title: name, time }]);
+          setRTime(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
           setTab("reminders");
         }}
+      />
+
+      <PulseAlert
+        open={!!alert}
+        title={alert?.title ?? ""}
+        body={alert?.body}
+        onClose={() => setAlert(null)}
       />
     </div>
   );

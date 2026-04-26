@@ -1,26 +1,54 @@
-import { MapPin, Navigation, Clock, Cross, Search, Phone, LocateFixed } from "lucide-react";
-import { useState } from "react";
+import { MapPin, Navigation, Clock, Cross, Search, Phone, LocateFixed, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-interface Place {
+interface Pharmacy {
+  id: string;
   name: string;
-  type: string;
-  distanceKm: number;
-  open: boolean;
-  badge?: string;
-  color: "secondary" | "primary" | "destructive" | "muted";
+  address: string | null;
+  city: string | null;
+  lat: number | null;
+  lng: number | null;
+  phone: string | null;
+  open_24h: boolean | null;
 }
 
-const basePlaces: Place[] = [
-  { name: "صيدلية النور", type: "صيدلية · 24 ساعة", distanceKm: 0.32, open: true, badge: "24/7", color: "secondary" },
-  { name: "مستشفى الأمل", type: "مستشفى حكومي", distanceKm: 1.2, open: true, badge: "طوارئ", color: "primary" },
-  { name: "الهلال الأحمر", type: "إسعاف", distanceKm: 0.85, open: true, badge: "SOS", color: "destructive" },
-  { name: "صيدلية الشفاء", type: "صيدلية", distanceKm: 0.45, open: false, color: "muted" },
-];
+const haversineKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+};
 
 export const MapScreen = () => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
+  const [loadingList, setLoadingList] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("pharmacies")
+        .select("id, name, address, city, lat, lng, phone, open_24h");
+      setPharmacies((data as Pharmacy[]) ?? []);
+      setLoadingList(false);
+    })();
+  }, []);
+
+  const sortedPlaces = pharmacies
+    .map((p) => ({
+      ...p,
+      distanceKm:
+        coords && p.lat != null && p.lng != null
+          ? haversineKm(coords, { lat: Number(p.lat), lng: Number(p.lng) })
+          : null,
+    }))
+    .sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
 
   const locate = () => {
     if (!("geolocation" in navigator)) {
@@ -127,38 +155,38 @@ export const MapScreen = () => {
           <h2 className="font-bold text-base">{coords ? "الأقرب إليك" : "اضغط على الموقع لتفعيل GPS"}</h2>
           <button className="text-xs text-primary font-bold">عرض الكل</button>
         </div>
+        {loadingList && (
+          <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 text-primary animate-spin" /></div>
+        )}
         <div className="space-y-2">
-          {basePlaces.map((p, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth"
-            >
-              <div
-                className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-soft ${
-                  p.open ? `bg-${p.color}` : "bg-muted text-muted-foreground"
-                }`}
-              >
+          {sortedPlaces.map((p) => (
+            <div key={p.id} className="flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth">
+              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-soft ${p.open_24h ? "bg-secondary" : "bg-primary"}`}>
                 <Cross className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-sm truncate">{p.name}</p>
-                  {p.badge && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-warning/20 text-warning-foreground font-bold">
-                      {p.badge}
-                    </span>
+                  {p.open_24h && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-warning/20 text-warning-foreground font-bold">24/7</span>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                   <Clock className="h-3 w-3" />
-                  {p.type} · {formatDist(p.distanceKm)}
+                  {p.address ?? p.city ?? "صيدلية"}
+                  {p.distanceKm != null && ` · ${formatDist(p.distanceKm)}`}
                 </p>
               </div>
-              <button className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center" aria-label="اتصال">
-                <Phone className="h-4 w-4" />
-              </button>
+              {p.phone && (
+                <a href={`tel:${p.phone}`} className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center" aria-label="اتصال">
+                  <Phone className="h-4 w-4" />
+                </a>
+              )}
             </div>
           ))}
+          {!loadingList && sortedPlaces.length === 0 && (
+            <p className="text-center text-sm text-muted-foreground py-6">لا توجد صيدليات في قاعدة البيانات</p>
+          )}
         </div>
       </div>
     </div>

@@ -1,7 +1,9 @@
 import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSpeak } from "@/hooks/useSpeak";
 import { toast } from "sonner";
+import { useProfile } from "@/hooks/useProfile";
+import { PulseAlert } from "../PulseAlert";
 
 type ScanMode = "prescription" | "barcode";
 
@@ -99,12 +101,43 @@ const TIMING_LABELS: Record<Timing, string> = {
 
 export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
   const speak = useSpeak();
+  const { profile } = useProfile();
   const [mounted, setMounted] = useState(false);
+  const [allergyAlert, setAllergyAlert] = useState<string | null>(null);
+
+  // Cross-reference detected meds against user's allergies
+  const detectedAllergyMatches = useMemo(() => {
+    if (mode !== "prescription") {
+      // Barcode mode: check single brand
+      const allergies = profile?.allergies ?? [];
+      const hay = `${BARCODE_DATA.brand} ${BARCODE_DATA.scientific}`.toLowerCase();
+      return allergies.filter((a) => a.trim() && hay.includes(a.trim().toLowerCase()));
+    }
+    const allergies = profile?.allergies ?? [];
+    const hits: string[] = [];
+    for (const med of PRESCRIPTION_DATA.meds) {
+      const hay = med.name.toLowerCase();
+      for (const a of allergies) {
+        if (a.trim() && hay.includes(a.trim().toLowerCase())) {
+          hits.push(`${med.name} يحتوي على «${a}» المسجّلة في حساسيتك!`);
+        }
+      }
+    }
+    return hits;
+  }, [mode, profile]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
   }, []);
+
+  useEffect(() => {
+    if (detectedAllergyMatches.length > 0) {
+      // Trigger pulsing red alert after a short delay so it appears after the card
+      const t = setTimeout(() => setAllergyAlert(detectedAllergyMatches.join(" — ")), 600);
+      return () => clearTimeout(t);
+    }
+  }, [detectedAllergyMatches]);
 
   const handleClose = () => {
     setMounted(false);
@@ -158,6 +191,18 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
         </div>
 
         <div className="px-4 pb-6 text-white space-y-4">
+          {detectedAllergyMatches.length > 0 && (
+            <div className="rounded-2xl border-2 border-destructive bg-destructive/15 backdrop-blur p-3 animate-fade-up">
+              <div className="flex items-center gap-2 text-destructive font-extrabold text-sm mb-1">
+                <AlertTriangle className="h-5 w-5" />
+                ⚠️ تنبيه حساسية مسجّلة!
+              </div>
+              {detectedAllergyMatches.map((m, i) => (
+                <p key={i} className="text-xs text-white/90 font-bold leading-relaxed mt-1">{m}</p>
+              ))}
+            </div>
+          )}
+
           {mode === "prescription" ? (
             <PrescriptionView speak={speak} />
           ) : (
@@ -165,6 +210,14 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
           )}
         </div>
       </div>
+
+      <PulseAlert
+        open={!!allergyAlert}
+        title="تنبيه حساسية!"
+        body={allergyAlert ?? ""}
+        variant="danger"
+        onClose={() => setAllergyAlert(null)}
+      />
     </div>
   );
 };
