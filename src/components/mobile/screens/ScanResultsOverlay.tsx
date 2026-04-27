@@ -1,9 +1,10 @@
-import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar } from "lucide-react";
+import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar, FileDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSpeak } from "@/hooks/useSpeak";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { PulseAlert } from "../PulseAlert";
+import { DigitalPrescription } from "./DigitalPrescription";
 
 type ScanMode = "prescription" | "barcode";
 
@@ -104,6 +105,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
   const { profile } = useProfile();
   const [mounted, setMounted] = useState(false);
   const [allergyAlert, setAllergyAlert] = useState<string | null>(null);
+  const [showDigital, setShowDigital] = useState(false);
 
   // Cross-reference detected meds against user's allergies
   const detectedAllergyMatches = useMemo(() => {
@@ -204,7 +206,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
           )}
 
           {mode === "prescription" ? (
-            <PrescriptionView speak={speak} />
+            <PrescriptionView speak={speak} onExport={() => setShowDigital(true)} />
           ) : (
             <BarcodeView speak={speak} />
           )}
@@ -218,11 +220,15 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
         variant="danger"
         onClose={() => setAllergyAlert(null)}
       />
+
+      {showDigital && (
+        <DigitalPrescription data={PRESCRIPTION_DATA} onClose={() => setShowDigital(false)} />
+      )}
     </div>
   );
 };
 
-const PrescriptionView = ({ speak }: { speak: (t: string) => void }) => {
+const PrescriptionView = ({ speak, onExport }: { speak: (t: string) => void; onExport: () => void }) => {
   const d = PRESCRIPTION_DATA;
   return (
     <>
@@ -271,6 +277,14 @@ const PrescriptionView = ({ speak }: { speak: (t: string) => void }) => {
           <MedCapsule key={i} med={med} speak={speak} />
         ))}
       </div>
+
+      {/* Digital Export CTA */}
+      <button
+        onClick={onExport}
+        className="w-full h-12 rounded-2xl bg-white text-primary font-extrabold shadow-elegant active:scale-[.98] transition-bounce inline-flex items-center justify-center gap-2 border border-white/30"
+      >
+        <FileDown className="h-4 w-4" /> تصدير الروشتة الرقمية
+      </button>
 
       {/* Footer CTA */}
       <button
