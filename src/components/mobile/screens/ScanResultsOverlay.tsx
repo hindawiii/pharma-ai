@@ -278,6 +278,14 @@ const PrescriptionView = ({ speak, onExport }: { speak: (t: string) => void; onE
         ))}
       </div>
 
+      {/* Digital Export CTA */}
+      <button
+        onClick={onExport}
+        className="w-full h-12 rounded-2xl bg-white text-primary font-extrabold shadow-elegant active:scale-[.98] transition-bounce inline-flex items-center justify-center gap-2 border border-white/30"
+      >
+        <FileDown className="h-4 w-4" /> تصدير الروشتة الرقمية
+      </button>
+
       {/* Footer CTA */}
       <button
         onClick={() => toast.success("جاري البحث عن الصيدليات القريبة...")}
