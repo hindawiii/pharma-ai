@@ -64,9 +64,17 @@ export const MapScreen = () => {
       },
       (err) => {
         setLoading(false);
-        toast.error("تعذر الحصول على الموقع: " + err.message);
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error("تم رفض إذن الموقع. فعّل الإذن من إعدادات المتصفح ثم حاول مجدداً.");
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          toast.error("الموقع غير متاح حالياً. تأكد من تفعيل GPS وحاول مجدداً.");
+        } else if (err.code === err.TIMEOUT) {
+          toast.error("انتهت مهلة تحديد الموقع. حاول مرة أخرى في مكان مفتوح.");
+        } else {
+          toast.error("تعذر الحصول على الموقع: " + err.message);
+        }
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 10000 }
     );
   };
 
