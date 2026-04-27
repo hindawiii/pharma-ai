@@ -32,17 +32,22 @@ export type MedicineDetail = {
   alternatives?: { name: string; company: string }[];
 };
 
-const buildMockDetail = (base: { id: string; name: string; category: string; company: string }): MedicineDetail => ({
+const buildMockDetail = (base: { id: string; name: string; category?: string; company?: string }): MedicineDetail => {
+  const category = base.category ?? "دواء";
+  const company = base.company ?? "غير محدد";
+  return ({
   ...base,
-  scientificName: base.category.includes("مضاد حيوي")
+  category,
+  company,
+  scientificName: category.includes("مضاد حيوي")
     ? "Amoxicillin + Clavulanic Acid"
-    : base.category.includes("مسكن")
+    : category.includes("مسكن")
     ? "Paracetamol / Ibuprofen"
-    : base.category.includes("ضغط")
+    : category.includes("ضغط")
     ? "Bisoprolol / Amlodipine"
-    : base.category.includes("السكري")
+    : category.includes("السكري")
     ? "Metformin HCl"
-    : base.category.includes("تجلط")
+    : category.includes("تجلط")
     ? "Warfarin / Acetylsalicylic Acid"
     : "Active Pharmaceutical Ingredient",
   price: "≈ 1,200 SDG",
@@ -70,6 +75,7 @@ const buildMockDetail = (base: { id: string; name: string; category: string; com
     { name: "بديل عالمي", company: "Generic Intl." },
   ],
 });
+};
 
 type TabKey = "overview" | "safety" | "dosage" | "alternatives";
 
