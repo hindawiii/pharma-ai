@@ -1,9 +1,10 @@
-import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar } from "lucide-react";
+import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar, FileDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSpeak } from "@/hooks/useSpeak";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { PulseAlert } from "../PulseAlert";
+import { DigitalPrescription } from "./DigitalPrescription";
 
 type ScanMode = "prescription" | "barcode";
 
