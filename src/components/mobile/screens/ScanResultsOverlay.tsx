@@ -105,6 +105,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
   const { profile } = useProfile();
   const [mounted, setMounted] = useState(false);
   const [allergyAlert, setAllergyAlert] = useState<string | null>(null);
+  const [showDigital, setShowDigital] = useState(false);
 
   // Cross-reference detected meds against user's allergies
   const detectedAllergyMatches = useMemo(() => {
