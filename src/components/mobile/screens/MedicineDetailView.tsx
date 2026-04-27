@@ -75,6 +75,7 @@ const buildMockDetail = (base: { id: string; name: string; category?: string; co
     { name: "بديل عالمي", company: "Generic Intl." },
   ],
 });
+};
 
 type TabKey = "overview" | "safety" | "dosage" | "alternatives";
 
