@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode, Camera, Power } from "lucide-react";
+import { Image as ImageIcon, Zap, Sparkles, AlertTriangle, FileText, ScanBarcode, Camera, Power, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ScanResultsOverlay } from "./ScanResultsOverlay";
@@ -13,6 +13,7 @@ export const ScannerScreen = ({ isActive = true }: Props) => {
   const [mode, setMode] = useState<ScanMode>("prescription");
   const [flash, setFlash] = useState(false);
   const [streaming, setStreaming] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -29,27 +30,44 @@ export const ScannerScreen = ({ isActive = true }: Props) => {
   }, []);
 
   const startCamera = useCallback(async () => {
-    if (streamRef.current) return; // Already running
+    if (streamRef.current || starting) return;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error("جهازك لا يدعم الوصول إلى الكاميرا من المتصفح");
+      return;
+    }
+    setStarting(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const constraints: MediaStreamConstraints = {
         video: {
           facingMode: { ideal: "environment" },
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },
         audio: false,
-      });
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play().catch(() => {});
       }
       setStreaming(true);
-    } catch (err) {
-      console.error(err);
-      toast.error("تعذر الوصول إلى الكاميرا. يرجى السماح بالإذن.");
+    } catch (err: unknown) {
+      const e = err as { name?: string; message?: string };
+      console.error("Camera error:", e);
+      if (e?.name === "NotAllowedError" || e?.name === "PermissionDeniedError") {
+        toast.error("تم رفض إذن الكاميرا. فعّل الإذن من إعدادات المتصفح ثم حاول مجدداً.");
+      } else if (e?.name === "NotFoundError" || e?.name === "DevicesNotFoundError") {
+        toast.error("لم يتم العثور على كاميرا في هذا الجهاز.");
+      } else if (e?.name === "NotReadableError") {
+        toast.error("الكاميرا قيد الاستخدام من تطبيق آخر. أغلقه ثم حاول مجدداً.");
+      } else {
+        toast.error("تعذر تشغيل الكاميرا. تأكد من السماح بالإذن.");
+      }
+    } finally {
+      setStarting(false);
     }
-  }, []);
+  }, [starting]);
 
   // Stop camera when leaving the tab; do NOT auto-start (manual activation)
   useEffect(() => {
