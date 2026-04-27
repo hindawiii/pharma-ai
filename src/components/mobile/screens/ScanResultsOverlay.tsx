@@ -228,7 +228,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
   );
 };
 
-const PrescriptionView = ({ speak }: { speak: (t: string) => void }) => {
+const PrescriptionView = ({ speak, onExport }: { speak: (t: string) => void; onExport: () => void }) => {
   const d = PRESCRIPTION_DATA;
   return (
     <>
