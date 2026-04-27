@@ -164,10 +164,11 @@ export const ScannerScreen = ({ isActive = true }: Props) => {
             </div>
             <button
               onClick={startCamera}
-              className="inline-flex items-center gap-2 rounded-full px-7 py-3 bg-white text-primary font-extrabold shadow-card active:scale-95 transition-bounce"
+              disabled={starting}
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3 bg-white text-primary font-extrabold shadow-card active:scale-95 transition-bounce disabled:opacity-70"
             >
-              <Power className="h-5 w-5" />
-              ابدأ المسح
+              {starting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Power className="h-5 w-5" />}
+              {starting ? "جارٍ التشغيل..." : "ابدأ المسح"}
             </button>
           </div>
         </>
