@@ -220,6 +220,10 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
         variant="danger"
         onClose={() => setAllergyAlert(null)}
       />
+
+      {showDigital && (
+        <DigitalPrescription data={PRESCRIPTION_DATA} onClose={() => setShowDigital(false)} />
+      )}
     </div>
   );
 };
