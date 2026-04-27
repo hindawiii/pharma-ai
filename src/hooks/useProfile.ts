@@ -6,6 +6,7 @@ export interface Profile {
   id: string;
   display_name: string | null;
   age: number | null;
+  blood_type: string | null;
   allergies: string[];
   chronic_conditions: string[];
 }
@@ -23,7 +24,7 @@ export const useProfile = () => {
     setLoading(true);
     const { data } = await supabase
       .from("profiles")
-      .select("id, display_name, age, allergies, chronic_conditions")
+      .select("id, display_name, age, blood_type, allergies, chronic_conditions")
       .eq("id", user.id)
       .maybeSingle();
     setProfile(data as Profile | null);

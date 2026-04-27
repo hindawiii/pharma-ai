@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthCtx {
@@ -8,6 +9,8 @@ interface AuthCtx {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -19,12 +22,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up listener FIRST
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
     });
-    // THEN check existing
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
@@ -50,12 +51,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: error?.message ?? null };
   };
 
+  const signInWithGoogle: AuthCtx["signInWithGoogle"] = async () => {
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        const msg = result.error instanceof Error ? result.error.message : String(result.error);
+        return { error: msg };
+      }
+      return { error: null };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "تعذر تسجيل الدخول عبر Google" };
+    }
+  };
+
+  const resetPassword: AuthCtx["resetPassword"] = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error: error?.message ?? null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <Ctx.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    <Ctx.Provider value={{ user, session, loading, signIn, signUp, signInWithGoogle, resetPassword, signOut }}>
       {children}
     </Ctx.Provider>
   );

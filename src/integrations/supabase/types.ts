@@ -141,6 +141,7 @@ export type Database = {
         Row: {
           age: number | null
           allergies: string[]
+          blood_type: string | null
           chronic_conditions: string[]
           created_at: string
           display_name: string | null
@@ -150,6 +151,7 @@ export type Database = {
         Insert: {
           age?: number | null
           allergies?: string[]
+          blood_type?: string | null
           chronic_conditions?: string[]
           created_at?: string
           display_name?: string | null
@@ -159,6 +161,7 @@ export type Database = {
         Update: {
           age?: number | null
           allergies?: string[]
+          blood_type?: string | null
           chronic_conditions?: string[]
           created_at?: string
           display_name?: string | null
