@@ -206,7 +206,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
           )}
 
           {mode === "prescription" ? (
-            <PrescriptionView speak={speak} />
+            <PrescriptionView speak={speak} onExport={() => setShowDigital(true)} />
           ) : (
             <BarcodeView speak={speak} />
           )}
