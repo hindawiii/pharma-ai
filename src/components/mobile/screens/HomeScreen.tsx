@@ -108,11 +108,35 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
               }}
             />
 
-            {/* Core button */}
-            <span className="relative flex h-32 w-32 items-center justify-center rounded-full gradient-primary shadow-elegant transition-bounce group-active:scale-95">
-              <span className="absolute inset-2 rounded-full bg-white/10 backdrop-blur-sm" />
+            {/* Core button — Living gradient orb with logo */}
+            <span className="relative flex h-32 w-32 items-center justify-center rounded-full overflow-hidden shadow-elegant transition-bounce group-active:scale-95 group-hover:scale-105">
+              {/* Animated conic gradient background */}
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--primary-glow)), hsl(var(--accent)), hsl(var(--primary)))",
+                  animation: "spin 6s linear infinite",
+                }}
+              />
+              {/* Inner glass core */}
+              <span className="absolute inset-2 rounded-full bg-white/95 backdrop-blur-sm shadow-inner" />
+              {/* Subtle inner pulse */}
+              <span
+                className="absolute inset-3 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, hsl(var(--secondary) / 0.25) 0%, transparent 70%)",
+                  animation: "pulse-ring 2.4s cubic-bezier(0.4,0,0.6,1) infinite",
+                }}
+              />
               <span className="absolute inset-0 rounded-full ring-2 ring-white/40" />
-              <Sparkles className="relative h-12 w-12 text-white drop-shadow-lg" strokeWidth={2.2} />
+              {/* Logo */}
+              <img
+                src={logo}
+                alt="Pharma-i"
+                className="relative h-16 w-16 object-contain drop-shadow-lg"
+              />
             </span>
 
             <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-bold text-primary">
