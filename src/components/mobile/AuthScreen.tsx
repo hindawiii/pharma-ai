@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Mail, Lock, User, Sparkles, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import logo from "@/assets/pharma-i-logo.png";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
@@ -67,8 +68,8 @@ export const AuthScreen = () => {
     <div className="min-h-dvh bg-background flex flex-col items-center justify-center p-6" dir="rtl">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="inline-flex h-16 w-16 rounded-3xl gradient-primary text-white items-center justify-center shadow-elegant mb-4">
-            <Sparkles className="h-8 w-8" />
+          <div className="inline-flex h-20 w-20 rounded-3xl bg-white items-center justify-center shadow-elegant mb-4 ring-2 ring-primary/15">
+            <img src={logo} alt="Pharma-i" className="h-14 w-14 object-contain" />
           </div>
           <h1 className="text-3xl font-extrabold text-primary">Pharma-i</h1>
           <p className="text-sm text-muted-foreground mt-1">مساعدك الطبي الذكي</p>

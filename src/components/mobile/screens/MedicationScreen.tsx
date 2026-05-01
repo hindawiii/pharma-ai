@@ -89,78 +89,117 @@ export const MedicationScreen = () => {
     let cancelled = false;
     const run = async () => {
       setSearching(true);
-      let q = supabase.from("drugs").select("*").order("brand_ar").limit(40);
       const term = query.trim();
-      if (term) {
-        // Match brand AR/EN, scientific AR/EN, category — case-insensitive partial
-        const like = `%${term}%`;
-        q = supabase
-          .from("drugs")
-          .select("*")
-          .or(`brand_ar.ilike.${like},brand_en.ilike.${like},scientific_ar.ilike.${like},scientific_en.ilike.${like},category_ar.ilike.${like}`)
-          .limit(40);
+      try {
+        if (!term) {
+          const { data, error } = await supabase
+            .from("drugs")
+            .select("*")
+            .order("brand_ar")
+            .limit(40);
+          if (error) throw error;
+          if (!cancelled) setDrugs((data ?? []) as Drug[]);
+        } else {
+          // Sanitize: PostgREST .or() uses ',' '(' ')' as syntax — strip them from the term
+          const safe = term.replace(/[(),]/g, " ").trim();
+          const like = `%${safe}%`;
+          const { data, error } = await supabase
+            .from("drugs")
+            .select("*")
+            .or(
+              `brand_ar.ilike.${like},brand_en.ilike.${like},scientific_ar.ilike.${like},scientific_en.ilike.${like},category_ar.ilike.${like}`
+            )
+            .limit(40);
+          if (error) throw error;
+          if (!cancelled) setDrugs((data ?? []) as Drug[]);
+        }
+      } catch (e) {
+        console.error("[drug search] failed:", e);
+        if (!cancelled) {
+          setDrugs([]);
+          toast.error("تعذّر تحميل قاعدة الأدوية");
+        }
+      } finally {
+        if (!cancelled) setSearching(false);
       }
-      const { data, error } = await q;
-      if (cancelled) return;
-      if (error) {
-        toast.error("تعذّر تحميل قاعدة الأدوية");
-      } else {
-        setDrugs((data ?? []) as Drug[]);
-      }
-      setSearching(false);
     };
     const id = setTimeout(run, 250);
     return () => { cancelled = true; clearTimeout(id); };
   }, [query]);
 
-  // ---- Interactions ----
-  const [drugA, setDrugA] = useState("");
-  const [drugB, setDrugB] = useState("");
-  const [interaction, setInteraction] = useState<InteractionResult | null>(null);
+  // ---- Interactions (multi-drug) ----
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [pairResults, setPairResults] = useState<Array<{
+    drugA: Drug;
+    drugB: Drug;
+    severity: Severity;
+    description_ar: string;
+  }>>([]);
+  const [personalAlerts, setPersonalAlerts] = useState<string[]>([]);
   const [checkingInter, setCheckingInter] = useState(false);
+
+  const addDrugToCheck = (id: string) => {
+    if (!id) return;
+    setSelectedIds((arr) => (arr.includes(id) ? arr : [...arr, id]));
+  };
+  const removeDrugFromCheck = (id: string) =>
+    setSelectedIds((arr) => arr.filter((x) => x !== id));
 
   useEffect(() => {
     const run = async () => {
-      if (!drugA || !drugB || drugA === drugB) {
-        setInteraction(null);
+      if (selectedIds.length < 1) {
+        setPairResults([]);
+        setPersonalAlerts([]);
         return;
       }
       setCheckingInter(true);
-      const { data } = await supabase
-        .from("drug_interactions")
-        .select("severity, description_ar")
-        .or(`and(drug_a.eq.${drugA},drug_b.eq.${drugB}),and(drug_a.eq.${drugB},drug_b.eq.${drugA})`)
-        .maybeSingle();
 
-      const drugAObj = drugs.find((d) => d.id === drugA);
-      const drugBObj = drugs.find((d) => d.id === drugB);
-      const personal = [
-        ...personalRisksFor(drugAObj, profile?.allergies ?? [], profile?.chronic_conditions ?? []),
-        ...personalRisksFor(drugBObj, profile?.allergies ?? [], profile?.chronic_conditions ?? []),
-      ];
-
-      let result: InteractionResult;
-      if (data) {
-        result = {
-          severity: data.severity as Severity,
-          description_ar: data.description_ar,
-          personalWarnings: personal,
-        };
-      } else {
-        result = {
-          severity: personal.length > 0 ? "warning" : "safe",
-          description_ar:
-            personal.length > 0
-              ? "لا يوجد تعارض دوائي مسجّل، لكن لديك تنبيهات شخصية في الأسفل."
-              : "آمن: لا يوجد تعارض معروف بين هذين الدوائين في قاعدة البيانات.",
-          personalWarnings: personal,
-        };
+      // Personal warnings for every selected drug
+      const personal = new Set<string>();
+      for (const id of selectedIds) {
+        const drugObj = drugs.find((d) => d.id === id);
+        for (const w of personalRisksFor(drugObj, profile?.allergies ?? [], profile?.chronic_conditions ?? [])) {
+          personal.add(w);
+        }
       }
-      setInteraction(result);
+      setPersonalAlerts(Array.from(personal));
+
+      // Pairwise check via DB
+      const pairs: Array<{ drugA: Drug; drugB: Drug; severity: Severity; description_ar: string }> = [];
+      for (let i = 0; i < selectedIds.length; i++) {
+        for (let j = i + 1; j < selectedIds.length; j++) {
+          const a = selectedIds[i];
+          const b = selectedIds[j];
+          const { data } = await supabase
+            .from("drug_interactions")
+            .select("severity, description_ar")
+            .or(`and(drug_a.eq.${a},drug_b.eq.${b}),and(drug_a.eq.${b},drug_b.eq.${a})`)
+            .maybeSingle();
+          const drugA = drugs.find((d) => d.id === a)!;
+          const drugB = drugs.find((d) => d.id === b)!;
+          if (!drugA || !drugB) continue;
+          if (data) {
+            pairs.push({
+              drugA,
+              drugB,
+              severity: data.severity as Severity,
+              description_ar: data.description_ar,
+            });
+          } else {
+            pairs.push({
+              drugA,
+              drugB,
+              severity: "safe",
+              description_ar: "آمن: لا يوجد تعارض معروف بين هذين الدوائين.",
+            });
+          }
+        }
+      }
+      setPairResults(pairs);
       setCheckingInter(false);
     };
     run();
-  }, [drugA, drugB, drugs, profile]);
+  }, [selectedIds, drugs, profile]);
 
   // ---- Reminders (DB-backed) ----
   const [reminders, setReminders] = useState<DBReminder[]>([]);
@@ -238,17 +277,26 @@ export const MedicationScreen = () => {
     if (rFreq !== "interval" && !rTime) { toast.error("اختر وقت التذكير"); return; }
     if (rFreq === "weekdays" && rDays.length === 0) { toast.error("اختر أيام الأسبوع"); return; }
 
-    const payload: any = {
+    // Match Supabase schema strictly:
+    //   times: time without time zone[]   →  send "HH:MM:SS" strings (or [])
+    //   weekdays: smallint[]              →  send number[] (or [])
+    //   interval_hours: smallint | null
+    const normalizedTime = rFreq === "interval" ? null : `${rTime}:00`;
+    const payload = {
       user_id: user.id,
       drug_name: rName.trim(),
       frequency: rFreq,
-      times: rFreq === "interval" ? [] : [rTime],
+      times: rFreq === "interval" ? [] : [normalizedTime as string],
       weekdays: rFreq === "weekdays" ? rDays : [],
       interval_hours: rFreq === "interval" ? rInterval : null,
       active: true,
     };
     const { error } = await supabase.from("reminders").insert(payload);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      console.error("[reminders insert] failed:", error, "payload:", payload);
+      toast.error(`تعذّر حفظ التذكير: ${error.message}`);
+      return;
+    }
     toast.success("تم ضبط التذكير");
     setRName(""); setRTime(""); setRDays([]);
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
@@ -347,7 +395,7 @@ export const MedicationScreen = () => {
         </div>
       )}
 
-      {/* INTERACTIONS */}
+      {/* INTERACTIONS — multi drug */}
       {tab === "interactions" && (
         <div className="px-4 mt-4">
           <div className="rounded-2xl p-4 bg-card border border-border shadow-soft">
@@ -355,54 +403,97 @@ export const MedicationScreen = () => {
               <ShieldAlert className="h-4 w-4 text-primary" />
               <h3 className="font-bold text-sm">إشارة المرور للتداخلات الدوائية</h3>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+
+            {/* Add-drug picker */}
+            <div className="flex items-center gap-2">
               <select
-                value={drugA}
-                onChange={(e) => setDrugA(e.target.value)}
-                className="h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
+                value=""
+                onChange={(e) => addDrugToCheck(e.target.value)}
+                className="flex-1 h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
               >
-                <option value="">الدواء الأول</option>
-                {drugs.map((d) => (
-                  <option key={d.id} value={d.id}>{d.brand_ar}</option>
-                ))}
-              </select>
-              <select
-                value={drugB}
-                onChange={(e) => setDrugB(e.target.value)}
-                className="h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
-              >
-                <option value="">الدواء الثاني</option>
-                {drugs.map((d) => (
-                  <option key={d.id} value={d.id}>{d.brand_ar}</option>
-                ))}
+                <option value="">إضافة دواء للفحص...</option>
+                {drugs
+                  .filter((d) => !selectedIds.includes(d.id))
+                  .map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.brand_ar} · {d.scientific_ar}
+                    </option>
+                  ))}
               </select>
             </div>
 
+            {/* Selected drug chips */}
+            {selectedIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedIds.map((id) => {
+                  const d = drugs.find((x) => x.id === id);
+                  if (!d) return null;
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-[11px] font-bold px-3 py-1.5 rounded-full"
+                    >
+                      {d.brand_ar}
+                      <button
+                        onClick={() => removeDrugFromCheck(id)}
+                        aria-label={`إزالة ${d.brand_ar}`}
+                        className="h-5 w-5 rounded-full bg-primary/15 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
             {checkingInter && <p className="text-xs text-muted-foreground mt-3">جارٍ التحقق...</p>}
 
-            {interaction && (() => {
-              const s = sevStyle(interaction.severity);
-              const Icon = s.icon;
-              return (
-                <div className={`mt-3 rounded-2xl border-2 p-3 ${s.wrap}`}>
-                  <div className={`flex items-center gap-2 font-extrabold text-sm ${s.title}`}>
-                    <Icon className="h-5 w-5" />
-                    {s.label}
-                  </div>
-                  <p className="text-xs text-foreground/85 mt-2 leading-relaxed font-medium">{interaction.description_ar}</p>
-                  {interaction.personalWarnings.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {interaction.personalWarnings.map((w, i) => (
-                        <div key={i} className="rounded-xl bg-destructive/10 border border-destructive/40 p-2 text-xs font-bold text-destructive flex items-start gap-2">
-                          <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                          <span>{w}</span>
-                        </div>
-                      ))}
+            {selectedIds.length >= 2 && pairResults.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {pairResults.map((p, idx) => {
+                  const s = sevStyle(p.severity);
+                  const Icon = s.icon;
+                  return (
+                    <div key={idx} className={`rounded-2xl border-2 p-3 ${s.wrap}`}>
+                      <div className={`flex items-center gap-2 font-extrabold text-sm ${s.title}`}>
+                        <Icon className="h-5 w-5" />
+                        {s.label}
+                      </div>
+                      <p className="text-[11px] text-foreground/70 mt-1 font-bold">
+                        {p.drugA.brand_ar} ↔ {p.drugB.brand_ar}
+                      </p>
+                      <p className="text-xs text-foreground/85 mt-1 leading-relaxed">
+                        {p.description_ar}
+                      </p>
                     </div>
-                  )}
-                </div>
-              );
-            })()}
+                  );
+                })}
+              </div>
+            )}
+
+            {selectedIds.length === 1 && (
+              <p className="text-xs text-muted-foreground mt-3">
+                أضف دواءً ثانياً على الأقل لفحص التداخل.
+              </p>
+            )}
+
+            {personalAlerts.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-[11px] font-extrabold text-destructive">
+                  تنبيهات شخصية مبنية على ملفّك الطبي:
+                </p>
+                {personalAlerts.map((w, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl bg-destructive/10 border border-destructive/40 p-2 text-xs font-bold text-destructive flex items-start gap-2"
+                  >
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{w}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
             * نتائج توعوية. استشر الصيدلي قبل أي تعديل في العلاج.
