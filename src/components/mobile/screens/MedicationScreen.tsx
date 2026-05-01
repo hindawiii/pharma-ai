@@ -395,7 +395,7 @@ export const MedicationScreen = () => {
         </div>
       )}
 
-      {/* INTERACTIONS */}
+      {/* INTERACTIONS — multi drug */}
       {tab === "interactions" && (
         <div className="px-4 mt-4">
           <div className="rounded-2xl p-4 bg-card border border-border shadow-soft">
@@ -403,54 +403,97 @@ export const MedicationScreen = () => {
               <ShieldAlert className="h-4 w-4 text-primary" />
               <h3 className="font-bold text-sm">إشارة المرور للتداخلات الدوائية</h3>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+
+            {/* Add-drug picker */}
+            <div className="flex items-center gap-2">
               <select
-                value={drugA}
-                onChange={(e) => setDrugA(e.target.value)}
-                className="h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
+                value=""
+                onChange={(e) => addDrugToCheck(e.target.value)}
+                className="flex-1 h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
               >
-                <option value="">الدواء الأول</option>
-                {drugs.map((d) => (
-                  <option key={d.id} value={d.id}>{d.brand_ar}</option>
-                ))}
-              </select>
-              <select
-                value={drugB}
-                onChange={(e) => setDrugB(e.target.value)}
-                className="h-11 rounded-xl bg-background border border-input px-3 text-xs text-foreground outline-none focus:border-primary"
-              >
-                <option value="">الدواء الثاني</option>
-                {drugs.map((d) => (
-                  <option key={d.id} value={d.id}>{d.brand_ar}</option>
-                ))}
+                <option value="">إضافة دواء للفحص...</option>
+                {drugs
+                  .filter((d) => !selectedIds.includes(d.id))
+                  .map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.brand_ar} · {d.scientific_ar}
+                    </option>
+                  ))}
               </select>
             </div>
 
+            {/* Selected drug chips */}
+            {selectedIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedIds.map((id) => {
+                  const d = drugs.find((x) => x.id === id);
+                  if (!d) return null;
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-[11px] font-bold px-3 py-1.5 rounded-full"
+                    >
+                      {d.brand_ar}
+                      <button
+                        onClick={() => removeDrugFromCheck(id)}
+                        aria-label={`إزالة ${d.brand_ar}`}
+                        className="h-5 w-5 rounded-full bg-primary/15 hover:bg-destructive/20 hover:text-destructive flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
             {checkingInter && <p className="text-xs text-muted-foreground mt-3">جارٍ التحقق...</p>}
 
-            {interaction && (() => {
-              const s = sevStyle(interaction.severity);
-              const Icon = s.icon;
-              return (
-                <div className={`mt-3 rounded-2xl border-2 p-3 ${s.wrap}`}>
-                  <div className={`flex items-center gap-2 font-extrabold text-sm ${s.title}`}>
-                    <Icon className="h-5 w-5" />
-                    {s.label}
-                  </div>
-                  <p className="text-xs text-foreground/85 mt-2 leading-relaxed font-medium">{interaction.description_ar}</p>
-                  {interaction.personalWarnings.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {interaction.personalWarnings.map((w, i) => (
-                        <div key={i} className="rounded-xl bg-destructive/10 border border-destructive/40 p-2 text-xs font-bold text-destructive flex items-start gap-2">
-                          <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                          <span>{w}</span>
-                        </div>
-                      ))}
+            {selectedIds.length >= 2 && pairResults.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {pairResults.map((p, idx) => {
+                  const s = sevStyle(p.severity);
+                  const Icon = s.icon;
+                  return (
+                    <div key={idx} className={`rounded-2xl border-2 p-3 ${s.wrap}`}>
+                      <div className={`flex items-center gap-2 font-extrabold text-sm ${s.title}`}>
+                        <Icon className="h-5 w-5" />
+                        {s.label}
+                      </div>
+                      <p className="text-[11px] text-foreground/70 mt-1 font-bold">
+                        {p.drugA.brand_ar} ↔ {p.drugB.brand_ar}
+                      </p>
+                      <p className="text-xs text-foreground/85 mt-1 leading-relaxed">
+                        {p.description_ar}
+                      </p>
                     </div>
-                  )}
-                </div>
-              );
-            })()}
+                  );
+                })}
+              </div>
+            )}
+
+            {selectedIds.length === 1 && (
+              <p className="text-xs text-muted-foreground mt-3">
+                أضف دواءً ثانياً على الأقل لفحص التداخل.
+              </p>
+            )}
+
+            {personalAlerts.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-[11px] font-extrabold text-destructive">
+                  تنبيهات شخصية مبنية على ملفّك الطبي:
+                </p>
+                {personalAlerts.map((w, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl bg-destructive/10 border border-destructive/40 p-2 text-xs font-bold text-destructive flex items-start gap-2"
+                  >
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{w}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
             * نتائج توعوية. استشر الصيدلي قبل أي تعديل في العلاج.
