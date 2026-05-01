@@ -1,6 +1,5 @@
 import { memo, useState } from "react";
 import {
-  Sparkles,
   ScanLine,
   MapPin,
   Pill,
@@ -11,6 +10,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
+import logo from "@/assets/pharma-i-logo.png";
 
 // Social brand icons (inline SVGs for crisp rendering)
 const WhatsAppIcon = ({ className = "" }: { className?: string }) => (
