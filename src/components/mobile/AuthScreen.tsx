@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Mail, Lock, User, Sparkles, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import logo from "@/assets/pharma-i-logo.png";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
