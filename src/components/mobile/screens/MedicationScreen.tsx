@@ -252,17 +252,26 @@ export const MedicationScreen = () => {
     if (rFreq !== "interval" && !rTime) { toast.error("اختر وقت التذكير"); return; }
     if (rFreq === "weekdays" && rDays.length === 0) { toast.error("اختر أيام الأسبوع"); return; }
 
-    const payload: any = {
+    // Match Supabase schema strictly:
+    //   times: time without time zone[]   →  send "HH:MM:SS" strings (or [])
+    //   weekdays: smallint[]              →  send number[] (or [])
+    //   interval_hours: smallint | null
+    const normalizedTime = rFreq === "interval" ? null : `${rTime}:00`;
+    const payload = {
       user_id: user.id,
       drug_name: rName.trim(),
       frequency: rFreq,
-      times: rFreq === "interval" ? [] : [rTime],
+      times: rFreq === "interval" ? [] : [normalizedTime as string],
       weekdays: rFreq === "weekdays" ? rDays : [],
       interval_hours: rFreq === "interval" ? rInterval : null,
       active: true,
     };
     const { error } = await supabase.from("reminders").insert(payload);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      console.error("[reminders insert] failed:", error, "payload:", payload);
+      toast.error(`تعذّر حفظ التذكير: ${error.message}`);
+      return;
+    }
     toast.success("تم ضبط التذكير");
     setRName(""); setRTime(""); setRDays([]);
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
