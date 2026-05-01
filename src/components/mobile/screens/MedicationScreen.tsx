@@ -127,54 +127,79 @@ export const MedicationScreen = () => {
     return () => { cancelled = true; clearTimeout(id); };
   }, [query]);
 
-  // ---- Interactions ----
-  const [drugA, setDrugA] = useState("");
-  const [drugB, setDrugB] = useState("");
-  const [interaction, setInteraction] = useState<InteractionResult | null>(null);
+  // ---- Interactions (multi-drug) ----
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [pairResults, setPairResults] = useState<Array<{
+    drugA: Drug;
+    drugB: Drug;
+    severity: Severity;
+    description_ar: string;
+  }>>([]);
+  const [personalAlerts, setPersonalAlerts] = useState<string[]>([]);
   const [checkingInter, setCheckingInter] = useState(false);
+
+  const addDrugToCheck = (id: string) => {
+    if (!id) return;
+    setSelectedIds((arr) => (arr.includes(id) ? arr : [...arr, id]));
+  };
+  const removeDrugFromCheck = (id: string) =>
+    setSelectedIds((arr) => arr.filter((x) => x !== id));
 
   useEffect(() => {
     const run = async () => {
-      if (!drugA || !drugB || drugA === drugB) {
-        setInteraction(null);
+      if (selectedIds.length < 1) {
+        setPairResults([]);
+        setPersonalAlerts([]);
         return;
       }
       setCheckingInter(true);
-      const { data } = await supabase
-        .from("drug_interactions")
-        .select("severity, description_ar")
-        .or(`and(drug_a.eq.${drugA},drug_b.eq.${drugB}),and(drug_a.eq.${drugB},drug_b.eq.${drugA})`)
-        .maybeSingle();
 
-      const drugAObj = drugs.find((d) => d.id === drugA);
-      const drugBObj = drugs.find((d) => d.id === drugB);
-      const personal = [
-        ...personalRisksFor(drugAObj, profile?.allergies ?? [], profile?.chronic_conditions ?? []),
-        ...personalRisksFor(drugBObj, profile?.allergies ?? [], profile?.chronic_conditions ?? []),
-      ];
-
-      let result: InteractionResult;
-      if (data) {
-        result = {
-          severity: data.severity as Severity,
-          description_ar: data.description_ar,
-          personalWarnings: personal,
-        };
-      } else {
-        result = {
-          severity: personal.length > 0 ? "warning" : "safe",
-          description_ar:
-            personal.length > 0
-              ? "لا يوجد تعارض دوائي مسجّل، لكن لديك تنبيهات شخصية في الأسفل."
-              : "آمن: لا يوجد تعارض معروف بين هذين الدوائين في قاعدة البيانات.",
-          personalWarnings: personal,
-        };
+      // Personal warnings for every selected drug
+      const personal = new Set<string>();
+      for (const id of selectedIds) {
+        const drugObj = drugs.find((d) => d.id === id);
+        for (const w of personalRisksFor(drugObj, profile?.allergies ?? [], profile?.chronic_conditions ?? [])) {
+          personal.add(w);
+        }
       }
-      setInteraction(result);
+      setPersonalAlerts(Array.from(personal));
+
+      // Pairwise check via DB
+      const pairs: Array<{ drugA: Drug; drugB: Drug; severity: Severity; description_ar: string }> = [];
+      for (let i = 0; i < selectedIds.length; i++) {
+        for (let j = i + 1; j < selectedIds.length; j++) {
+          const a = selectedIds[i];
+          const b = selectedIds[j];
+          const { data } = await supabase
+            .from("drug_interactions")
+            .select("severity, description_ar")
+            .or(`and(drug_a.eq.${a},drug_b.eq.${b}),and(drug_a.eq.${b},drug_b.eq.${a})`)
+            .maybeSingle();
+          const drugA = drugs.find((d) => d.id === a)!;
+          const drugB = drugs.find((d) => d.id === b)!;
+          if (!drugA || !drugB) continue;
+          if (data) {
+            pairs.push({
+              drugA,
+              drugB,
+              severity: data.severity as Severity,
+              description_ar: data.description_ar,
+            });
+          } else {
+            pairs.push({
+              drugA,
+              drugB,
+              severity: "safe",
+              description_ar: "آمن: لا يوجد تعارض معروف بين هذين الدوائين.",
+            });
+          }
+        }
+      }
+      setPairResults(pairs);
       setCheckingInter(false);
     };
     run();
-  }, [drugA, drugB, drugs, profile]);
+  }, [selectedIds, drugs, profile]);
 
   // ---- Reminders (DB-backed) ----
   const [reminders, setReminders] = useState<DBReminder[]>([]);
