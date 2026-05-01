@@ -89,25 +89,39 @@ export const MedicationScreen = () => {
     let cancelled = false;
     const run = async () => {
       setSearching(true);
-      let q = supabase.from("drugs").select("*").order("brand_ar").limit(40);
       const term = query.trim();
-      if (term) {
-        // Match brand AR/EN, scientific AR/EN, category — case-insensitive partial
-        const like = `%${term}%`;
-        q = supabase
-          .from("drugs")
-          .select("*")
-          .or(`brand_ar.ilike.${like},brand_en.ilike.${like},scientific_ar.ilike.${like},scientific_en.ilike.${like},category_ar.ilike.${like}`)
-          .limit(40);
+      try {
+        if (!term) {
+          const { data, error } = await supabase
+            .from("drugs")
+            .select("*")
+            .order("brand_ar")
+            .limit(40);
+          if (error) throw error;
+          if (!cancelled) setDrugs((data ?? []) as Drug[]);
+        } else {
+          // Sanitize: PostgREST .or() uses ',' '(' ')' as syntax — strip them from the term
+          const safe = term.replace(/[(),]/g, " ").trim();
+          const like = `%${safe}%`;
+          const { data, error } = await supabase
+            .from("drugs")
+            .select("*")
+            .or(
+              `brand_ar.ilike.${like},brand_en.ilike.${like},scientific_ar.ilike.${like},scientific_en.ilike.${like},category_ar.ilike.${like}`
+            )
+            .limit(40);
+          if (error) throw error;
+          if (!cancelled) setDrugs((data ?? []) as Drug[]);
+        }
+      } catch (e) {
+        console.error("[drug search] failed:", e);
+        if (!cancelled) {
+          setDrugs([]);
+          toast.error("تعذّر تحميل قاعدة الأدوية");
+        }
+      } finally {
+        if (!cancelled) setSearching(false);
       }
-      const { data, error } = await q;
-      if (cancelled) return;
-      if (error) {
-        toast.error("تعذّر تحميل قاعدة الأدوية");
-      } else {
-        setDrugs((data ?? []) as Drug[]);
-      }
-      setSearching(false);
     };
     const id = setTimeout(run, 250);
     return () => { cancelled = true; clearTimeout(id); };
