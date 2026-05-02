@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import { Cross, Droplet, X, Flame, Bone, HeartPulse, Bandage, Wind, Zap, Snowflake, Skull, Pill, AlertTriangle, Eye, Activity, BookOpen, Calculator, FlaskConical, HandHeart, Siren } from "lucide-react";
+import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
 
 // ────────────────────────────────────────────────────────────
 // Reusable Sheet (responsive: full-screen on mobile, centered card on larger)
@@ -127,26 +128,18 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
 };
 
 // ────────────────────────────────────────────────────────────
-// Blood Types data
+// Blood Types modal — Crimson Red theme, RTL, full content
 // ────────────────────────────────────────────────────────────
-const bloodCategories = [
-  { key: "encyclopedia", label: "موسوعة الفصائل", icon: BookOpen },
-  { key: "matching", label: "حاسبة التزاوج", icon: Calculator },
-  { key: "lab", label: "المختبر", icon: FlaskConical },
-  { key: "donate", label: "التبرع", icon: HandHeart },
-  { key: "urgent", label: "طلب حاجة عاجلة", icon: Siren },
-] as const;
-
 const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-  const [active, setActive] = useState<string>(bloodCategories[0].key);
-  const activeCat = bloodCategories.find((c) => c.key === active)!;
+  const [active, setActive] = useState<BloodSectionKey>("encyclopedia");
+  const activeCat = BLOOD_TABS.find((c) => c.key === active)!;
   const ActiveIcon = activeCat.icon;
 
   return (
-    <Sheet open={open} onClose={onClose} title="🩸 فصائل الدم والموسوعة" accent="from-[#1D3557] to-[#2A9D8F]">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-3 py-3">
+    <Sheet open={open} onClose={onClose} title="🩸 فصائل الدم والموسوعة" accent="from-[#C62828] to-[#8B1A1A]">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-[#C62828]/15 px-3 py-3" dir="rtl">
         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {bloodCategories.map((c) => {
+          {BLOOD_TABS.map((c) => {
             const Icon = c.icon;
             const isActive = c.key === active;
             return (
@@ -155,8 +148,8 @@ const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =
                 onClick={() => setActive(c.key)}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-bounce ${
                   isActive
-                    ? "bg-[#1D3557] text-white shadow-soft"
-                    : "bg-muted text-foreground hover:bg-muted/70"
+                    ? "bg-[#C62828] text-white shadow-soft"
+                    : "bg-[#C62828]/5 text-[#C62828] hover:bg-[#C62828]/10"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -167,22 +160,18 @@ const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =
         </div>
       </div>
 
-      <div className="p-5 space-y-4">
+      <div className="p-5 space-y-4 bg-white" dir="rtl">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#1D3557]/10 text-[#1D3557] flex items-center justify-center">
+          <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
           </div>
           <div>
             <h3 className="text-xl font-extrabold text-foreground">{activeCat.label}</h3>
-            <p className="text-xs text-muted-foreground">معلومات شاملة عن فصائل الدم وآليات التبرع</p>
+            <p className="text-xs text-muted-foreground">معلومات تفاعلية شاملة عن فصائل الدم</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            سيتم إضافة المحتوى التفاعلي لهذا القسم قريباً، شاملاً جداول التوافق، حاسبة التزاوج بين الفصائل، تحاليل المختبر، ومنصة التبرع الطارئ.
-          </p>
-        </div>
+        <BloodTypesContent section={active} onRequestUrgent={() => { /* hook to community feed later */ }} />
       </div>
     </Sheet>
   );
