@@ -10,6 +10,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
+import { HealthGuidesSection } from "./HealthGuides";
 import logo from "@/assets/pharma-i-logo.png";
 
 // Social brand icons (inline SVGs for crisp rendering)
@@ -208,6 +209,9 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
             })}
           </div>
         </section>
+
+        {/* ===== Health Guides: First Aid + Blood Types ===== */}
+        <HealthGuidesSection />
 
         {/* ===== Trust badge ===== */}
         <section className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
