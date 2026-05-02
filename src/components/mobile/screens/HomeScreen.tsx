@@ -10,6 +10,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
+import { HealthGuidesSection } from "./HealthGuides";
 import logo from "@/assets/pharma-i-logo.png";
 
 // Social brand icons (inline SVGs for crisp rendering)
