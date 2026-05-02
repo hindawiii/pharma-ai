@@ -210,6 +210,9 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
           </div>
         </section>
 
+        {/* ===== Health Guides: First Aid + Blood Types ===== */}
+        <HealthGuidesSection />
+
         {/* ===== Trust badge ===== */}
         <section className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
           <Shield className="h-3.5 w-3.5 text-secondary" />
