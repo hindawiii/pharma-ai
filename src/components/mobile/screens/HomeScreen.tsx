@@ -188,6 +188,9 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
           </div>
         </section>
 
+        {/* ===== Health Guides: First Aid + Blood Types (moved up) ===== */}
+        <HealthGuidesSection />
+
         {/* ===== Feature Showcase Carousel ===== */}
         <section aria-labelledby="features-title">
           <div className="flex items-center justify-between mb-3 px-1">
@@ -222,9 +225,6 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
             })}
           </div>
         </section>
-
-        {/* ===== Health Guides: First Aid + Blood Types ===== */}
-        <HealthGuidesSection />
 
         {/* ===== Trust badge ===== */}
         <section className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
