@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   ScanLine,
   MapPin,
@@ -8,6 +8,12 @@ import {
   Apple,
   Shield,
   ChevronLeft,
+  Droplet,
+  Brain,
+  Sun,
+  Moon,
+  Activity,
+  Utensils,
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
 import { HealthGuidesSection } from "./HealthGuides";
@@ -41,12 +47,18 @@ const XIcon = ({ className = "" }: { className?: string }) => (
 const SHARE_TEXT = "اكتشف Pharma-i — مساعدك الطبي الذكي";
 const buildShare = (base: string) => `${base}${encodeURIComponent("https://lovable.dev")}`;
 
-const tip = {
-  title: "اشرب الماء بانتظام",
-  body: "تناوُل 8 أكواب من الماء يومياً يعزّز وظائف الكلى ويقلّل الإجهاد ويُحسّن التركيز.",
-  tag: "توعية",
-  icon: Heart,
-};
+const TIPS = [
+  { title: "اشرب الماء بانتظام", body: "8 أكواب يومياً تعزّز وظائف الكلى وتُحسّن التركيز.", tag: "ترطيب", icon: Droplet },
+  { title: "النوم الكافي شفاء", body: "7–9 ساعات نوم ليلاً تقوّي المناعة وتنظّم الهرمونات.", tag: "نوم", icon: Moon },
+  { title: "تحرّك كل ساعة", body: "5 دقائق مشي خفيف تقلّل خطر الجلطات وآلام الظهر.", tag: "نشاط", icon: Activity },
+  { title: "غذاء متوازن", body: "أضِف الخضروات الورقية والبروتين لكل وجبة لمناعة أقوى.", tag: "تغذية", icon: Utensils },
+  { title: "اغسل يديك جيداً", body: "20 ثانية بالماء والصابون تمنع 80% من العدوى الشائعة.", tag: "وقاية", icon: Heart },
+  { title: "تحقّق من ضغط الدم", body: "قياس دوري للضغط يكشف الأمراض الصامتة مبكراً.", tag: "فحص", icon: Activity },
+  { title: "خفّف التوتر", body: "تنفّس عميق لـ4 ثوانٍ، احبس 7، أخرج 8 يهدّئ الجهاز العصبي.", tag: "صحة نفسية", icon: Brain },
+  { title: "احمِ بشرتك من الشمس", body: "استخدم واقي الشمس SPF 30+ حتى في الأيام الغائمة.", tag: "وقاية", icon: Sun },
+  { title: "لا تتجاهل الجرعات", body: "التزم بمواعيد دوائك لتفادي مقاومة الأدوية وانتكاس الحالة.", tag: "أدوية", icon: Pill },
+  { title: "تفاحة يومياً", body: "غنية بالألياف ومضادات الأكسدة تدعم القلب والهضم.", tag: "تغذية", icon: Apple },
+];
 
 const features = [
   { key: "scanner", title: "الماسح الذكي", desc: "تحليل الروشتة والباركود فوراً", icon: ScanLine, accent: "from-primary to-primary-glow" },
@@ -61,6 +73,7 @@ interface Props {
 
 export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
   const [chatOpen, setChatOpen] = useState(false);
+  const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
 
   return (
     <div className="relative min-h-full pb-32">
@@ -175,6 +188,9 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
           </div>
         </section>
 
+        {/* ===== Health Guides: First Aid + Blood Types (moved up) ===== */}
+        <HealthGuidesSection />
+
         {/* ===== Feature Showcase Carousel ===== */}
         <section aria-labelledby="features-title">
           <div className="flex items-center justify-between mb-3 px-1">
@@ -209,9 +225,6 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
             })}
           </div>
         </section>
-
-        {/* ===== Health Guides: First Aid + Blood Types ===== */}
-        <HealthGuidesSection />
 
         {/* ===== Trust badge ===== */}
         <section className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
