@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
-import { Cross, Droplet, X, Flame, Bone, HeartPulse, Bandage, Wind, Zap, Snowflake, Skull, Pill, AlertTriangle, Eye, Activity, BookOpen, Calculator, FlaskConical, HandHeart, Siren } from "lucide-react";
+import { Cross, Droplet, X, Siren } from "lucide-react";
 import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
+import { FIRST_AID_TABS, FirstAidContent, FirstAidIntro, type FirstAidKey } from "./FirstAidContent";
 
 // ────────────────────────────────────────────────────────────
 // Reusable Sheet (responsive: full-screen on mobile, centered card on larger)
