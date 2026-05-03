@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
-import { Cross, Droplet, X, Flame, Bone, HeartPulse, Bandage, Wind, Zap, Snowflake, Skull, Pill, AlertTriangle, Eye, Activity, BookOpen, Calculator, FlaskConical, HandHeart, Siren } from "lucide-react";
+import { Cross, Droplet, X, Siren } from "lucide-react";
 import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
+import { FIRST_AID_TABS, FirstAidContent, FirstAidIntro, type FirstAidKey } from "./FirstAidContent";
 
 // ────────────────────────────────────────────────────────────
 // Reusable Sheet (responsive: full-screen on mobile, centered card on larger)
@@ -52,32 +53,21 @@ const Sheet = ({ open, onClose, title, accent, children }: SheetProps) => {
 // ────────────────────────────────────────────────────────────
 // First Aid data
 // ────────────────────────────────────────────────────────────
-const firstAidCategories = [
-  { key: "fractures", label: "الكسور", icon: Bone },
-  { key: "burns", label: "الحروق", icon: Flame },
-  { key: "cpr", label: "الإنعاش CPR", icon: HeartPulse },
-  { key: "bleeding", label: "النزيف", icon: Bandage },
-  { key: "choking", label: "الاختناق", icon: Wind },
-  { key: "shock", label: "الصدمة", icon: Zap },
-  { key: "heatstroke", label: "ضربة الشمس", icon: Flame },
-  { key: "hypothermia", label: "انخفاض الحرارة", icon: Snowflake },
-  { key: "poisoning", label: "التسمم", icon: Skull },
-  { key: "overdose", label: "جرعة زائدة", icon: Pill },
-  { key: "allergy", label: "حساسية حادة", icon: AlertTriangle },
-  { key: "eye", label: "إصابات العين", icon: Eye },
-] as const;
-
 const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
-  const [active, setActive] = useState<string>(firstAidCategories[0].key);
-  const activeCat = firstAidCategories.find((c) => c.key === active)!;
+  const [active, setActive] = useState<FirstAidKey>(FIRST_AID_TABS[0].key);
+  const activeCat = FIRST_AID_TABS.find((c) => c.key === active)!;
   const ActiveIcon = activeCat.icon;
 
   return (
     <Sheet open={open} onClose={onClose} title="🔴 دليل الإسعافات الأولية" accent="from-[#C62828] to-[#8B1A1A]">
+      <div className="p-5 bg-white" dir="rtl">
+        <FirstAidIntro />
+      </div>
+
       {/* Category chips */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-3 py-3">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-y border-[#C62828]/15 px-3 py-3" dir="rtl">
         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {firstAidCategories.map((c) => {
+          {FIRST_AID_TABS.map((c) => {
             const Icon = c.icon;
             const isActive = c.key === active;
             return (
@@ -87,7 +77,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
                 className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-bounce ${
                   isActive
                     ? "bg-[#C62828] text-white shadow-soft"
-                    : "bg-muted text-foreground hover:bg-muted/70"
+                    : "bg-[#C62828]/5 text-[#C62828] hover:bg-[#C62828]/10"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -98,8 +88,8 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
         </div>
       </div>
 
-      {/* Content area */}
-      <div className="p-5 space-y-4">
+      {/* Content */}
+      <div className="p-5 space-y-4 bg-white" dir="rtl">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
@@ -110,11 +100,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            سيتم إضافة المحتوى التعليمي التفصيلي لهذا القسم قريباً، شاملاً الخطوات الموصى بها، علامات التحذير، ومتى يجب الاتصال بالطوارئ.
-          </p>
-        </div>
+        <FirstAidContent section={active} />
 
         <div className="rounded-2xl bg-[#C62828]/10 border border-[#C62828]/30 p-4 flex items-start gap-3">
           <Siren className="h-5 w-5 text-[#C62828] flex-shrink-0 mt-0.5" />
