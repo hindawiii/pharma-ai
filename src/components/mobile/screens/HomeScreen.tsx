@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   ScanLine,
   MapPin,
@@ -8,6 +8,12 @@ import {
   Apple,
   Shield,
   ChevronLeft,
+  Droplet,
+  Brain,
+  Sun,
+  Moon,
+  Activity,
+  Utensils,
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
 import { HealthGuidesSection } from "./HealthGuides";
