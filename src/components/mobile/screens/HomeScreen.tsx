@@ -73,6 +73,7 @@ interface Props {
 
 export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
   const [chatOpen, setChatOpen] = useState(false);
+  const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
 
   return (
     <div className="relative min-h-full pb-32">
