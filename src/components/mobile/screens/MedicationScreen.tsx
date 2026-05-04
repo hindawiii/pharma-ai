@@ -139,6 +139,16 @@ export const MedicationScreen = () => {
     return () => { cancelled = true; clearTimeout(id); };
   }, [query]);
 
+  // Client-side category filter applied on top of the server search results.
+  const filteredDrugs = useMemo(() => {
+    const cat = DRUG_CATEGORIES.find((c) => c.key === activeCategory);
+    if (!cat || cat.key === "all" || cat.keywords.length === 0) return drugs;
+    return drugs.filter((d) => {
+      const hay = `${d.category_ar ?? ""} ${d.scientific_ar} ${d.scientific_en} ${d.brand_ar} ${d.brand_en} ${d.description_ar ?? ""}`.toLowerCase();
+      return cat.keywords.some((kw) => hay.includes(kw.toLowerCase()));
+    });
+  }, [drugs, activeCategory]);
+
   // ---- Interactions (multi-drug) ----
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [pairResults, setPairResults] = useState<Array<{
