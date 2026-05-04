@@ -375,6 +375,28 @@ export const MedicationScreen = () => {
       {/* LIBRARY */}
       {tab === "library" && (
         <div className="px-4 mt-4">
+          {/* Category filter chips — horizontal scroll, RTL */}
+          <div dir="rtl" className="-mx-4 px-4 mb-3 overflow-x-auto scrollbar-none">
+            <div className="flex items-center gap-2 w-max font-sans">
+              {DRUG_CATEGORIES.map((c) => {
+                const active = activeCategory === c.key;
+                return (
+                  <button
+                    key={c.key}
+                    onClick={() => setActiveCategory(c.key)}
+                    className={`shrink-0 px-4 h-9 rounded-full text-xs font-bold border transition-colors duration-150 active:scale-95 ${
+                      active
+                        ? "bg-primary text-primary-foreground border-primary shadow-soft"
+                        : "bg-card text-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="relative mb-3">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
@@ -386,7 +408,7 @@ export const MedicationScreen = () => {
             {searching && <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />}
           </div>
           <div className="space-y-2">
-            {drugs.map((d) => (
+            {filteredDrugs.map((d) => (
               <div key={d.id} className="rounded-2xl p-3 bg-card border border-border shadow-soft flex items-center gap-3">
                 <div className="h-11 w-11 rounded-2xl bg-primary/15 text-primary flex items-center justify-center">
                   <Pill className="h-5 w-5" />
@@ -410,8 +432,10 @@ export const MedicationScreen = () => {
                 </button>
               </div>
             ))}
-            {!searching && drugs.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8">لا توجد نتائج لبحثك</p>
+            {!searching && filteredDrugs.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-8">
+                {drugs.length === 0 ? "لا توجد نتائج لبحثك" : "لا توجد أدوية ضمن هذه الفئة"}
+              </p>
             )}
           </div>
         </div>
