@@ -84,6 +84,7 @@ export const MedicationScreen = () => {
   const [query, setQuery] = useState("");
   const [drugs, setDrugs] = useState<Drug[]>([]);
   const [searching, setSearching] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   useEffect(() => {
     let cancelled = false;
