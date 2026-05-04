@@ -378,14 +378,14 @@ export const MedicationScreen = () => {
         <div className="px-4 mt-4">
           {/* Category filter chips — horizontal scroll, RTL */}
           <div dir="rtl" className="-mx-4 px-4 mb-3 overflow-x-auto scrollbar-none">
-            <div className="flex items-center gap-2 w-max font-sans">
+            <div className="flex items-center gap-1.5 w-max font-sans">
               {DRUG_CATEGORIES.map((c) => {
                 const active = activeCategory === c.key;
                 return (
                   <button
                     key={c.key}
                     onClick={() => setActiveCategory(c.key)}
-                    className={`shrink-0 px-4 h-9 rounded-full text-xs font-bold border transition-colors duration-150 active:scale-95 ${
+                    className={`shrink-0 px-3 h-7 rounded-full text-[11px] font-bold border transition-colors duration-150 active:scale-95 ${
                       active
                         ? "bg-primary text-primary-foreground border-primary shadow-soft"
                         : "bg-card text-foreground border-border hover:bg-muted"
@@ -404,37 +404,49 @@ export const MedicationScreen = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ابحث بالاسم التجاري أو العلمي (عربي/English)..."
-              className="w-full h-12 rounded-2xl bg-card border border-border pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary shadow-soft"
+              className="w-full h-11 rounded-2xl bg-card border border-border pr-10 pl-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary shadow-soft"
             />
             {searching && <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-spin" />}
           </div>
-          <div className="space-y-2">
+
+          {/* Compact 2-column grid of drug cards */}
+          <div dir="rtl" className="grid grid-cols-2 gap-2 font-sans">
             {filteredDrugs.map((d) => (
-              <div key={d.id} className="rounded-2xl p-3 bg-card border border-border shadow-soft flex items-center gap-3">
-                <div className="h-11 w-11 rounded-2xl bg-primary/15 text-primary flex items-center justify-center">
-                  <Pill className="h-5 w-5" />
+              <button
+                key={d.id}
+                onClick={() => setSelectedDrug(d)}
+                className="text-right rounded-2xl p-2.5 bg-card border border-border shadow-soft active:scale-[0.98] transition-bounce flex flex-col gap-1.5 min-h-[112px]"
+              >
+                <div className="flex items-start justify-between gap-1">
+                  <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                    <Pill className="h-4 w-4" />
+                  </div>
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); speak(`${d.brand_ar}. ${d.scientific_ar}`); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); speak(`${d.brand_ar}. ${d.scientific_ar}`); } }}
+                    aria-label={`نطق ${d.brand_ar}`}
+                    className="h-7 w-7 rounded-full bg-secondary/10 text-secondary flex items-center justify-center active:scale-95 cursor-pointer"
+                  >
+                    <Volume2 className="h-3.5 w-3.5" />
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{d.brand_ar} <span className="text-muted-foreground font-normal">· {d.brand_en}</span></p>
-                  <p className="text-[11px] text-muted-foreground truncate">{d.scientific_ar} · {d.category_ar ?? ""}</p>
-                </div>
-                <button
-                  onClick={() => speak(`${d.brand_ar}. ${d.scientific_ar}`)}
-                  aria-label={`نطق ${d.brand_ar}`}
-                  className="h-9 w-9 rounded-full bg-secondary/10 text-secondary flex items-center justify-center active:scale-95 transition-bounce"
-                >
-                  <Volume2 className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setSelectedDrug(d)}
-                  className="text-[11px] font-bold text-primary px-3 py-1 rounded-full bg-primary/10 active:scale-95 transition-bounce"
-                >
-                  تفاصيل
-                </button>
-              </div>
+                <p className="font-extrabold text-[12.5px] leading-tight text-foreground line-clamp-2">
+                  {d.brand_ar}
+                </p>
+                <p className="text-[10.5px] text-muted-foreground line-clamp-1">
+                  {d.scientific_ar}
+                </p>
+                {d.category_ar && (
+                  <span className="self-start text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-auto line-clamp-1">
+                    {d.category_ar}
+                  </span>
+                )}
+              </button>
             ))}
             {!searching && filteredDrugs.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-8">
+              <p className="col-span-2 text-center text-sm text-muted-foreground py-8">
                 {drugs.length === 0 ? "لا توجد نتائج لبحثك" : "لا توجد أدوية ضمن هذه الفئة"}
               </p>
             )}
