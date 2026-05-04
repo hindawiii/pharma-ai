@@ -188,52 +188,26 @@ export const HealthGuidesSection = memo(() => {
   const [openBlood, setOpenBlood] = useState(false);
 
   return (
-    <section aria-labelledby="health-guides-title" className="space-y-3">
-      <div className="flex items-center justify-between px-1">
-        <h2 id="health-guides-title" className="text-base font-extrabold text-foreground">
-          دلائل صحية سريعة
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        {/* First Aid card */}
+    <section aria-labelledby="health-guides-title" dir="rtl" style={{ fontFamily: "'Cairo','Noto Sans Arabic',system-ui,sans-serif" }}>
+      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+        {/* First Aid compact chip */}
         <button
           onClick={() => setOpenFirstAid(true)}
-          className="relative overflow-hidden rounded-3xl p-4 text-right shadow-soft border border-white/10 transition-bounce active:scale-95 hover:shadow-card"
-          style={{ background: "linear-gradient(135deg, #C62828 0%, #8B1A1A 100%)" }}
+          className="shrink-0 inline-flex items-center gap-2 h-9 px-3 rounded-full text-white text-[12px] font-extrabold shadow-soft transition-bounce active:scale-95"
+          style={{ background: "linear-gradient(135deg,#C62828 0%,#8B1A1A 100%)" }}
         >
-          <div className="absolute -top-6 -left-6 h-24 w-24 rounded-full bg-white/15 blur-xl" />
-          <div className="relative">
-            <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center mb-3">
-              <Cross className="h-6 w-6 text-white" strokeWidth={2.5} />
-            </div>
-            <h3 className="text-sm font-extrabold text-white leading-tight mb-1">
-              دليل الإسعافات الأولية
-            </h3>
-            <p className="text-[11px] text-white/85 leading-relaxed">
-              ١٢ حالة طارئة وخطوات إنقاذ سريعة
-            </p>
-          </div>
+          <Cross className="h-4 w-4" strokeWidth={2.75} />
+          <span>الإسعافات الأولية</span>
         </button>
 
-        {/* Blood Types card */}
+        {/* Blood Types compact chip */}
         <button
           onClick={() => setOpenBlood(true)}
-          className="relative overflow-hidden rounded-3xl p-4 text-right shadow-soft border border-white/10 transition-bounce active:scale-95 hover:shadow-card"
-          style={{ background: "linear-gradient(135deg, #1D3557 0%, #2A9D8F 100%)" }}
+          className="shrink-0 inline-flex items-center gap-2 h-9 px-3 rounded-full text-white text-[12px] font-extrabold shadow-soft transition-bounce active:scale-95"
+          style={{ background: "linear-gradient(135deg,#1D3557 0%,#2A9D8F 100%)" }}
         >
-          <div className="absolute -top-6 -left-6 h-24 w-24 rounded-full bg-white/15 blur-xl" />
-          <div className="relative">
-            <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center mb-3">
-              <Droplet className="h-6 w-6 text-white" fill="currentColor" />
-            </div>
-            <h3 className="text-sm font-extrabold text-white leading-tight mb-1">
-              🩸 فصائل الدم
-            </h3>
-            <p className="text-[11px] text-white/85 leading-relaxed">
-              موسوعة، توافق، تبرع وطلب عاجل
-            </p>
-          </div>
+          <Droplet className="h-4 w-4" fill="currentColor" />
+          <span>فصائل الدم</span>
         </button>
       </div>
 
