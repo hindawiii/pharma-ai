@@ -155,37 +155,22 @@ const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =
 
   return (
     <Sheet open={open} onClose={onClose} title="🩸 فصائل الدم والموسوعة" accent="from-[#C62828] to-[#8B1A1A]">
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-[#C62828]/15 px-3 py-3" dir="rtl">
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {BLOOD_TABS.map((c) => {
-            const Icon = c.icon;
-            const isActive = c.key === active;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setActive(c.key)}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-bounce ${
-                  isActive
-                    ? "bg-[#C62828] text-white shadow-soft"
-                    : "bg-[#C62828]/5 text-[#C62828] hover:bg-[#C62828]/10"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {c.label}
-              </button>
-            );
-          })}
-        </div>
+      <div className="px-4 pt-4 pb-2 bg-white" dir="rtl">
+        <CategoryGrid
+          items={BLOOD_TABS as unknown as GridItem[]}
+          active={active}
+          onSelect={(k) => setActive(k as BloodSectionKey)}
+        />
       </div>
 
-      <div className="p-5 space-y-4 bg-white" dir="rtl">
+      <div className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2" dir="rtl">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
           </div>
           <div>
             <h3 className="text-xl font-extrabold text-foreground">{activeCat.label}</h3>
-            <p className="text-xs text-muted-foreground">معلومات تفاعلية شاملة عن فصائل الدم</p>
+            <p className="text-sm text-muted-foreground">معلومات تفاعلية شاملة عن فصائل الدم</p>
           </div>
         </div>
 
