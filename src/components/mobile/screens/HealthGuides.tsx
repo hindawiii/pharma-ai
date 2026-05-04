@@ -24,7 +24,8 @@ const Sheet = ({ open, onClose, title, accent, children }: SheetProps) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full sm:max-w-lg h-[92dvh] sm:h-[85dvh] bg-background rounded-t-3xl sm:rounded-3xl shadow-elegant overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300"
+        className="relative w-full sm:max-w-2xl h-[95dvh] sm:h-[90dvh] bg-background rounded-t-3xl sm:rounded-3xl shadow-elegant overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300"
+        style={{ fontFamily: "'Cairo','Noto Sans Arabic',system-ui,sans-serif" }}
       >
         {/* Header */}
         <div className={`relative px-5 py-4 bg-gradient-to-l ${accent} text-white flex-shrink-0`}>
@@ -49,6 +50,52 @@ const Sheet = ({ open, onClose, title, accent, children }: SheetProps) => {
     </div>
   );
 };
+
+// ────────────────────────────────────────────────────────────
+// Grid of categories — expands selected item content below
+// ────────────────────────────────────────────────────────────
+interface GridItem {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+const CategoryGrid = ({
+  items,
+  active,
+  onSelect,
+  accent = "#C62828",
+}: {
+  items: GridItem[];
+  active: string;
+  onSelect: (k: string) => void;
+  accent?: string;
+}) => (
+  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5" dir="rtl">
+    {items.map((c) => {
+      const Icon = c.icon;
+      const isActive = c.key === active;
+      return (
+        <button
+          key={c.key}
+          onClick={() => onSelect(c.key)}
+          className={`flex flex-col items-center justify-center gap-2 px-3 py-4 rounded-2xl border-2 text-center transition-bounce active:scale-95 ${
+            isActive
+              ? "text-white shadow-soft"
+              : "bg-white hover:bg-[#C62828]/5"
+          }`}
+          style={{
+            borderColor: accent,
+            background: isActive ? accent : undefined,
+            color: isActive ? "#fff" : accent,
+          }}
+        >
+          <Icon className="h-6 w-6" />
+          <span className="text-[13px] font-extrabold leading-tight">{c.label}</span>
+        </button>
+      );
+    })}
+  </div>
+);
 
 // ────────────────────────────────────────────────────────────
 // First Aid data
