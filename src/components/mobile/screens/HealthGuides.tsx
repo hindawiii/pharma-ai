@@ -24,7 +24,8 @@ const Sheet = ({ open, onClose, title, accent, children }: SheetProps) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full sm:max-w-lg h-[92dvh] sm:h-[85dvh] bg-background rounded-t-3xl sm:rounded-3xl shadow-elegant overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300"
+        className="relative w-full sm:max-w-2xl h-[95dvh] sm:h-[90dvh] bg-background rounded-t-3xl sm:rounded-3xl shadow-elegant overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300"
+        style={{ fontFamily: "'Cairo','Noto Sans Arabic',system-ui,sans-serif" }}
       >
         {/* Header */}
         <div className={`relative px-5 py-4 bg-gradient-to-l ${accent} text-white flex-shrink-0`}>
@@ -51,6 +52,52 @@ const Sheet = ({ open, onClose, title, accent, children }: SheetProps) => {
 };
 
 // ────────────────────────────────────────────────────────────
+// Grid of categories — expands selected item content below
+// ────────────────────────────────────────────────────────────
+interface GridItem {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+const CategoryGrid = ({
+  items,
+  active,
+  onSelect,
+  accent = "#C62828",
+}: {
+  items: GridItem[];
+  active: string;
+  onSelect: (k: string) => void;
+  accent?: string;
+}) => (
+  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5" dir="rtl">
+    {items.map((c) => {
+      const Icon = c.icon;
+      const isActive = c.key === active;
+      return (
+        <button
+          key={c.key}
+          onClick={() => onSelect(c.key)}
+          className={`flex flex-col items-center justify-center gap-2 px-3 py-4 rounded-2xl border-2 text-center transition-bounce active:scale-95 ${
+            isActive
+              ? "text-white shadow-soft"
+              : "bg-white hover:bg-[#C62828]/5"
+          }`}
+          style={{
+            borderColor: accent,
+            background: isActive ? accent : undefined,
+            color: isActive ? "#fff" : accent,
+          }}
+        >
+          <Icon className="h-6 w-6" />
+          <span className="text-[13px] font-extrabold leading-tight">{c.label}</span>
+        </button>
+      );
+    })}
+  </div>
+);
+
+// ────────────────────────────────────────────────────────────
 // First Aid data
 // ────────────────────────────────────────────────────────────
 const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
@@ -64,39 +111,24 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
         <FirstAidIntro />
       </div>
 
-      {/* Category chips */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-y border-[#C62828]/15 px-3 py-3" dir="rtl">
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {FIRST_AID_TABS.map((c) => {
-            const Icon = c.icon;
-            const isActive = c.key === active;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setActive(c.key)}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-bounce ${
-                  isActive
-                    ? "bg-[#C62828] text-white shadow-soft"
-                    : "bg-[#C62828]/5 text-[#C62828] hover:bg-[#C62828]/10"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {c.label}
-              </button>
-            );
-          })}
-        </div>
+      {/* Category grid */}
+      <div className="px-4 pb-2 bg-white" dir="rtl">
+        <CategoryGrid
+          items={FIRST_AID_TABS as unknown as GridItem[]}
+          active={active}
+          onSelect={(k) => setActive(k as FirstAidKey)}
+        />
       </div>
 
-      {/* Content */}
-      <div className="p-5 space-y-4 bg-white" dir="rtl">
+      {/* Selected content */}
+      <div className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2" dir="rtl">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
           </div>
           <div>
             <h3 className="text-xl font-extrabold text-foreground">{activeCat.label}</h3>
-            <p className="text-xs text-muted-foreground">خطوات الإسعاف الأولي والإرشادات الموصى بها</p>
+            <p className="text-sm text-muted-foreground">خطوات الإسعاف الأولي والإرشادات الموصى بها</p>
           </div>
         </div>
 
@@ -104,7 +136,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
 
         <div className="rounded-2xl bg-[#C62828]/10 border border-[#C62828]/30 p-4 flex items-start gap-3">
           <Siren className="h-5 w-5 text-[#C62828] flex-shrink-0 mt-0.5" />
-          <p className="text-xs font-bold text-[#C62828] leading-relaxed">
+          <p className="text-sm font-bold text-[#C62828] leading-relaxed">
             في حالة الطوارئ، اتصل فوراً برقم الإسعاف 123. هذا الدليل لا يغني عن المساعدة الطبية المتخصصة.
           </p>
         </div>
@@ -123,37 +155,22 @@ const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =
 
   return (
     <Sheet open={open} onClose={onClose} title="🩸 فصائل الدم والموسوعة" accent="from-[#C62828] to-[#8B1A1A]">
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-[#C62828]/15 px-3 py-3" dir="rtl">
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {BLOOD_TABS.map((c) => {
-            const Icon = c.icon;
-            const isActive = c.key === active;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setActive(c.key)}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-bounce ${
-                  isActive
-                    ? "bg-[#C62828] text-white shadow-soft"
-                    : "bg-[#C62828]/5 text-[#C62828] hover:bg-[#C62828]/10"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {c.label}
-              </button>
-            );
-          })}
-        </div>
+      <div className="px-4 pt-4 pb-2 bg-white" dir="rtl">
+        <CategoryGrid
+          items={BLOOD_TABS as unknown as GridItem[]}
+          active={active}
+          onSelect={(k) => setActive(k as BloodSectionKey)}
+        />
       </div>
 
-      <div className="p-5 space-y-4 bg-white" dir="rtl">
+      <div className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2" dir="rtl">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
           </div>
           <div>
             <h3 className="text-xl font-extrabold text-foreground">{activeCat.label}</h3>
-            <p className="text-xs text-muted-foreground">معلومات تفاعلية شاملة عن فصائل الدم</p>
+            <p className="text-sm text-muted-foreground">معلومات تفاعلية شاملة عن فصائل الدم</p>
           </div>
         </div>
 
