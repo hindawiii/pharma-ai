@@ -2,6 +2,7 @@ import { MapPin, Navigation, Clock, Cross, Search, Phone, LocateFixed, Loader2 }
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { InAppMapSheet, MapTarget } from "../InAppMapSheet";
 
 interface Pharmacy {
   id: string;
