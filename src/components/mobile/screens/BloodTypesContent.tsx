@@ -514,11 +514,18 @@ const CompatCard = ({
 // Section 5: Urgent need (Rakoba community)
 // ────────────────────────────────────────────────────────────
 const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) => {
+  const { location } = useUserLocation();
+  const country = getCountryByCode(location?.countryCode);
   const [type, setType] = useState<BloodType>("O+");
   const [city, setCity] = useState("");
   const [hospital, setHospital] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  // Auto-fill city from detected location
+  useEffect(() => {
+    if (location?.city && !city) setCity(location.city);
+  }, [location?.city]);
 
   const handleSubmit = () => {
     setSubmitted(true);
@@ -536,6 +543,15 @@ const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) =>
         <p className="text-[11px] text-white/85 leading-relaxed">
           أرسل طلبك إلى مجتمع رقوبة وسيصل التنبيه فوراً للمتبرعين المتطوعين في منطقتك.
         </p>
+        <div className="mt-2 flex items-center gap-1.5 text-[11px] bg-white/15 rounded-full px-2.5 py-1 w-fit">
+          <MapPin className="h-3 w-3" />
+          <span>{country.flag} {country.nameAr}{location?.city ? ` · ${location.city}` : ""}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-bold text-foreground">المنطقة (للمطابقة)</span>
+        <CountrySelector compact />
       </div>
 
       <div className="space-y-3">
@@ -556,7 +572,7 @@ const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) =>
           </div>
         </div>
 
-        <UrgentInput label="المدينة" value={city} onChange={setCity} placeholder="مثال: الخرطوم" />
+        <UrgentInput label={`المدينة (${country.nameAr})`} value={city} onChange={setCity} placeholder="مثال: الخرطوم" />
         <UrgentInput label="المستشفى" value={hospital} onChange={setHospital} placeholder="مثال: مستشفى الأكاديمي" />
         <UrgentInput label="رقم التواصل" value={phone} onChange={setPhone} placeholder="رقم الهاتف" />
       </div>
@@ -567,7 +583,7 @@ const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) =>
         className="w-full h-14 rounded-2xl bg-[#C62828] text-white font-extrabold text-sm shadow-elegant transition-bounce active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
       >
         <Siren className="h-5 w-5" />
-        {submitted ? "تم إرسال الطلب إلى مجتمع رقوبة ✓" : "🚨 طلب تبرع عاجل"}
+        {submitted ? `تم إرسال الطلب (${type}) إلى ${city} ✓` : `🚨 طلب تبرع عاجل · ${city || "حدد المدينة"}`}
       </button>
     </div>
   );
