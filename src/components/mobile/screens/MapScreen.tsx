@@ -170,7 +170,17 @@ export const MapScreen = () => {
         )}
         <div className="space-y-2">
           {sortedPlaces.map((p) => (
-            <div key={p.id} className="flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth">
+            <button
+              key={p.id}
+              onClick={() => {
+                if (p.lat == null || p.lng == null) {
+                  toast.error("لا تتوفر إحداثيات لهذا الموقع");
+                  return;
+                }
+                setMapTarget({ name: p.name, lat: Number(p.lat), lng: Number(p.lng) });
+              }}
+              className="w-full text-right flex items-center gap-3 p-3 rounded-2xl bg-background border border-border hover:shadow-soft transition-smooth active:scale-[0.99]"
+            >
               <div className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-soft ${p.open_24h ? "bg-secondary" : "bg-primary"}`}>
                 <Cross className="h-5 w-5" />
               </div>
@@ -188,17 +198,29 @@ export const MapScreen = () => {
                 </p>
               </div>
               {p.phone && (
-                <a href={`tel:${p.phone}`} className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center" aria-label="اتصال">
+                <a
+                  href={`tel:${p.phone}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-10 w-10 rounded-xl gradient-primary text-white flex items-center justify-center"
+                  aria-label="اتصال"
+                >
                   <Phone className="h-4 w-4" />
                 </a>
               )}
-            </div>
+            </button>
           ))}
           {!loadingList && sortedPlaces.length === 0 && (
             <p className="text-center text-sm text-muted-foreground py-6">لا توجد صيدليات في قاعدة البيانات</p>
           )}
         </div>
       </div>
+
+      <InAppMapSheet
+        open={!!mapTarget}
+        onClose={() => setMapTarget(null)}
+        user={coords}
+        target={mapTarget}
+      />
     </div>
   );
 };
