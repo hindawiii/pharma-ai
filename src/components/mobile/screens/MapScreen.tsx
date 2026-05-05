@@ -30,6 +30,7 @@ export const MapScreen = () => {
   const [loading, setLoading] = useState(false);
   const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [mapTarget, setMapTarget] = useState<MapTarget | null>(null);
 
   useEffect(() => {
     (async () => {
