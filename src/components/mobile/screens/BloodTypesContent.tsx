@@ -1,5 +1,8 @@
-import { memo, useMemo, useState } from "react";
-import { BookOpen, Calculator, FlaskConical, HandHeart, Siren, ArrowLeftRight, Droplet, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { memo, useEffect, useMemo, useState } from "react";
+import { BookOpen, Calculator, FlaskConical, HandHeart, Siren, ArrowLeftRight, Droplet, AlertTriangle, CheckCircle2, XCircle, MapPin } from "lucide-react";
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { getCountryByCode } from "@/lib/emergencyNumbers";
+import { CountrySelector } from "../CountrySelector";
 
 // ────────────────────────────────────────────────────────────
 // Shared types & data
