@@ -70,7 +70,7 @@ const CategoryGrid = ({
   onSelect: (k: string) => void;
   accent?: string;
 }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5" dir="rtl">
+  <div className="grid grid-cols-3 gap-2" dir="rtl">
     {items.map((c) => {
       const Icon = c.icon;
       const isActive = c.key === active;
@@ -78,10 +78,8 @@ const CategoryGrid = ({
         <button
           key={c.key}
           onClick={() => onSelect(c.key)}
-          className={`flex flex-col items-center justify-center gap-2 px-3 py-4 rounded-2xl border-2 text-center transition-bounce active:scale-95 ${
-            isActive
-              ? "text-white shadow-soft"
-              : "bg-white hover:bg-[#C62828]/5"
+          className={`flex flex-col items-center justify-center gap-1 px-2 py-2.5 rounded-xl border text-center transition-bounce active:scale-95 ${
+            isActive ? "text-white shadow-soft" : "bg-white hover:bg-[#C62828]/5"
           }`}
           style={{
             borderColor: accent,
@@ -89,8 +87,8 @@ const CategoryGrid = ({
             color: isActive ? "#fff" : accent,
           }}
         >
-          <Icon className="h-6 w-6" />
-          <span className="text-[13px] font-extrabold leading-tight">{c.label}</span>
+          <Icon className="h-4 w-4" />
+          <span className="text-[11px] font-bold leading-tight line-clamp-2">{c.label}</span>
         </button>
       );
     })}
