@@ -2,8 +2,12 @@ import { memo } from "react";
 import {
   Bone, Flame, Droplet, HeartPulse, Activity, Eye, Bug, Sun,
   Soup, Snowflake, Candy, Gauge, Phone, AlertTriangle, CheckCircle2, XCircle, Info,
+  Shield, Siren,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { getCountryByCode } from "@/lib/emergencyNumbers";
+import { CountrySelector } from "../CountrySelector";
 
 export type FirstAidKey =
   | "fractures" | "burns" | "nosebleed" | "cpr" | "strokes" | "eye"
