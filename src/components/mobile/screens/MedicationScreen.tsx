@@ -376,26 +376,24 @@ export const MedicationScreen = () => {
       {/* LIBRARY */}
       {tab === "library" && (
         <div className="px-4 mt-4">
-          {/* Category filter chips — horizontal scroll, RTL */}
-          <div dir="rtl" className="-mx-4 px-4 mb-3 overflow-x-auto scrollbar-none">
-            <div className="flex items-center gap-1.5 w-max font-sans">
-              {DRUG_CATEGORIES.map((c) => {
-                const active = activeCategory === c.key;
-                return (
-                  <button
-                    key={c.key}
-                    onClick={() => setActiveCategory(c.key)}
-                    className={`shrink-0 px-3 h-7 rounded-full text-[11px] font-bold border transition-colors duration-150 active:scale-95 ${
-                      active
-                        ? "bg-primary text-primary-foreground border-primary shadow-soft"
-                        : "bg-card text-foreground border-border hover:bg-muted"
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                );
-              })}
-            </div>
+          {/* Category filter — compact 3-column grid, RTL */}
+          <div dir="rtl" className="mb-3 grid grid-cols-3 gap-1.5 font-sans">
+            {DRUG_CATEGORIES.map((c) => {
+              const active = activeCategory === c.key;
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => setActiveCategory(c.key)}
+                  className={`w-full min-h-8 px-2 py-1.5 rounded-xl text-[11px] leading-tight font-bold border transition-colors duration-150 active:scale-95 text-center break-words ${
+                    active
+                      ? "bg-primary text-primary-foreground border-primary shadow-soft"
+                      : "bg-card text-foreground border-border hover:bg-muted"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="relative mb-3">
