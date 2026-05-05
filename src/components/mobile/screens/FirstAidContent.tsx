@@ -105,50 +105,63 @@ const SimpleTable = ({ headers, rows }: { headers: string[]; rows: string[][] })
 // ────────────────────────────────────────────────────────────
 // Intro block
 // ────────────────────────────────────────────────────────────
-export const FirstAidIntro = memo(() => (
-  <div className="space-y-3">
-    <div className="rounded-2xl bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white p-4 shadow-soft">
-      <h3 className="text-base font-extrabold mb-2">أهمية الإسعافات الأولية</h3>
-      <p className="text-xs leading-relaxed text-white/95">
-        الإسعافات الأولية هي المساعدة الطبية الفورية التي تُقدَّم لمصاب قبل وصول المساعدة الطبية المتخصصة.
-      </p>
-      <p className="text-xs leading-relaxed text-white/95 mt-2">
-        تهدف إلى إنقاذ الحياة، منع تفاقم الإصابة، تخفيف الألم، وتجنب المضاعفات.
-      </p>
-    </div>
+export const FirstAidIntro = memo(() => {
+  const { location } = useUserLocation();
+  const country = getCountryByCode(location?.countryCode);
+  const items = [
+    { label: "الإسعاف", num: country.numbers.ambulance, icon: Siren },
+    { label: "الطوارئ", num: country.numbers.police, icon: Shield },
+    { label: "المطافئ", num: country.numbers.fire, icon: Flame },
+  ];
 
-    <div className="rounded-2xl border-r-4 border-[#C62828] bg-[#C62828]/5 p-3">
-      <p className="text-sm font-bold text-[#C62828] leading-relaxed">
-        "كل دقيقة لها أهميتها"
-      </p>
-      <p className="text-xs text-foreground mt-1 leading-relaxed">
-        السرعة في التدخل هي الفرق بين الحياة والوفاة.
-      </p>
-    </div>
+  return (
+    <div className="space-y-3">
+      <div className="rounded-2xl bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white p-4 shadow-soft">
+        <h3 className="text-base font-extrabold mb-2">أهمية الإسعافات الأولية</h3>
+        <p className="text-xs leading-relaxed text-white/95">
+          الإسعافات الأولية هي المساعدة الطبية الفورية التي تُقدَّم لمصاب قبل وصول المساعدة الطبية المتخصصة.
+        </p>
+        <p className="text-xs leading-relaxed text-white/95 mt-2">
+          تهدف إلى إنقاذ الحياة، منع تفاقم الإصابة، تخفيف الألم، وتجنب المضاعفات.
+        </p>
+      </div>
 
-    {/* Emergency numbers */}
-    <div>
-      <h4 className="text-sm font-extrabold text-foreground mb-2">أرقام الطوارئ</h4>
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { label: "الإسعاف", num: "123" },
-          { label: "الطوارئ", num: "122" },
-          { label: "المطافئ", num: "180" },
-        ].map((x) => (
-          <a
-            key={x.num}
-            href={`tel:${x.num}`}
-            className="rounded-2xl bg-white border-2 border-[#C62828] p-3 flex flex-col items-center gap-1 transition-bounce active:scale-95 hover:bg-[#C62828]/5"
-          >
-            <Phone className="h-4 w-4 text-[#C62828]" />
-            <span className="text-[11px] font-bold text-foreground">{x.label}</span>
-            <span className="text-base font-extrabold text-[#C62828] tracking-wider">{x.num}</span>
-          </a>
-        ))}
+      <div className="rounded-2xl border-r-4 border-[#C62828] bg-[#C62828]/5 p-3">
+        <p className="text-sm font-bold text-[#C62828] leading-relaxed">"كل دقيقة لها أهميتها"</p>
+        <p className="text-xs text-foreground mt-1 leading-relaxed">
+          السرعة في التدخل هي الفرق بين الحياة والوفاة.
+        </p>
+      </div>
+
+      {/* Emergency numbers — country aware */}
+      <div>
+        <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+          <h4 className="text-sm font-extrabold text-foreground">أرقام الطوارئ ({country.nameAr})</h4>
+          <CountrySelector compact />
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {items.map((x) => {
+            const Icon = x.icon;
+            return (
+              <a
+                key={x.label}
+                href={`tel:${x.num}`}
+                className="rounded-2xl bg-white border-2 border-[#C62828] p-3 flex flex-col items-center gap-1 transition-bounce active:scale-95 hover:bg-[#C62828]/5"
+              >
+                <Icon className="h-4 w-4 text-[#C62828]" />
+                <span className="text-[11px] font-bold text-foreground">{x.label}</span>
+                <span className="text-base font-extrabold text-[#C62828] tracking-wider">{x.num}</span>
+              </a>
+            );
+          })}
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
+          الأرقام تتحدث تلقائياً حسب موقعك. اضغط على المؤشّر لتحديد الموقع أو غيّر الدولة يدوياً.
+        </p>
       </div>
     </div>
-  </div>
-));
+  );
+});
 FirstAidIntro.displayName = "FirstAidIntro";
 
 // ────────────────────────────────────────────────────────────
