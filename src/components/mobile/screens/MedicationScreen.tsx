@@ -48,10 +48,10 @@ const DRUG_CATEGORIES: { key: string; label: string; keywords: string[] }[] = [
   { key: "all", label: "الكل", keywords: [] },
   { key: "heart", label: "🫀 القلب", keywords: ["قلب", "ضغط الدم", "heart", "cardio", "بيتا", "نترات"] },
   { key: "diabetes", label: "🩸 السكر", keywords: ["سكر", "سكري", "diabetes", "ميتفورمين", "إنسولين", "انسولين"] },
-  { key: "bp_ibs", label: "🩺 الضغط والمصران", keywords: ["ضغط", "مصران", "قولون", "أمعاء", "امعاء", "ibs", "hypertension"] },
-  { key: "depression", label: "🧠 الاكتئاب والمهدئات", keywords: ["اكتئاب", "مهدئ", "قلق", "مزاج", "depression", "anxio", "sedative", "نوم"] },
+  { key: "bp_ibs", label: "🩺 الضغط/المصران", keywords: ["ضغط", "مصران", "قولون", "أمعاء", "امعاء", "ibs", "hypertension"] },
+  { key: "depression", label: "🧠 الاكتئاب", keywords: ["اكتئاب", "مهدئ", "قلق", "مزاج", "depression", "anxio", "sedative", "نوم"] },
   { key: "stomach", label: "💊 المعدة", keywords: ["معدة", "حموضة", "قرحة", "هضم", "stomach", "antacid", "ppi", "أوميبرازول"] },
-  { key: "pain", label: "🩹 مسكنات الألم", keywords: ["مسكن", "ألم", "صداع", "باراسيتامول", "ايبوبروفين", "إيبوبروفين", "اسبرين", "أسبرين", "analgesic", "pain", "nsaid", "paracetamol", "ibuprofen"] },
+  { key: "pain", label: "🩹 المسكنات", keywords: ["مسكن", "ألم", "صداع", "باراسيتامول", "ايبوبروفين", "إيبوبروفين", "اسبرين", "أسبرين", "analgesic", "pain", "nsaid", "paracetamol", "ibuprofen"] },
 ];
 
 // ---- helper: cross-reference allergies & chronic conditions ----
