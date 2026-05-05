@@ -189,25 +189,40 @@ export const HealthGuidesSection = memo(() => {
 
   return (
     <section aria-labelledby="health-guides-title" dir="rtl" style={{ fontFamily: "'Cairo','Noto Sans Arabic',system-ui,sans-serif" }}>
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-        {/* First Aid compact chip */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* First Aid card */}
         <button
           onClick={() => setOpenFirstAid(true)}
-          className="shrink-0 inline-flex items-center gap-2 h-9 px-3 rounded-full text-white text-[12px] font-extrabold shadow-soft transition-bounce active:scale-95"
+          className="relative overflow-hidden rounded-2xl p-4 text-right text-white shadow-elegant transition-bounce active:scale-95 min-h-[110px] flex flex-col justify-between"
           style={{ background: "linear-gradient(135deg,#C62828 0%,#8B1A1A 100%)" }}
         >
-          <Cross className="h-4 w-4" strokeWidth={2.75} />
-          <span>الإسعافات الأولية</span>
+          <div className="flex items-center justify-between">
+            <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <Cross className="h-6 w-6" strokeWidth={2.75} />
+            </div>
+            <Siren className="h-5 w-5 opacity-70" />
+          </div>
+          <div className="space-y-0.5">
+            <h3 className="text-base font-extrabold leading-tight">الإسعافات الأولية</h3>
+            <p className="text-[11px] opacity-90 leading-snug">دليل تفاعلي للحالات الطارئة</p>
+          </div>
         </button>
 
-        {/* Blood Types compact chip */}
+        {/* Blood Types card */}
         <button
           onClick={() => setOpenBlood(true)}
-          className="shrink-0 inline-flex items-center gap-2 h-9 px-3 rounded-full text-white text-[12px] font-extrabold shadow-soft transition-bounce active:scale-95"
+          className="relative overflow-hidden rounded-2xl p-4 text-right text-white shadow-elegant transition-bounce active:scale-95 min-h-[110px] flex flex-col justify-between"
           style={{ background: "linear-gradient(135deg,#1D3557 0%,#2A9D8F 100%)" }}
         >
-          <Droplet className="h-4 w-4" fill="currentColor" />
-          <span>فصائل الدم</span>
+          <div className="flex items-center justify-between">
+            <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <Droplet className="h-6 w-6" fill="currentColor" />
+            </div>
+          </div>
+          <div className="space-y-0.5">
+            <h3 className="text-base font-extrabold leading-tight">فصائل الدم</h3>
+            <p className="text-[11px] opacity-90 leading-snug">موسوعة وتوافق المتبرعين</p>
+          </div>
         </button>
       </div>
 
