@@ -101,24 +101,90 @@ const TIMING_LABELS: Record<Timing, string> = {
   night: "ليلاً",
 };
 
+interface PrescriptionData {
+  patientName: string;
+  age: string;
+  diagnosis: string;
+  examType: string;
+  clinic: string;
+  meds: MedItem[];
+}
+interface BarcodeData {
+  brand: string;
+  scientific: string;
+  manufacturer: string;
+  price: string;
+  category: string;
+  activeIngredient: string;
+  verified: boolean;
+}
+
 export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
   const speak = useSpeak();
   const { profile } = useProfile();
   const [mounted, setMounted] = useState(false);
   const [allergyAlert, setAllergyAlert] = useState<string | null>(null);
   const [showDigital, setShowDigital] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [prescription, setPrescription] = useState<PrescriptionData | null>(null);
+  const [barcode, setBarcode] = useState<BarcodeData | null>(null);
+
+  // Real OCR via Lovable AI Vision
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        // Convert blob/object URL to base64 if needed
+        let dataUrl = imageUrl;
+        if (!imageUrl.startsWith("data:")) {
+          const resp = await fetch(imageUrl);
+          const blob = await resp.blob();
+          dataUrl = await new Promise<string>((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result as string);
+            r.onerror = rej;
+            r.readAsDataURL(blob);
+          });
+        }
+        const { data, error } = await supabase.functions.invoke("vision-scan", {
+          body: { imageBase64: dataUrl, mode },
+        });
+        if (cancelled) return;
+        if (error || !data?.data) {
+          console.error("vision-scan failed:", error, data);
+          toast.error(data?.error || "تعذّر تحليل الصورة، تم عرض نموذج تجريبي");
+          if (mode === "prescription") setPrescription(PRESCRIPTION_FALLBACK);
+          else setBarcode(BARCODE_FALLBACK);
+        } else {
+          if (mode === "prescription") setPrescription(data.data as PrescriptionData);
+          else setBarcode({ ...BARCODE_FALLBACK, ...(data.data as BarcodeData) });
+        }
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) {
+          toast.error("تعذّر تحليل الصورة");
+          if (mode === "prescription") setPrescription(PRESCRIPTION_FALLBACK);
+          else setBarcode(BARCODE_FALLBACK);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [imageUrl, mode]);
 
   // Cross-reference detected meds against user's allergies
   const detectedAllergyMatches = useMemo(() => {
+    const allergies = profile?.allergies ?? [];
     if (mode !== "prescription") {
-      // Barcode mode: check single brand
-      const allergies = profile?.allergies ?? [];
-      const hay = `${BARCODE_DATA.brand} ${BARCODE_DATA.scientific}`.toLowerCase();
+      if (!barcode) return [];
+      const hay = `${barcode.brand} ${barcode.scientific}`.toLowerCase();
       return allergies.filter((a) => a.trim() && hay.includes(a.trim().toLowerCase()));
     }
-    const allergies = profile?.allergies ?? [];
+    if (!prescription) return [];
     const hits: string[] = [];
-    for (const med of PRESCRIPTION_DATA.meds) {
+    for (const med of prescription.meds) {
       const hay = med.name.toLowerCase();
       for (const a of allergies) {
         if (a.trim() && hay.includes(a.trim().toLowerCase())) {
@@ -127,7 +193,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
       }
     }
     return hits;
-  }, [mode, profile]);
+  }, [mode, profile, prescription, barcode]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -136,7 +202,6 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
 
   useEffect(() => {
     if (detectedAllergyMatches.length > 0) {
-      // Trigger pulsing red alert after a short delay so it appears after the card
       const t = setTimeout(() => setAllergyAlert(detectedAllergyMatches.join(" — ")), 600);
       return () => clearTimeout(t);
     }
@@ -146,6 +211,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
     setMounted(false);
     setTimeout(onClose, 250);
   };
+
 
   return (
     <div
