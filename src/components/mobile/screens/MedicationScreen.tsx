@@ -300,19 +300,27 @@ export const MedicationScreen = () => {
     if (rFreq !== "interval" && !rTime) { toast.error("اختر وقت التذكير"); return; }
     if (rFreq === "weekdays" && rDays.length === 0) { toast.error("اختر أيام الأسبوع"); return; }
 
-    // Match Supabase schema strictly:
-    //   times: time without time zone[]   →  send "HH:MM:SS" strings (or [])
-    //   weekdays: smallint[]              →  send number[] (or [])
-    //   interval_hours: smallint | null
+    // Strict schema match:
+    //   times: time without time zone[]   →  "HH:MM:SS" strings (or [])
+    //   weekdays: smallint[]              →  number[] (or [])
+    //   interval_hours: smallint | null   →  1..24 only when interval, else null
+    //   start_date: date                  →  YYYY-MM-DD
+    //   active: boolean                   →  true
+    const today = new Date();
+    const startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     const normalizedTime = rFreq === "interval" ? null : `${rTime}:00`;
+    const safeInterval = rFreq === "interval" ? Math.min(24, Math.max(1, Math.floor(rInterval || 8))) : null;
+
     const payload = {
       user_id: user.id,
       drug_name: rName.trim(),
       frequency: rFreq,
       times: rFreq === "interval" ? [] : [normalizedTime as string],
       weekdays: rFreq === "weekdays" ? rDays : [],
-      interval_hours: rFreq === "interval" ? rInterval : null,
+      interval_hours: safeInterval,
       active: true,
+      start_date: startDate,
+      notes: null,
     };
     const { error } = await supabase.from("reminders").insert(payload);
     if (error) {
@@ -322,7 +330,9 @@ export const MedicationScreen = () => {
     }
     toast.success("تم ضبط التذكير");
     setRName(""); setRTime(""); setRDays([]);
-    if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
     loadReminders();
   };
 

@@ -1,8 +1,9 @@
-import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar, FileDown } from "lucide-react";
+import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar, FileDown, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSpeak } from "@/hooks/useSpeak";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { PulseAlert } from "../PulseAlert";
 import { DigitalPrescription } from "./DigitalPrescription";
 
@@ -33,8 +34,8 @@ const TODAY = new Date().toLocaleDateString("ar-EG", {
   day: "numeric",
 });
 
-// Mocked extracted data — In production these would come from OCR + NLP
-const PRESCRIPTION_DATA = {
+// Fallback (used while AI is loading or if it fails)
+const PRESCRIPTION_FALLBACK = {
   patientName: "محمد أحمد عثمان",
   age: "34 سنة",
   diagnosis: "التهاب حاد في الجهاز التنفسي العلوي",
@@ -69,7 +70,7 @@ const PRESCRIPTION_DATA = {
   ] as MedItem[],
 };
 
-const BARCODE_DATA = {
+const BARCODE_FALLBACK = {
   brand: "Panadol Extra",
   scientific: "باراسيتامول 500mg + كافيين 65mg",
   manufacturer: "GlaxoSmithKline",
@@ -100,24 +101,90 @@ const TIMING_LABELS: Record<Timing, string> = {
   night: "ليلاً",
 };
 
+interface PrescriptionData {
+  patientName: string;
+  age: string;
+  diagnosis: string;
+  examType: string;
+  clinic: string;
+  meds: MedItem[];
+}
+interface BarcodeData {
+  brand: string;
+  scientific: string;
+  manufacturer: string;
+  price: string;
+  category: string;
+  activeIngredient: string;
+  verified: boolean;
+}
+
 export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
   const speak = useSpeak();
   const { profile } = useProfile();
   const [mounted, setMounted] = useState(false);
   const [allergyAlert, setAllergyAlert] = useState<string | null>(null);
   const [showDigital, setShowDigital] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [prescription, setPrescription] = useState<PrescriptionData | null>(null);
+  const [barcode, setBarcode] = useState<BarcodeData | null>(null);
+
+  // Real OCR via Lovable AI Vision
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        // Convert blob/object URL to base64 if needed
+        let dataUrl = imageUrl;
+        if (!imageUrl.startsWith("data:")) {
+          const resp = await fetch(imageUrl);
+          const blob = await resp.blob();
+          dataUrl = await new Promise<string>((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result as string);
+            r.onerror = rej;
+            r.readAsDataURL(blob);
+          });
+        }
+        const { data, error } = await supabase.functions.invoke("vision-scan", {
+          body: { imageBase64: dataUrl, mode },
+        });
+        if (cancelled) return;
+        if (error || !data?.data) {
+          console.error("vision-scan failed:", error, data);
+          toast.error(data?.error || "تعذّر تحليل الصورة، تم عرض نموذج تجريبي");
+          if (mode === "prescription") setPrescription(PRESCRIPTION_FALLBACK);
+          else setBarcode(BARCODE_FALLBACK);
+        } else {
+          if (mode === "prescription") setPrescription(data.data as PrescriptionData);
+          else setBarcode({ ...BARCODE_FALLBACK, ...(data.data as BarcodeData) });
+        }
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) {
+          toast.error("تعذّر تحليل الصورة");
+          if (mode === "prescription") setPrescription(PRESCRIPTION_FALLBACK);
+          else setBarcode(BARCODE_FALLBACK);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [imageUrl, mode]);
 
   // Cross-reference detected meds against user's allergies
   const detectedAllergyMatches = useMemo(() => {
+    const allergies = profile?.allergies ?? [];
     if (mode !== "prescription") {
-      // Barcode mode: check single brand
-      const allergies = profile?.allergies ?? [];
-      const hay = `${BARCODE_DATA.brand} ${BARCODE_DATA.scientific}`.toLowerCase();
+      if (!barcode) return [];
+      const hay = `${barcode.brand} ${barcode.scientific}`.toLowerCase();
       return allergies.filter((a) => a.trim() && hay.includes(a.trim().toLowerCase()));
     }
-    const allergies = profile?.allergies ?? [];
+    if (!prescription) return [];
     const hits: string[] = [];
-    for (const med of PRESCRIPTION_DATA.meds) {
+    for (const med of prescription.meds) {
       const hay = med.name.toLowerCase();
       for (const a of allergies) {
         if (a.trim() && hay.includes(a.trim().toLowerCase())) {
@@ -126,7 +193,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
       }
     }
     return hits;
-  }, [mode, profile]);
+  }, [mode, profile, prescription, barcode]);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -135,7 +202,6 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
 
   useEffect(() => {
     if (detectedAllergyMatches.length > 0) {
-      // Trigger pulsing red alert after a short delay so it appears after the card
       const t = setTimeout(() => setAllergyAlert(detectedAllergyMatches.join(" — ")), 600);
       return () => clearTimeout(t);
     }
@@ -145,6 +211,7 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
     setMounted(false);
     setTimeout(onClose, 250);
   };
+
 
   return (
     <div
@@ -205,10 +272,15 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
             </div>
           )}
 
-          {mode === "prescription" ? (
-            <PrescriptionView speak={speak} onExport={() => setShowDigital(true)} />
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <Loader2 className="h-7 w-7 animate-spin text-secondary-glow" />
+              <p className="text-sm font-bold">جاري تحليل الصورة بالذكاء الاصطناعي...</p>
+            </div>
+          ) : mode === "prescription" ? (
+            prescription && <PrescriptionView data={prescription} speak={speak} onExport={() => setShowDigital(true)} />
           ) : (
-            <BarcodeView speak={speak} />
+            barcode && <BarcodeView data={barcode} speak={speak} />
           )}
         </div>
       </div>
@@ -221,15 +293,15 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
         onClose={() => setAllergyAlert(null)}
       />
 
-      {showDigital && (
-        <DigitalPrescription data={PRESCRIPTION_DATA} onClose={() => setShowDigital(false)} />
+      {showDigital && prescription && (
+        <DigitalPrescription data={prescription} onClose={() => setShowDigital(false)} />
       )}
     </div>
   );
 };
 
-const PrescriptionView = ({ speak, onExport }: { speak: (t: string) => void; onExport: () => void }) => {
-  const d = PRESCRIPTION_DATA;
+const PrescriptionView = ({ data, speak, onExport }: { data: PrescriptionData; speak: (t: string) => void; onExport: () => void }) => {
+  const d = data;
   return (
     <>
       {/* Patient header card */}
@@ -366,8 +438,8 @@ const MedCapsule = ({ med, speak }: { med: MedItem; speak: (t: string) => void }
   );
 };
 
-const BarcodeView = ({ speak }: { speak: (t: string) => void }) => {
-  const d = BARCODE_DATA;
+const BarcodeView = ({ data, speak }: { data: BarcodeData; speak: (t: string) => void }) => {
+  const d = data;
   return (
     <>
       <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur p-4 animate-fade-up">
