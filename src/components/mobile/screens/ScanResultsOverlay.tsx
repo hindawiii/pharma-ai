@@ -438,8 +438,8 @@ const MedCapsule = ({ med, speak }: { med: MedItem; speak: (t: string) => void }
   );
 };
 
-const BarcodeView = ({ speak }: { speak: (t: string) => void }) => {
-  const d = BARCODE_DATA;
+const BarcodeView = ({ data, speak }: { data: BarcodeData; speak: (t: string) => void }) => {
+  const d = data;
   return (
     <>
       <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur p-4 animate-fade-up">
