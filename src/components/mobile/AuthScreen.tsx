@@ -69,7 +69,7 @@ export const AuthScreen = () => {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="inline-flex h-20 w-20 rounded-3xl bg-white items-center justify-center shadow-elegant mb-4 ring-2 ring-primary/15">
-            <img src={logo} alt="Pharma-i" className="h-14 w-14 object-contain my-[20px]" />
+            <img src={logo} alt="Pharma-i" className="object-contain" style={{ width: '130px', height: '130px', objectFit: 'contain', marginTop: '24px', marginBottom: '16px' }} />
           </div>
           <h1 className="text-3xl font-extrabold text-primary">Pharma-i</h1>
           <p className="text-sm text-muted-foreground mt-1">مساعدك الطبي الذكي</p>
