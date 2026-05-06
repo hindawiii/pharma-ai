@@ -1,8 +1,9 @@
-import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar, FileDown } from "lucide-react";
+import { X, Volume2, Sparkles, Pill, Sun, Moon, Sunset, Utensils, AlertTriangle, CheckCircle2, FlaskConical, Tag, Stethoscope, User, Calendar, ClipboardList, Syringe, Droplet, ShieldCheck, Radar, FileDown, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSpeak } from "@/hooks/useSpeak";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { PulseAlert } from "../PulseAlert";
 import { DigitalPrescription } from "./DigitalPrescription";
 
@@ -33,8 +34,8 @@ const TODAY = new Date().toLocaleDateString("ar-EG", {
   day: "numeric",
 });
 
-// Mocked extracted data — In production these would come from OCR + NLP
-const PRESCRIPTION_DATA = {
+// Fallback (used while AI is loading or if it fails)
+const PRESCRIPTION_FALLBACK = {
   patientName: "محمد أحمد عثمان",
   age: "34 سنة",
   diagnosis: "التهاب حاد في الجهاز التنفسي العلوي",
@@ -69,7 +70,7 @@ const PRESCRIPTION_DATA = {
   ] as MedItem[],
 };
 
-const BARCODE_DATA = {
+const BARCODE_FALLBACK = {
   brand: "Panadol Extra",
   scientific: "باراسيتامول 500mg + كافيين 65mg",
   manufacturer: "GlaxoSmithKline",
