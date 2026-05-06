@@ -272,10 +272,15 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
             </div>
           )}
 
-          {mode === "prescription" ? (
-            <PrescriptionView speak={speak} onExport={() => setShowDigital(true)} />
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <Loader2 className="h-7 w-7 animate-spin text-secondary-glow" />
+              <p className="text-sm font-bold">جاري تحليل الصورة بالذكاء الاصطناعي...</p>
+            </div>
+          ) : mode === "prescription" ? (
+            prescription && <PrescriptionView data={prescription} speak={speak} onExport={() => setShowDigital(true)} />
           ) : (
-            <BarcodeView speak={speak} />
+            barcode && <BarcodeView data={barcode} speak={speak} />
           )}
         </div>
       </div>
@@ -288,15 +293,15 @@ export const ScanResultsOverlay = ({ imageUrl, mode, onClose }: Props) => {
         onClose={() => setAllergyAlert(null)}
       />
 
-      {showDigital && (
-        <DigitalPrescription data={PRESCRIPTION_DATA} onClose={() => setShowDigital(false)} />
+      {showDigital && prescription && (
+        <DigitalPrescription data={prescription} onClose={() => setShowDigital(false)} />
       )}
     </div>
   );
 };
 
-const PrescriptionView = ({ speak, onExport }: { speak: (t: string) => void; onExport: () => void }) => {
-  const d = PRESCRIPTION_DATA;
+const PrescriptionView = ({ data, speak, onExport }: { data: PrescriptionData; speak: (t: string) => void; onExport: () => void }) => {
+  const d = data;
   return (
     <>
       {/* Patient header card */}
