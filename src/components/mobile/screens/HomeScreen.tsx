@@ -69,9 +69,10 @@ const features = [
 
 interface Props {
   onOpenScanner?: () => void;
+  onOpenNursing?: () => void;
 }
 
-export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
+export const HomeScreen = memo(({ onOpenScanner: _, onOpenNursing }: Props) => {
   const [chatOpen, setChatOpen] = useState(false);
   const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
 
