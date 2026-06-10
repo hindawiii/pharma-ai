@@ -1,12 +1,13 @@
-import { ScanLine, MapPin, Pill, UserCircle2, Home } from "lucide-react";
+import { ScanLine, MapPin, Pill, UserCircle2, Home, Stethoscope } from "lucide-react";
 import { memo } from "react";
 
-export type TabKey = "home" | "scanner" | "medication" | "map" | "profile";
+export type TabKey = "home" | "scanner" | "nursing" | "medication" | "map" | "profile";
 
 // Order from RIGHT to LEFT (Arabic): home first
 const tabs: { key: TabKey; label: string; icon: typeof ScanLine }[] = [
   { key: "home", label: "الرئيسية", icon: Home },
   { key: "scanner", label: "الماسح", icon: ScanLine },
+  { key: "nursing", label: "التمريض", icon: Stethoscope },
   { key: "medication", label: "الأدوية", icon: Pill },
   { key: "map", label: "الخريطة", icon: MapPin },
   { key: "profile", label: "حسابي", icon: UserCircle2 },
