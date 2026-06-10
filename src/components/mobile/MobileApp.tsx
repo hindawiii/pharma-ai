@@ -6,6 +6,7 @@ import { MapScreen } from "./screens/MapScreen";
 import { RecordScreen } from "./screens/RecordScreen";
 import { MedicationScreen } from "./screens/MedicationScreen";
 import { HomeScreen } from "./screens/HomeScreen";
+import { NursingScreen } from "./screens/NursingScreen";
 import { AiFab } from "./AiFab";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthScreen } from "./AuthScreen";
@@ -14,6 +15,7 @@ import { Loader2 } from "lucide-react";
 const titles: Record<TabKey, string> = {
   home: "Pharma-i",
   scanner: "الماسح الذكي",
+  nursing: "قسم التمريض",
   medication: "مكتبة الدواء",
   map: "خريطة الصيدليات",
   profile: "حسابي",
@@ -21,6 +23,7 @@ const titles: Record<TabKey, string> = {
 
 const MemoHome = memo(HomeScreen);
 const MemoScanner = memo(ScannerScreen);
+const MemoNursing = memo(NursingScreen);
 const MemoMedication = memo(MedicationScreen);
 const MemoMap = memo(MapScreen);
 const MemoRecord = memo(RecordScreen);
@@ -48,10 +51,11 @@ const Inner = () => {
       <MobileTopBar title={titles[active]} />
 
       <main className={`flex-1 min-h-0 ${isFixedLayout ? "overflow-hidden" : "overflow-y-auto overscroll-contain"}`}>
-        {active === "home" && <MemoHome onOpenScanner={() => setActive("scanner")} />}
+        {active === "home" && <MemoHome onOpenScanner={() => setActive("scanner")} onOpenNursing={() => setActive("nursing")} />}
         <div className={active === "scanner" ? "h-full" : "hidden"}>
           <MemoScanner isActive={active === "scanner"} />
         </div>
+        {active === "nursing" && <MemoNursing />}
         {active === "medication" && <MemoMedication />}
         {active === "map" && <MemoMap />}
         {active === "profile" && <MemoRecord />}

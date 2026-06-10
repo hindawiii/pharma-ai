@@ -24,7 +24,7 @@ export const BottomNav = memo(({ active, onChange }: Props) => {
       className="relative z-40 glass border-t border-border/50 pb-[env(safe-area-inset-bottom)] flex-shrink-0"
       aria-label="القائمة السفلية"
     >
-      <ul className="grid grid-cols-5 max-w-md mx-auto px-2">
+      <ul className="grid grid-cols-6 max-w-md mx-auto px-1">
         {tabs.map((tab) => {
           const isActive = active === tab.key;
           const Icon = tab.icon;
