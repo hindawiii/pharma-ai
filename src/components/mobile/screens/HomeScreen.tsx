@@ -69,9 +69,10 @@ const features = [
 
 interface Props {
   onOpenScanner?: () => void;
+  onOpenNursing?: () => void;
 }
 
-export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
+export const HomeScreen = memo(({ onOpenScanner: _, onOpenNursing }: Props) => {
   const [chatOpen, setChatOpen] = useState(false);
   const tip = useMemo(() => TIPS[Math.floor(Math.random() * TIPS.length)], []);
 
@@ -186,6 +187,28 @@ export const HomeScreen = memo(({ onOpenScanner: _ }: Props) => {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* ===== Nursing Hub CTA ===== */}
+        <section>
+          <button
+            onClick={() => onOpenNursing?.()}
+            className="w-full text-right rounded-3xl overflow-hidden shadow-elegant active:scale-[0.98] transition-bounce"
+            style={{ background: "linear-gradient(135deg, hsl(215 60% 22%), hsl(210 75% 32%))" }}
+          >
+            <div className="relative p-5 text-white flex items-center gap-3">
+              <div className="absolute -left-6 -bottom-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+              <div className="h-14 w-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center flex-shrink-0">
+                <span className="text-3xl">🩺</span>
+              </div>
+              <div className="flex-1 min-w-0 relative">
+                <p className="text-[11px] font-bold text-white/80 mb-0.5">جديد</p>
+                <h3 className="text-base font-extrabold leading-tight">قسم التمريض</h3>
+                <p className="text-xs text-white/85 mt-0.5 leading-snug">رعاية منزلية + ٥٠ تخصصاً تمريضياً</p>
+              </div>
+              <ChevronLeft className="h-5 w-5 text-white/80 relative" />
+            </div>
+          </button>
         </section>
 
         {/* ===== Health Guides: First Aid + Blood Types (moved up) ===== */}
