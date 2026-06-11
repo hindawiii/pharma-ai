@@ -18,6 +18,8 @@ import {
 import { HOME_NURSING_CASES, type CaseColor, type HomeNursingCase } from "@/data/homeNursingCases";
 import { NURSING_SPECIALTIES, NURSING_TIMELINE } from "@/data/nursingSpecialties";
 import { useNursingPatients, type NursingPatient } from "@/hooks/useNursingPatients";
+import { VitalsTracker } from "@/components/mobile/nursing/VitalsTracker";
+import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
 
 type Mode = "home" | "general";
 
@@ -261,6 +263,11 @@ const HomeNursingView = () => {
         />
       </section>
 
+      {/* Vitals tracker (Supabase-backed) */}
+      {active && <VitalsTracker patientRef={active.id} patientName={active.name} />}
+
+
+
       {/* Cases list */}
       <section>
         <h2 className="text-base font-extrabold text-foreground mb-3 flex items-center gap-2">
@@ -332,7 +339,7 @@ const HomeNursingView = () => {
 // ============================================================
 // General Nursing tab (teaser for Phase 2)
 // ============================================================
-const GeneralNursingView = () => {
+const GeneralNursingView = ({ onOpenSpecialty }: { onOpenSpecialty: (id: number) => void }) => {
   return (
     <div className="space-y-5 pb-8">
       {/* Timeline */}
@@ -373,9 +380,10 @@ const GeneralNursingView = () => {
         </h2>
         <div className="grid grid-cols-2 gap-2.5">
           {NURSING_SPECIALTIES.map((s) => (
-            <article
+            <button
               key={s.id}
-              className="rounded-2xl bg-card border border-border p-3 flex flex-col gap-1.5 active:scale-[0.97] transition-bounce"
+              onClick={() => onOpenSpecialty(s.id)}
+              className="text-right rounded-2xl bg-card border border-border p-3 flex flex-col gap-1.5 active:scale-[0.97] transition-bounce"
             >
               <div className="flex items-center gap-2">
                 <span className="text-2xl leading-none">{s.emoji}</span>
@@ -388,7 +396,7 @@ const GeneralNursingView = () => {
               }`}>
                 {s.era === "classic" ? "كلاسيكي" : "حديث"}
               </span>
-            </article>
+            </button>
           ))}
         </div>
       </section>
@@ -407,6 +415,7 @@ const GeneralNursingView = () => {
 // ============================================================
 export const NursingScreen = memo(() => {
   const [mode, setMode] = useState<Mode>("home");
+  const [openSpecialty, setOpenSpecialty] = useState<number | null>(null);
 
   return (
     <div className="min-h-full">
@@ -449,8 +458,10 @@ export const NursingScreen = memo(() => {
       </header>
 
       <div className="px-4 pt-4">
-        {mode === "home" ? <HomeNursingView /> : <GeneralNursingView />}
+        {mode === "home" ? <HomeNursingView /> : <GeneralNursingView onOpenSpecialty={setOpenSpecialty} />}
       </div>
+
+      <SpecialtyDetailSheet id={openSpecialty} onClose={() => setOpenSpecialty(null)} />
     </div>
   );
 });
