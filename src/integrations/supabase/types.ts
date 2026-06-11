@@ -223,45 +223,6 @@ export type Database = {
           },
         ]
       }
-      vital_signs: {
-        Row: {
-          created_at: string
-          id: string
-          kind: Database["public"]["Enums"]["vital_kind"]
-          measured_at: string
-          notes: string | null
-          patient_ref: string
-          unit: string | null
-          user_id: string
-          value_primary: number
-          value_secondary: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          kind: Database["public"]["Enums"]["vital_kind"]
-          measured_at?: string
-          notes?: string | null
-          patient_ref: string
-          unit?: string | null
-          user_id: string
-          value_primary: number
-          value_secondary?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          kind?: Database["public"]["Enums"]["vital_kind"]
-          measured_at?: string
-          notes?: string | null
-          patient_ref?: string
-          unit?: string | null
-          user_id?: string
-          value_primary?: number
-          value_secondary?: number | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -272,7 +233,6 @@ export type Database = {
     Enums: {
       interaction_severity: "danger" | "warning" | "safe"
       reminder_frequency: "daily" | "weekdays" | "interval"
-      vital_kind: "bp" | "glucose" | "pulse" | "temp" | "spo2" | "weight"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -402,7 +362,6 @@ export const Constants = {
     Enums: {
       interaction_severity: ["danger", "warning", "safe"],
       reminder_frequency: ["daily", "weekdays", "interval"],
-      vital_kind: ["bp", "glucose", "pulse", "temp", "spo2", "weight"],
     },
   },
 } as const
