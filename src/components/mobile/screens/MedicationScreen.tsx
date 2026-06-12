@@ -294,25 +294,17 @@ export const MedicationScreen = () => {
     if (p === "granted") toast.success("تم تفعيل التنبيهات");
   };
 
-  const addReminder = async () => {
-    if (!user) { toast.error("سجّل الدخول أولاً"); return; }
+  const addReminder = () => {
     if (!rName.trim()) { toast.error("اكتب اسم الدواء"); return; }
     if (rFreq !== "interval" && !rTime) { toast.error("اختر وقت التذكير"); return; }
     if (rFreq === "weekdays" && rDays.length === 0) { toast.error("اختر أيام الأسبوع"); return; }
 
-    // Strict schema match:
-    //   times: time without time zone[]   →  "HH:MM:SS" strings (or [])
-    //   weekdays: smallint[]              →  number[] (or [])
-    //   interval_hours: smallint | null   →  1..24 only when interval, else null
-    //   start_date: date                  →  YYYY-MM-DD
-    //   active: boolean                   →  true
     const today = new Date();
     const startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     const normalizedTime = rFreq === "interval" ? null : `${rTime}:00`;
     const safeInterval = rFreq === "interval" ? Math.min(24, Math.max(1, Math.floor(rInterval || 8))) : null;
 
-    const payload = {
-      user_id: user.id,
+    addLocalReminder({
       drug_name: rName.trim(),
       frequency: rFreq,
       times: rFreq === "interval" ? [] : [normalizedTime as string],
@@ -321,14 +313,8 @@ export const MedicationScreen = () => {
       active: true,
       start_date: startDate,
       notes: null,
-    };
-    const { error } = await supabase.from("reminders").insert(payload);
-    if (error) {
-      console.error("[reminders insert] failed:", error, "payload:", payload);
-      toast.error(`تعذّر حفظ التذكير: ${error.message}`);
-      return;
-    }
-    toast.success("تم ضبط التذكير");
+    });
+    toast.success("تم ضبط التذكير (محلياً على جهازك)");
     setRName(""); setRTime(""); setRDays([]);
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
@@ -336,10 +322,11 @@ export const MedicationScreen = () => {
     loadReminders();
   };
 
-  const removeReminder = async (id: string) => {
-    await supabase.from("reminders").delete().eq("id", id);
+  const removeReminder = (id: string) => {
+    removeLocalReminder(id);
     loadReminders();
   };
+
 
   const toggleDay = (d: number) =>
     setRDays((arr) => (arr.includes(d) ? arr.filter((x) => x !== d) : [...arr, d]));
