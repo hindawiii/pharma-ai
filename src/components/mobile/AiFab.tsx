@@ -1,9 +1,9 @@
-import { Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AiChatPanel } from "./AiChatPanel";
+import logo from "@/assets/pharma-i-logo.png";
 
 const STORAGE_KEY = "pharma-ai-fab-pos";
-const SIZE = 36; // h-9 w-9
+const SIZE = 56; // hexagon container
 const MARGIN = 12;
 
 interface Pos {
