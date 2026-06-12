@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS public.vital_signs CASCADE;
+DROP TABLE IF EXISTS public.reminders CASCADE;

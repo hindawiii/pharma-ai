@@ -4,6 +4,8 @@ import logo from "@/assets/pharma-i-logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
+import { LocalHealthDataPanel } from "@/components/mobile/LocalHealthDataPanel";
+
 
 const BLOOD_TYPES = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const CHRONIC_BLUE = "#1A237E";
@@ -296,6 +298,9 @@ export const RecordScreen = () => {
           )}
         </div>
       </div>
+
+      <LocalHealthDataPanel />
+
 
       {/* Confirm save modal */}
       {confirmOpen && (

@@ -170,59 +170,6 @@ export type Database = {
         }
         Relationships: []
       }
-      reminders: {
-        Row: {
-          active: boolean
-          created_at: string
-          drug_id: string | null
-          drug_name: string
-          frequency: Database["public"]["Enums"]["reminder_frequency"]
-          id: string
-          interval_hours: number | null
-          notes: string | null
-          start_date: string
-          times: string[] | null
-          user_id: string
-          weekdays: number[] | null
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          drug_id?: string | null
-          drug_name: string
-          frequency?: Database["public"]["Enums"]["reminder_frequency"]
-          id?: string
-          interval_hours?: number | null
-          notes?: string | null
-          start_date?: string
-          times?: string[] | null
-          user_id: string
-          weekdays?: number[] | null
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          drug_id?: string | null
-          drug_name?: string
-          frequency?: Database["public"]["Enums"]["reminder_frequency"]
-          id?: string
-          interval_hours?: number | null
-          notes?: string | null
-          start_date?: string
-          times?: string[] | null
-          user_id?: string
-          weekdays?: number[] | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reminders_drug_id_fkey"
-            columns: ["drug_id"]
-            isOneToOne: false
-            referencedRelation: "drugs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -233,6 +180,7 @@ export type Database = {
     Enums: {
       interaction_severity: "danger" | "warning" | "safe"
       reminder_frequency: "daily" | "weekdays" | "interval"
+      vital_kind: "bp" | "glucose" | "pulse" | "temp" | "spo2" | "weight"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -362,6 +310,7 @@ export const Constants = {
     Enums: {
       interaction_severity: ["danger", "warning", "safe"],
       reminder_frequency: ["daily", "weekdays", "interval"],
+      vital_kind: ["bp", "glucose", "pulse", "temp", "spo2", "weight"],
     },
   },
 } as const
