@@ -7,6 +7,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { MedicineDetailView } from "./MedicineDetailView";
 import { PulseAlert } from "../PulseAlert";
+import {
+  getReminders,
+  addReminder as addLocalReminder,
+  removeReminder as removeLocalReminder,
+} from "@/lib/localHealthStore";
+
 
 interface Drug {
   id: string;
