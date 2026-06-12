@@ -297,6 +297,9 @@ export const RecordScreen = () => {
         </div>
       </div>
 
+      <LocalHealthDataPanel />
+
+
       {/* Confirm save modal */}
       {confirmOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-6 animate-fade-in" onClick={() => !saving && setConfirmOpen(false)}>
