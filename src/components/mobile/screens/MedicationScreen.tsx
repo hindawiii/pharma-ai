@@ -642,10 +642,10 @@ export const MedicationScreen = () => {
           </div>
 
           <div className="mt-4 space-y-2">
-            {!user && <p className="text-center text-xs text-muted-foreground">سجّل الدخول لحفظ تذكيراتك في السحابة</p>}
-            {user && reminders.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-6">لا توجد تذكيرات بعد</p>
+            {reminders.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-6">لا توجد تذكيرات بعد — تُحفظ محلياً على جهازك فقط 🔒</p>
             )}
+
             {reminders.map((r) => (
               <div key={r.id} className="rounded-2xl p-3 bg-card border border-border shadow-soft flex items-center gap-3">
                 <div className="h-11 w-11 rounded-2xl bg-secondary/15 text-secondary flex items-center justify-center">
