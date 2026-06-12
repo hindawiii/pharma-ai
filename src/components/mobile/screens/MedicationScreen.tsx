@@ -235,17 +235,17 @@ export const MedicationScreen = () => {
   // Pulse alert state
   const [alert, setAlert] = useState<{ title: string; body?: string } | null>(null);
 
-  const loadReminders = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("reminders")
-      .select("id, drug_name, frequency, weekdays, interval_hours, times, active, notes")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    setReminders((data as DBReminder[]) ?? []);
+  const loadReminders = () => {
+    setReminders(getReminders() as unknown as DBReminder[]);
   };
 
-  useEffect(() => { loadReminders(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => {
+    loadReminders();
+    const h = () => loadReminders();
+    window.addEventListener("local-health-changed", h);
+    return () => window.removeEventListener("local-health-changed", h);
+  }, []);
+
 
   // Schedule alarms in-app
   useEffect(() => {
