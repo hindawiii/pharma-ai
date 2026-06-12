@@ -116,12 +116,32 @@ export const AiFab = () => {
           cursor: dragging ? "grabbing" : "grab",
         }}
       >
-        <span className="absolute inset-0 rounded-full gradient-ai animate-pulse-ring" />
         <span
-          className="relative flex items-center justify-center h-9 w-9 rounded-full gradient-ai text-white shadow-card transition-bounce"
-          style={{ transform: dragging ? "scale(1.15)" : "scale(1)" }}
+          aria-hidden
+          className="absolute inset-0 gradient-ai animate-pulse-ring"
+          style={{ clipPath: "polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)" }}
+        />
+        <span
+          className="relative flex items-center justify-center text-white shadow-elegant transition-bounce"
+          style={{
+            width: SIZE,
+            height: SIZE,
+            transform: dragging ? "scale(1.15)" : "scale(1)",
+            background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+            clipPath: "polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)",
+            filter: "drop-shadow(0 6px 14px hsl(var(--primary) / 0.45))",
+          }}
         >
-          <Sparkles className="h-4 w-4" />
+          <span
+            className="flex items-center justify-center bg-white"
+            style={{
+              width: SIZE - 8,
+              height: SIZE - 8,
+              clipPath: "polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%)",
+            }}
+          >
+            <img src={logo} alt="Pharma-i" className="h-7 w-7 object-contain" />
+          </span>
         </span>
       </button>
     </>
