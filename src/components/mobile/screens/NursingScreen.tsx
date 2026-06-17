@@ -16,8 +16,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { HOME_NURSING_CASES, type CaseColor, type HomeNursingCase } from "@/data/homeNursingCases";
-import { NURSING_SPECIALTIES, NURSING_TIMELINE } from "@/data/nursingSpecialties";
+import { NURSING_SPECIALTIES, NURSING_TIMELINE, type NursingSpecialty } from "@/data/nursingSpecialties";
 import { useNursingPatients, type NursingPatient } from "@/hooks/useNursingPatients";
+import { VitalsPanel } from "@/components/mobile/nursing/VitalsPanel";
+import { NotesPanel } from "@/components/mobile/nursing/NotesPanel";
+import { RemindersPanel } from "@/components/mobile/nursing/RemindersPanel";
+import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
 
 type Mode = "home" | "general";
 
