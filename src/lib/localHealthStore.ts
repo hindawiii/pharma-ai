@@ -60,6 +60,7 @@ export const deleteVital = (id: string) =>
 // --- Reminders (medication) ---
 export interface LocalReminder {
   id: string;
+  patient_id?: string;
   drug_name: string;
   frequency: "daily" | "weekdays" | "interval";
   weekdays: number[] | null;
