@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
 import { HealthGuidesSection } from "./HealthGuides";
-import logo from "@/assets/pharma-i-logo.png";
+import { AiNeuralIcon } from "../AiNeuralIcon";
 
 // Social brand icons (inline SVGs for crisp rendering)
 const WhatsAppIcon = ({ className = "" }: { className?: string }) => (
