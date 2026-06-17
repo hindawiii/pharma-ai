@@ -409,6 +409,8 @@ const GeneralNursingView = () => {
           المصادر العلمية: WHO · AHA · AACN · ANA · ICN · Johns Hopkins
         </p>
       </section>
+
+      <SpecialtyDetailSheet specialty={selected} onClose={() => setSelected(null)} />
     </div>
   );
 };
