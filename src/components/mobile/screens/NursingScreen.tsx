@@ -16,8 +16,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { HOME_NURSING_CASES, type CaseColor, type HomeNursingCase } from "@/data/homeNursingCases";
-import { NURSING_SPECIALTIES, NURSING_TIMELINE } from "@/data/nursingSpecialties";
+import { NURSING_SPECIALTIES, NURSING_TIMELINE, type NursingSpecialty } from "@/data/nursingSpecialties";
 import { useNursingPatients, type NursingPatient } from "@/hooks/useNursingPatients";
+import { VitalsPanel } from "@/components/mobile/nursing/VitalsPanel";
+import { NotesPanel } from "@/components/mobile/nursing/NotesPanel";
+import { RemindersPanel } from "@/components/mobile/nursing/RemindersPanel";
+import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
 
 type Mode = "home" | "general";
 
@@ -273,6 +277,11 @@ const HomeNursingView = () => {
         </div>
       </section>
 
+      {/* Phase 2: vitals, reminders, notes — all local */}
+      <VitalsPanel patientId={activeId} />
+      <RemindersPanel patientId={activeId} />
+      <NotesPanel patientId={activeId} />
+
       {/* Smart links */}
       <section>
         <h2 className="text-base font-extrabold text-foreground mb-3 flex items-center gap-2">
@@ -333,6 +342,7 @@ const HomeNursingView = () => {
 // General Nursing tab (teaser for Phase 2)
 // ============================================================
 const GeneralNursingView = () => {
+  const [selected, setSelected] = useState<NursingSpecialty | null>(null);
   return (
     <div className="space-y-5 pb-8">
       {/* Timeline */}
@@ -373,9 +383,10 @@ const GeneralNursingView = () => {
         </h2>
         <div className="grid grid-cols-2 gap-2.5">
           {NURSING_SPECIALTIES.map((s) => (
-            <article
+            <button
               key={s.id}
-              className="rounded-2xl bg-card border border-border p-3 flex flex-col gap-1.5 active:scale-[0.97] transition-bounce"
+              onClick={() => setSelected(s)}
+              className="text-right rounded-2xl bg-card border border-border p-3 flex flex-col gap-1.5 active:scale-[0.97] transition-bounce hover:border-primary/40"
             >
               <div className="flex items-center gap-2">
                 <span className="text-2xl leading-none">{s.emoji}</span>
@@ -388,7 +399,7 @@ const GeneralNursingView = () => {
               }`}>
                 {s.era === "classic" ? "كلاسيكي" : "حديث"}
               </span>
-            </article>
+            </button>
           ))}
         </div>
       </section>
@@ -398,6 +409,8 @@ const GeneralNursingView = () => {
           المصادر العلمية: WHO · AHA · AACN · ANA · ICN · Johns Hopkins
         </p>
       </section>
+
+      <SpecialtyDetailSheet specialty={selected} onClose={() => setSelected(null)} />
     </div>
   );
 };
