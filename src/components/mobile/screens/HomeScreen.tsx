@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { AiChatPanel } from "../AiChatPanel";
 import { HealthGuidesSection } from "./HealthGuides";
-import logo from "@/assets/pharma-i-logo.png";
+import { AiNeuralIcon } from "../AiNeuralIcon";
 
 // Social brand icons (inline SVGs for crisp rendering)
 const WhatsAppIcon = ({ className = "" }: { className?: string }) => (
@@ -146,11 +146,10 @@ export const HomeScreen = memo(({ onOpenScanner: _, onOpenNursing }: Props) => {
                 }}
               />
               <span className="absolute inset-0 rounded-full ring-2 ring-white/40" />
-              {/* Logo */}
-              <img
-                src={logo}
-                alt="Pharma-i"
-                className="relative h-16 w-16 object-contain drop-shadow-lg"
+              {/* AI Neural Icon */}
+              <AiNeuralIcon
+                size={64}
+                className="relative drop-shadow-lg text-foreground"
               />
             </span>
 
