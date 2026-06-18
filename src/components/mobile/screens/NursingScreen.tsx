@@ -422,6 +422,7 @@ const GeneralNursingView = () => {
 // ============================================================
 export const NursingScreen = memo(() => {
   const [mode, setMode] = useState<Mode>("home");
+  const [aiOpen, setAiOpen] = useState(false);
 
   return (
     <div className="min-h-full">
@@ -440,6 +441,14 @@ export const NursingScreen = memo(() => {
             <h1 className="text-lg font-extrabold leading-tight">قسم التمريض</h1>
             <p className="text-[11px] text-white/80">رعاية منزلية وأكاديمية</p>
           </div>
+          <button
+            onClick={() => setAiOpen(true)}
+            className="h-10 px-3 rounded-2xl bg-white/15 backdrop-blur flex items-center gap-1.5 text-xs font-extrabold active:scale-95 transition-bounce"
+            aria-label="فتح المساعد الذكي"
+          >
+            <Sparkles className="h-4 w-4" />
+            ممرض AI
+          </button>
         </div>
 
         {/* Mode toggle */}
@@ -466,6 +475,8 @@ export const NursingScreen = memo(() => {
       <div className="px-4 pt-4">
         {mode === "home" ? <HomeNursingView /> : <GeneralNursingView />}
       </div>
+
+      {aiOpen && <NurseAiPanel onClose={() => setAiOpen(false)} />}
     </div>
   );
 });
