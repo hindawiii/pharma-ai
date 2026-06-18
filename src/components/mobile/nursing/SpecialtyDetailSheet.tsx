@@ -1,7 +1,9 @@
 import { memo } from "react";
-import { X, BookOpen, Wrench, Library } from "lucide-react";
+import { X, BookOpen, Wrench, Library, Award } from "lucide-react";
 import { getSpecialtyContent } from "@/data/nursingSpecialtyContent";
 import type { NursingSpecialty } from "@/data/nursingSpecialties";
+import { QuizPanel } from "@/components/mobile/nursing/QuizPanel";
+
 
 export const SpecialtyDetailSheet = memo(
   ({ specialty, onClose }: { specialty: NursingSpecialty | null; onClose: () => void }) => {
@@ -67,11 +69,17 @@ export const SpecialtyDetailSheet = memo(
               </ul>
             </section>
 
-            <section className="rounded-2xl bg-muted/50 border border-border p-3">
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                المحتوى الكامل (المنهج · الاختبارات · الشهادات) قادم في المرحلة ٣.
-              </p>
+            <section>
+              <h4 className="text-sm font-extrabold mb-2 flex items-center gap-1.5 text-primary">
+                <Award className="h-4 w-4" /> الاختبار والشهادة
+              </h4>
+              <QuizPanel
+                specialtyId={specialty.id}
+                specialtyAr={specialty.name_ar}
+                specialtyEn={specialty.name_en}
+              />
             </section>
+
           </div>
         </div>
       </div>
