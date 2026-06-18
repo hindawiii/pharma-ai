@@ -5,3 +5,7 @@ verify_jwt = false
 
 [functions.vision-scan]
 verify_jwt = false
+
+[functions.nurse-ai]
+verify_jwt = false
+
