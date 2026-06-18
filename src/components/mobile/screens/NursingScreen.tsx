@@ -22,6 +22,8 @@ import { VitalsPanel } from "@/components/mobile/nursing/VitalsPanel";
 import { NotesPanel } from "@/components/mobile/nursing/NotesPanel";
 import { RemindersPanel } from "@/components/mobile/nursing/RemindersPanel";
 import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
+import { NurseAiPanel } from "@/components/mobile/nursing/NurseAiPanel";
+
 
 type Mode = "home" | "general";
 
