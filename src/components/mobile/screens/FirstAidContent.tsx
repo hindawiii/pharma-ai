@@ -1,32 +1,28 @@
 import { memo } from "react";
+import * as Icons from "lucide-react";
 import {
-  Bone, Flame, Droplet, HeartPulse, Activity, Eye, Bug, Sun,
-  Soup, Snowflake, Candy, Gauge, Phone, AlertTriangle, CheckCircle2, XCircle, Info,
-  Shield, Siren,
+  Flame, Shield, Siren, AlertTriangle, CheckCircle2, XCircle, Info, BookOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { getCountryByCode } from "@/lib/emergencyNumbers";
 import { CountrySelector } from "../CountrySelector";
+import {
+  FIRST_AID_TOPICS,
+  FIRST_AID_CATEGORIES,
+  getTopic,
+  type FirstAidSection,
+} from "@/data/firstAidTopics";
 
-export type FirstAidKey =
-  | "fractures" | "burns" | "nosebleed" | "cpr" | "strokes" | "eye"
-  | "bee" | "heatstroke" | "vomiting" | "frostbite" | "diabetes" | "bp";
+// Re-export for backward compatibility
+export type FirstAidKey = string;
 
-export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon }[] = [
-  { key: "fractures", label: "الكسور والالتواءات", icon: Bone },
-  { key: "burns", label: "الحروق", icon: Flame },
-  { key: "nosebleed", label: "الرعاف", icon: Droplet },
-  { key: "cpr", label: "الإنعاش CPR", icon: HeartPulse },
-  { key: "strokes", label: "النوبات", icon: Activity },
-  { key: "eye", label: "إصابات العين", icon: Eye },
-  { key: "bee", label: "لسعات النحل", icon: Bug },
-  { key: "heatstroke", label: "ضربة الشمس", icon: Sun },
-  { key: "vomiting", label: "الغثيان والقيء", icon: Soup },
-  { key: "frostbite", label: "قضمة الصقيع", icon: Snowflake },
-  { key: "diabetes", label: "السكر في الدم", icon: Candy },
-  { key: "bp", label: "ضغط الدم", icon: Gauge },
-];
+// Build tabs dynamically from data
+export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon }[] =
+  FIRST_AID_TOPICS.map((t) => {
+    const Ic = (Icons as unknown as Record<string, LucideIcon>)[t.icon] ?? Icons.HeartPulse;
+    return { key: t.key, label: t.label, icon: Ic };
+  });
 
 // ────────────────────────────────────────────────────────────
 // Reusable presentational pieces
@@ -103,7 +99,31 @@ const SimpleTable = ({ headers, rows }: { headers: string[]; rows: string[][] })
 );
 
 // ────────────────────────────────────────────────────────────
-// Intro block
+// Section renderer (data → JSX)
+// ────────────────────────────────────────────────────────────
+const RenderSection = ({ s }: { s: FirstAidSection }) => {
+  switch (s.type) {
+    case "heading":
+      return <SectionTitle>{s.title}</SectionTitle>;
+    case "paragraph":
+      return <p className="text-sm text-foreground leading-relaxed mt-2">{s.text}</p>;
+    case "steps":
+      return <Steps items={s.items ?? []} />;
+    case "bullets":
+      return <Bullets items={s.items ?? []} tone={s.tone} />;
+    case "table":
+      return <SimpleTable headers={s.headers ?? []} rows={s.rows ?? []} />;
+    case "warning":
+      return <Warning>{s.text}</Warning>;
+    case "info":
+      return <InfoBox>{s.text}</InfoBox>;
+    default:
+      return null;
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// Intro block (unchanged behavior)
 // ────────────────────────────────────────────────────────────
 export const FirstAidIntro = memo(() => {
   const { location } = useUserLocation();
@@ -159,328 +179,81 @@ export const FirstAidIntro = memo(() => {
           الأرقام تتحدث تلقائياً حسب موقعك. اضغط على المؤشّر لتحديد الموقع أو غيّر الدولة يدوياً.
         </p>
       </div>
+
+      {/* Category legend */}
+      <div className="rounded-2xl border border-border p-3 bg-card">
+        <h4 className="text-xs font-extrabold text-foreground mb-2">تصنيفات المواضيع</h4>
+        <div className="flex flex-wrap gap-1.5">
+          {FIRST_AID_CATEGORIES.map((c) => (
+            <span
+              key={c.key}
+              className="text-[10px] font-bold px-2 py-1 rounded-lg"
+              style={{ backgroundColor: `${c.color}15`, color: c.color }}
+            >
+              {c.label}
+            </span>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+          {FIRST_AID_TOPICS.length} موضوعاً مبنياً على بروتوكولات دولية معتمدة (AHA · WHO · IFRC · Red Cross).
+        </p>
+      </div>
     </div>
   );
 });
 FirstAidIntro.displayName = "FirstAidIntro";
 
 // ────────────────────────────────────────────────────────────
-// Per-category content
-// ────────────────────────────────────────────────────────────
-const Fractures = () => (
-  <div>
-    <SectionTitle>أنواع الكسور</SectionTitle>
-    <SimpleTable
-      headers={["النوع", "الوصف"]}
-      rows={[
-        ["كسر مغلق", "العظم مكسور دون اختراق الجلد."],
-        ["كسر مفتوح", "العظم يخترق الجلد ويظهر للخارج."],
-        ["كسر مضاعف", "العظم مكسور لأكثر من قطعتين."],
-        ["كسر شعري", "شرخ بسيط في العظم دون انفصال."],
-        ["التواء", "تمزّق أو شدّ في الأربطة حول المفصل."],
-      ]}
-    />
-    <SectionTitle>قاعدة R.I.C.E للالتواءات</SectionTitle>
-    <SimpleTable
-      headers={["الحرف", "المعنى", "التطبيق"]}
-      rows={[
-        ["R", "Rest — الراحة", "أوقف النشاط فوراً وأرح المفصل."],
-        ["I", "Ice — الثلج", "كمادات باردة ١٥-٢٠ دقيقة كل ساعتين."],
-        ["C", "Compression — الضغط", "ضمّاد ضاغط دون قطع الدورة الدموية."],
-        ["E", "Elevation — الرفع", "ارفع الطرف المصاب فوق مستوى القلب."],
-      ]}
-    />
-    <Warning>
-      لا تحاول إعادة العظم إلى مكانه. ثبّت الإصابة كما هي ونقل المصاب إلى أقرب مستشفى.
-    </Warning>
-  </div>
-);
-
-const Burns = () => (
-  <div>
-    <SectionTitle>درجات الحروق</SectionTitle>
-    <SimpleTable
-      headers={["الدرجة", "العمق", "الأعراض"]}
-      rows={[
-        ["الأولى", "البشرة فقط", "احمرار وألم خفيف (مثل حروق الشمس)."],
-        ["الثانية", "البشرة + الأدمة", "بثور، ألم شديد، تورّم."],
-        ["الثالثة", "كل طبقات الجلد", "جلد متفحّم/أبيض، ضعف الإحساس."],
-      ]}
-    />
-    <SectionTitle>خطوات الإسعاف</SectionTitle>
-    <Steps
-      items={[
-        "أبعد المصاب عن مصدر الحرق فوراً.",
-        "اشطف الحرق بماء بارد جارٍ ١٠-٢٠ دقيقة.",
-        "أزل الملابس والمجوهرات قبل التورّم (إن لم تلتصق).",
-        "غطِّ الحرق بضماد معقم جاف غير لاصق.",
-        "اطلب الإسعاف للحروق الواسعة أو من الدرجة الثالثة.",
-      ]}
-    />
-    <Warning>
-      لا تستخدم الثلج المباشر، أو الزبدة، أو معجون الأسنان، ولا تفقع البثور.
-    </Warning>
-  </div>
-);
-
-const Nosebleed = () => (
-  <div>
-    <SectionTitle>خطوات إيقاف النزيف</SectionTitle>
-    <Steps
-      items={[
-        "اجلس المصاب وأمل الرأس قليلاً للأمام (ليس للخلف).",
-        "اضغط بقوّة على الجزء الليّن من الأنف ١٠ دقائق متواصلة.",
-        "تنفّس من الفم وتجنّب التحدّث.",
-        "ضع كمادات باردة على الجبهة وجسر الأنف.",
-        "بعد التوقّف، تجنّب نفخ الأنف لعدة ساعات.",
-      ]}
-    />
-    <SectionTitle>متى تتصل بالطوارئ؟</SectionTitle>
-    <Bullets
-      tone="dont"
-      items={[
-        "النزيف لا يتوقّف بعد ٢٠ دقيقة من الضغط المستمر.",
-        "كان النزيف بعد إصابة قوية أو حادث.",
-        "يصاحبه دوار، شحوب، أو صعوبة في التنفّس.",
-      ]}
-    />
-  </div>
-);
-
-const CPR = () => (
-  <div>
-    <SectionTitle>قاعدة ض-م-ن</SectionTitle>
-    <SimpleTable
-      headers={["الحرف", "المعنى", "الإجراء"]}
-      rows={[
-        ["ض", "ضغطات الصدر", "٣٠ ضغطة في منتصف الصدر بعمق ٥-٦ سم."],
-        ["م", "ممرّ هوائي", "إمالة الرأس للخلف ورفع الذقن."],
-        ["ن", "نفس صناعي", "نفسان عميقان فم لفم بعد كل ٣٠ ضغطة."],
-      ]}
-    />
-    <SectionTitle>خطوات الإنعاش القلبي الرئوي</SectionTitle>
-    <Steps
-      items={[
-        "تأكّد من سلامة المكان واتصل بالإسعاف ١٢٣.",
-        "افحص الوعي والتنفّس (انظر، استمع، أحسّ).",
-        "ضع راحتي اليدين متشابكتين في منتصف الصدر.",
-        "اضغط ٣٠ ضغطة بمعدّل ١٠٠-١٢٠ ضغطة/دقيقة.",
-        "أعطِ نفسين صناعيين لمدة ثانية لكل نفس.",
-        "كرّر الدورة (٣٠:٢) حتى وصول الإسعاف أو استعادة الوعي.",
-      ]}
-    />
-    <InfoBox>
-      للأطفال: استخدم يداً واحدة. للرضّع: استخدم إصبعين بعمق ٤ سم تقريباً.
-    </InfoBox>
-  </div>
-);
-
-const Strokes = () => (
-  <div>
-    <SectionTitle>النوبة القلبية — الأعراض</SectionTitle>
-    <Bullets
-      items={[
-        "ألم ضاغط في وسط الصدر يمتد للذراع الأيسر أو الفك.",
-        "ضيق تنفّس، تعرّق بارد، غثيان.",
-        "دوار أو شعور بالإغماء.",
-      ]}
-    />
-    <SectionTitle>قاعدة F.A.S.T للسكتة الدماغية</SectionTitle>
-    <SimpleTable
-      headers={["الحرف", "الفحص", "العلامة"]}
-      rows={[
-        ["F", "Face — الوجه", "اطلب الابتسامة، هل يتدلّى أحد الجانبين؟"],
-        ["A", "Arms — الذراعان", "ارفع الذراعين، هل ينزل أحدهما؟"],
-        ["S", "Speech — الكلام", "هل الكلام متلعثم أو غير مفهوم؟"],
-        ["T", "Time — الوقت", "اتصل بالإسعاف فوراً وسجّل وقت بدء الأعراض."],
-      ]}
-    />
-    <Warning>
-      لا تعطِ المصاب أي طعام أو شراب. أبقِه في وضع مريح حتى وصول الإسعاف.
-    </Warning>
-  </div>
-);
-
-const EyeInjuries = () => (
-  <div>
-    <SectionTitle>أنواع الإصابات والإسعاف</SectionTitle>
-    <SimpleTable
-      headers={["الإصابة", "الإجراء"]}
-      rows={[
-        ["جسم غريب صغير", "اشطف بماء نظيف من الزاوية الداخلية للخارجية."],
-        ["مواد كيميائية", "اشطف ١٥-٢٠ دقيقة بماء جارٍ، ثم للطوارئ."],
-        ["جسم مخترق", "لا تنزعه! ثبّته بضماد ونقل المصاب فوراً."],
-        ["كدمة/ضربة", "كمادة باردة بدون ضغط على العين."],
-      ]}
-    />
-    <Warning>
-      لا تفرك العين، ولا تستخدم قطرات بدون استشارة طبيب.
-    </Warning>
-  </div>
-);
-
-const BeeStings = () => (
-  <div>
-    <SectionTitle>إزالة اللسعة</SectionTitle>
-    <Steps
-      items={[
-        "أزل الإبرة بكشطها بظفر أو بطاقة، لا تستخدم الملقاط.",
-        "اغسل المنطقة بماء وصابون.",
-        "ضع كمادة باردة لتقليل التورّم.",
-        "ارفع الطرف المصاب إن أمكن.",
-      ]}
-    />
-    <SectionTitle>علامات الحساسية المفرطة (Anaphylaxis)</SectionTitle>
-    <Bullets
-      tone="dont"
-      items={[
-        "صعوبة تنفّس أو صفير في الصدر.",
-        "تورّم الوجه، الشفتين، أو اللسان.",
-        "طفح جلدي منتشر أو دوار شديد.",
-        "اتصل بالإسعاف فوراً واستخدم حقنة الإبينفرين إن توفّرت.",
-      ]}
-    />
-  </div>
-);
-
-const HeatStroke = () => (
-  <div>
-    <SectionTitle>الأعراض</SectionTitle>
-    <Bullets
-      items={[
-        "ارتفاع حرارة الجسم فوق ٤٠°م.",
-        "جلد ساخن وجاف وأحمر.",
-        "صداع شديد، تشوّش، أو فقدان وعي.",
-        "تسارع النبض والتنفّس.",
-      ]}
-    />
-    <SectionTitle>طرق التبريد</SectionTitle>
-    <Steps
-      items={[
-        "انقل المصاب لمكان بارد ومظلّل.",
-        "اخلع الملابس الزائدة.",
-        "رشّ الجسم بماء بارد أو ضع كمادات على الرقبة، الإبط، وأعلى الفخذ.",
-        "أعطه ماء بارد إن كان واعياً.",
-        "اتصل بالإسعاف فوراً.",
-      ]}
-    />
-  </div>
-);
-
-const Vomiting = () => (
-  <div>
-    <SectionTitle>خطوات التعامل</SectionTitle>
-    <Steps
-      items={[
-        "أجلس المصاب أو أمله على جانبه لمنع الشرقة.",
-        "ابتعد عن الطعام لمدة ساعة بعد آخر قيء.",
-        "ابدأ بسوائل صغيرة الكميات كل ١٥ دقيقة (ماء، محلول معالجة الجفاف).",
-        "تدرّج لطعام خفيف (موز، أرز، خبز محمّص).",
-        "تجنّب الدهون، الحلويات، والكافيين.",
-      ]}
-    />
-    <Warning>
-      راجع الطوارئ إذا استمر القيء أكثر من ٢٤ ساعة، أو ظهر دم، أو علامات جفاف شديد.
-    </Warning>
-  </div>
-);
-
-const Frostbite = () => (
-  <div>
-    <SectionTitle>التعامل مع قضمة الصقيع</SectionTitle>
-    <Steps
-      items={[
-        "انقل المصاب لمكان دافئ.",
-        "أزل الملابس المبللة بلطف.",
-        "اغمر المنطقة في ماء دافئ (٣٧-٣٩°م) ٢٠-٣٠ دقيقة.",
-        "لا تستخدم حرارة مباشرة (نار، مدفأة).",
-        "غطِّ المنطقة بضمادات معقّمة جافة.",
-      ]}
-    />
-    <Warning>
-      لا تفرك المنطقة المصابة ولا تكسر البثور. توجّه للطوارئ في الحالات الشديدة.
-    </Warning>
-  </div>
-);
-
-const Diabetes = () => (
-  <div>
-    <SectionTitle>انخفاض السكر (Hypoglycemia)</SectionTitle>
-    <Bullets items={["تعرّق، ارتعاش، جوع شديد، تشوّش، فقدان وعي محتمل."]} />
-    <Steps
-      items={[
-        "إن كان واعياً: أعطه ١٥غ سكر سريع (عصير، عسل، سكر).",
-        "انتظر ١٥ دقيقة وأعد القياس.",
-        "كرّر إن لم يتحسّن، ثم وجبة كاملة بعد التحسّن.",
-        "إن كان فاقد الوعي: لا تطعمه — اتصل بالإسعاف.",
-      ]}
-    />
-    <SectionTitle>ارتفاع السكر (Hyperglycemia)</SectionTitle>
-    <Bullets items={["عطش شديد، تبوّل متكرّر، إرهاق، رائحة فم تشبه الأسيتون."]} />
-    <Steps
-      items={[
-        "شجّع شرب الماء.",
-        "افحص السكر إن أمكن، ولا تعطِ إنسولين بدون وصفة.",
-        "توجّه للطوارئ إذا تجاوز ٣٠٠ مج/دل أو ظهر تنفّس عميق.",
-      ]}
-    />
-  </div>
-);
-
-const BloodPressure = () => (
-  <div>
-    <SectionTitle>التحضير للقياس</SectionTitle>
-    <Bullets
-      items={[
-        "استرح ٥ دقائق على الأقل قبل القياس.",
-        "تجنّب الكافيين والتدخين قبل ٣٠ دقيقة.",
-        "اجلس على كرسي بظهر مستقيم والقدمان على الأرض.",
-        "ضع الذراع على مستوى القلب.",
-      ]}
-    />
-    <SectionTitle>خطوات القياس</SectionTitle>
-    <Steps
-      items={[
-        "اربط السوار حول العضد ٢-٣ سم فوق ثنية المرفق.",
-        "ابقَ ساكناً ولا تتحدّث أثناء القياس.",
-        "خذ قراءتين بفارق دقيقة وسجّل المتوسّط.",
-      ]}
-    />
-    <SectionTitle>قراءة ضغط الدم (mmHg)</SectionTitle>
-    <SimpleTable
-      headers={["التصنيف", "الانقباضي", "الانبساطي"]}
-      rows={[
-        ["طبيعي", "أقل من ١٢٠", "أقل من ٨٠"],
-        ["مرتفع قليلاً", "١٢٠-١٢٩", "أقل من ٨٠"],
-        ["مرحلة ١", "١٣٠-١٣٩", "٨٠-٨٩"],
-        ["مرحلة ٢", "١٤٠ فأكثر", "٩٠ فأكثر"],
-        ["نوبة (طوارئ)", "١٨٠ فأكثر", "١٢٠ فأكثر"],
-      ]}
-    />
-    <Warning>
-      عند قراءة ١٨٠/١٢٠ فأكثر مع أعراض كألم صدر أو ضيق نفس، اتصل بالإسعاف فوراً.
-    </Warning>
-  </div>
-);
-
-// ────────────────────────────────────────────────────────────
-// Switcher
+// Content renderer
 // ────────────────────────────────────────────────────────────
 export const FirstAidContent = memo(({ section }: { section: FirstAidKey }) => {
-  switch (section) {
-    case "fractures": return <Fractures />;
-    case "burns": return <Burns />;
-    case "nosebleed": return <Nosebleed />;
-    case "cpr": return <CPR />;
-    case "strokes": return <Strokes />;
-    case "eye": return <EyeInjuries />;
-    case "bee": return <BeeStings />;
-    case "heatstroke": return <HeatStroke />;
-    case "vomiting": return <Vomiting />;
-    case "frostbite": return <Frostbite />;
-    case "diabetes": return <Diabetes />;
-    case "bp": return <BloodPressure />;
-    default: return null;
-  }
+  const topic = getTopic(section);
+  if (!topic) return null;
+
+  const cat = FIRST_AID_CATEGORIES.find((c) => c.key === topic.category);
+
+  return (
+    <div>
+      {/* Category badge + summary */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        {cat && (
+          <span
+            className="text-[10px] font-bold px-2 py-1 rounded-lg"
+            style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
+          >
+            {cat.label}
+          </span>
+        )}
+        <span className="text-[10px] text-muted-foreground">آخر تحديث: {topic.updatedAt}</span>
+      </div>
+
+      {topic.summary && (
+        <p className="text-xs text-muted-foreground leading-relaxed mb-2">{topic.summary}</p>
+      )}
+
+      {topic.sections.map((s, i) => (
+        <RenderSection key={i} s={s} />
+      ))}
+
+      {/* Sources */}
+      {topic.sources.length > 0 && (
+        <div className="mt-5 rounded-2xl bg-muted/50 border border-border p-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-[11px] font-extrabold text-foreground">المصادر</span>
+          </div>
+          <ul className="text-[10px] text-muted-foreground space-y-0.5">
+            {topic.sources.map((src, i) => (
+              <li key={i}>• {src.name}{src.year ? ` (${src.year})` : ""}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="text-[10px] text-muted-foreground mt-3 text-center leading-relaxed">
+        المحتوى للتوعية فقط ولا يُغني عن استشارة طبيب مختص أو الاتصال بالطوارئ.
+      </p>
+    </div>
+  );
 });
 FirstAidContent.displayName = "FirstAidContent";
