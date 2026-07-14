@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { Cross, Droplet, X, Siren, Search } from "lucide-react";
 import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
 import { FIRST_AID_TABS, FirstAidContent, FirstAidIntro, type FirstAidKey } from "./FirstAidContent";
@@ -101,11 +101,20 @@ const CategoryGrid = ({
 const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const [active, setActive] = useState<FirstAidKey>(FIRST_AID_TABS[0].key);
   const [query, setQuery] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
   const filtered = query.trim()
     ? FIRST_AID_TABS.filter((t) => t.label.toLowerCase().includes(query.trim().toLowerCase()))
     : FIRST_AID_TABS;
   const activeCat = FIRST_AID_TABS.find((c) => c.key === active)!;
   const ActiveIcon = activeCat.icon;
+
+  const handleSelect = (k: string) => {
+    setActive(k as FirstAidKey);
+    // Wait a tick for content to update, then scroll into view
+    requestAnimationFrame(() => {
+      contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
 
   return (
     <Sheet open={open} onClose={onClose} title="🔴 دليل الإسعافات الأولية" accent="from-[#C62828] to-[#8B1A1A]">
@@ -135,12 +144,12 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
         <CategoryGrid
           items={filtered as unknown as GridItem[]}
           active={active}
-          onSelect={(k) => setActive(k as FirstAidKey)}
+          onSelect={handleSelect}
         />
       </div>
 
       {/* Selected content */}
-      <div className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2" dir="rtl">
+      <div ref={contentRef} className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2 scroll-mt-4" dir="rtl">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
