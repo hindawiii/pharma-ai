@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { Cross, Droplet, X, Siren } from "lucide-react";
+import { Cross, Droplet, X, Siren, Search } from "lucide-react";
 import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
 import { FIRST_AID_TABS, FirstAidContent, FirstAidIntro, type FirstAidKey } from "./FirstAidContent";
 
