@@ -211,9 +211,22 @@ FirstAidIntro.displayName = "FirstAidIntro";
 // ────────────────────────────────────────────────────────────
 export const FirstAidContent = memo(({ section }: { section: FirstAidKey }) => {
   const topic = getTopic(section);
+  const [checklistMode, setChecklistMode] = useState(false);
   if (!topic) return null;
 
   const cat = FIRST_AID_CATEGORIES.find((c) => c.key === topic.category);
+
+  // Aggregate all step items across "steps" sections for checklist mode
+  const allSteps = topic.sections.filter((s) => s.type === "steps").flatMap((s) => s.items ?? []);
+
+  // Topic-specific tools
+  const tool = (() => {
+    if (topic.key === "cpr") return <CprMetronome />;
+    if (topic.key === "burns") return <FirstAidTimer minutes={20} label="مؤقّت شطف الحرق بالماء" hint="اشطف بماء جارٍ فاتر 15–20 دقيقة. لا تستخدم ثلجاً." />;
+    if (topic.key === "eye") return <FirstAidTimer minutes={15} label="مؤقّت غسل العين" hint="غسل مستمر بماء نظيف لا يقل عن 15 دقيقة." />;
+    if (topic.key === "poison-ingest") return <FirstAidTimer minutes={2} label="مؤقّت الاتصال بمركز السموم" hint="اتصل بمركز السموم فوراً وقدّم عمر المصاب واسم المادة." />;
+    return null;
+  })();
 
   return (
     <div>
@@ -234,9 +247,29 @@ export const FirstAidContent = memo(({ section }: { section: FirstAidKey }) => {
         <p className="text-xs text-muted-foreground leading-relaxed mb-2">{topic.summary}</p>
       )}
 
-      {topic.sections.map((s, i) => (
-        <RenderSection key={i} s={s} />
-      ))}
+      {/* Checklist toggle */}
+      {allSteps.length > 0 && (
+        <div className="flex items-center justify-end mt-2">
+          <button
+            onClick={() => setChecklistMode((v) => !v)}
+            className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border-2 flex items-center gap-1 transition-bounce active:scale-95 ${
+              checklistMode ? "bg-[#00695C] text-white border-[#00695C]" : "bg-white text-[#00695C] border-[#00695C]"
+            }`}
+          >
+            <ListChecks className="h-3.5 w-3.5" />
+            {checklistMode ? "عرض التفاصيل" : "وضع قائمة التنفيذ"}
+          </button>
+        </div>
+      )}
+
+      {checklistMode ? (
+        <FirstAidChecklist storageKey={topic.key} items={allSteps} title={`قائمة تنفيذ · ${topic.label}`} />
+      ) : (
+        topic.sections.map((s, i) => <RenderSection key={i} s={s} />)
+      )}
+
+      {/* Interactive tool for this topic */}
+      {!checklistMode && tool}
 
       {/* Sources */}
       {topic.sources.length > 0 && (
