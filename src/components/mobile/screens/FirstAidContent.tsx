@@ -1,7 +1,7 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import * as Icons from "lucide-react";
 import {
-  Flame, Shield, Siren, AlertTriangle, CheckCircle2, XCircle, Info, BookOpen,
+  Flame, Shield, Siren, AlertTriangle, CheckCircle2, XCircle, Info, BookOpen, ListChecks,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useUserLocation } from "@/hooks/useUserLocation";
@@ -13,6 +13,9 @@ import {
   getTopic,
   type FirstAidSection,
 } from "@/data/firstAidTopics";
+import { CprMetronome } from "../firstaid/CprMetronome";
+import { FirstAidTimer } from "../firstaid/FirstAidTimer";
+import { FirstAidChecklist } from "../firstaid/FirstAidChecklist";
 
 // Re-export for backward compatibility
 export type FirstAidKey = string;
