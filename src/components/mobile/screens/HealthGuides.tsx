@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { Cross, Droplet, X, Siren } from "lucide-react";
+import { Cross, Droplet, X, Siren, Search } from "lucide-react";
 import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
 import { FIRST_AID_TABS, FirstAidContent, FirstAidIntro, type FirstAidKey } from "./FirstAidContent";
 
@@ -100,6 +100,10 @@ const CategoryGrid = ({
 // ────────────────────────────────────────────────────────────
 const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const [active, setActive] = useState<FirstAidKey>(FIRST_AID_TABS[0].key);
+  const [query, setQuery] = useState("");
+  const filtered = query.trim()
+    ? FIRST_AID_TABS.filter((t) => t.label.toLowerCase().includes(query.trim().toLowerCase()))
+    : FIRST_AID_TABS;
   const activeCat = FIRST_AID_TABS.find((c) => c.key === active)!;
   const ActiveIcon = activeCat.icon;
 
@@ -109,10 +113,27 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
         <FirstAidIntro />
       </div>
 
+      {/* Search bar */}
+      <div className="px-4 pt-2 pb-2 bg-white" dir="rtl">
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="ابحث عن حالة (مثل: اختناق، حرق، سكتة)..."
+            className="w-full h-10 pr-10 pl-3 rounded-xl border-2 border-[#C62828]/20 focus:border-[#C62828] focus:outline-none text-sm bg-white text-foreground"
+          />
+        </div>
+        {query && filtered.length === 0 && (
+          <p className="text-[11px] text-muted-foreground mt-2 text-center">لا توجد نتائج مطابقة.</p>
+        )}
+      </div>
+
       {/* Category grid */}
       <div className="px-4 pb-2 bg-white" dir="rtl">
         <CategoryGrid
-          items={FIRST_AID_TABS as unknown as GridItem[]}
+          items={filtered as unknown as GridItem[]}
           active={active}
           onSelect={(k) => setActive(k as FirstAidKey)}
         />
@@ -135,7 +156,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
         <div className="rounded-2xl bg-[#C62828]/10 border border-[#C62828]/30 p-4 flex items-start gap-3">
           <Siren className="h-5 w-5 text-[#C62828] flex-shrink-0 mt-0.5" />
           <p className="text-sm font-bold text-[#C62828] leading-relaxed">
-            في حالة الطوارئ، اتصل فوراً برقم الإسعاف 123. هذا الدليل لا يغني عن المساعدة الطبية المتخصصة.
+            في حالة الطوارئ، اتصل فوراً برقم الإسعاف. هذا الدليل لا يغني عن المساعدة الطبية المتخصصة.
           </p>
         </div>
       </div>
