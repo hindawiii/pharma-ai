@@ -2,6 +2,7 @@ import { memo, useRef, useState } from "react";
 import { Cross, Droplet, X, Siren, Search } from "lucide-react";
 import { BLOOD_TABS, BloodTypesContent, type BloodSectionKey } from "./BloodTypesContent";
 import { FIRST_AID_TABS, FirstAidContent, FirstAidIntro, type FirstAidKey } from "./FirstAidContent";
+import { QuickAccessFab } from "../firstaid/QuickAccessFab";
 
 // ────────────────────────────────────────────────────────────
 // Reusable Sheet (responsive: full-screen on mobile, centered card on larger)
@@ -58,27 +59,31 @@ interface GridItem {
   key: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  category?: string;
 }
 const CategoryGrid = ({
   items,
   active,
   onSelect,
   accent = "#C62828",
+  markCritical = false,
 }: {
   items: GridItem[];
   active: string;
   onSelect: (k: string) => void;
   accent?: string;
+  markCritical?: boolean;
 }) => (
   <div className="grid grid-cols-3 gap-2" dir="rtl">
     {items.map((c) => {
       const Icon = c.icon;
       const isActive = c.key === active;
+      const isCritical = markCritical && c.category === "life";
       return (
         <button
           key={c.key}
           onClick={() => onSelect(c.key)}
-          className={`flex flex-col items-center justify-center gap-1 px-2 py-2.5 rounded-xl border text-center transition-bounce active:scale-95 ${
+          className={`relative flex flex-col items-center justify-center gap-1 px-2 py-2.5 rounded-xl border text-center transition-bounce active:scale-95 ${
             isActive ? "text-white shadow-soft" : "bg-white hover:bg-[#C62828]/5"
           }`}
           style={{
@@ -87,6 +92,12 @@ const CategoryGrid = ({
             color: isActive ? "#fff" : accent,
           }}
         >
+          {isCritical && (
+            <span
+              className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white animate-pulse"
+              aria-label="طوارئ حياة"
+            />
+          )}
           <Icon className="h-4 w-4" />
           <span className="text-[11px] font-bold leading-tight line-clamp-2">{c.label}</span>
         </button>
@@ -94,6 +105,7 @@ const CategoryGrid = ({
     })}
   </div>
 );
+
 
 // ────────────────────────────────────────────────────────────
 // First Aid data
