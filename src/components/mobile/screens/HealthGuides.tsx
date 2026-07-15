@@ -157,6 +157,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
           items={filtered as unknown as GridItem[]}
           active={active}
           onSelect={handleSelect}
+          markCritical
         />
       </div>
 
@@ -181,6 +182,9 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
           </p>
         </div>
       </div>
+
+      {/* Quick access FAB — only inside first-aid modal */}
+      <QuickAccessFab onSelect={handleSelect} />
     </Sheet>
   );
 };
