@@ -23,7 +23,7 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
       <button
         onClick={() => setOpen(true)}
         aria-label="طوارئ سريعة"
-        className="absolute bottom-5 left-5 z-30 h-14 w-14 rounded-full text-white shadow-elegant flex items-center justify-center active:scale-90 transition-bounce"
+        className="fixed bottom-6 left-6 z-[105] h-14 w-14 rounded-full text-white shadow-elegant flex items-center justify-center active:scale-90 transition-bounce"
         style={{ background: "linear-gradient(135deg,#C62828 0%,#8B1A1A 100%)" }}
       >
         <Zap className="h-6 w-6" fill="currentColor" strokeWidth={2.5} />
