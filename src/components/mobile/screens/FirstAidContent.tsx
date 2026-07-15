@@ -16,15 +16,16 @@ import {
 import { CprMetronome } from "../firstaid/CprMetronome";
 import { FirstAidTimer } from "../firstaid/FirstAidTimer";
 import { FirstAidChecklist } from "../firstaid/FirstAidChecklist";
+import { TOPIC_ILLUSTRATIONS } from "../firstaid/illustrations";
 
 // Re-export for backward compatibility
 export type FirstAidKey = string;
 
 // Build tabs dynamically from data
-export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon }[] =
+export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon; category: string }[] =
   FIRST_AID_TOPICS.map((t) => {
     const Ic = (Icons as unknown as Record<string, LucideIcon>)[t.icon] ?? Icons.HeartPulse;
-    return { key: t.key, label: t.label, icon: Ic };
+    return { key: t.key, label: t.label, icon: Ic, category: t.category };
   });
 
 // ────────────────────────────────────────────────────────────
@@ -265,7 +266,18 @@ export const FirstAidContent = memo(({ section }: { section: FirstAidKey }) => {
       {checklistMode ? (
         <FirstAidChecklist storageKey={topic.key} items={allSteps} title={`قائمة تنفيذ · ${topic.label}`} />
       ) : (
-        topic.sections.map((s, i) => <RenderSection key={i} s={s} />)
+        <>
+          {TOPIC_ILLUSTRATIONS[topic.key] && (
+            <figure className="mt-3 rounded-2xl border border-[#C62828]/20 bg-white p-2">
+              {(() => {
+                const Ill = TOPIC_ILLUSTRATIONS[topic.key];
+                return <Ill />;
+              })()}
+              <figcaption className="text-[10px] text-muted-foreground text-center mt-1">رسم توضيحي مبسّط للاسترشاد</figcaption>
+            </figure>
+          )}
+          {topic.sections.map((s, i) => <RenderSection key={i} s={s} />)}
+        </>
       )}
 
       {/* Interactive tool for this topic */}
