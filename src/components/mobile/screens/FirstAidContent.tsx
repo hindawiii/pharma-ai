@@ -22,10 +22,10 @@ import { TOPIC_ILLUSTRATIONS } from "../firstaid/illustrations";
 export type FirstAidKey = string;
 
 // Build tabs dynamically from data
-export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon }[] =
+export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon; category: string }[] =
   FIRST_AID_TOPICS.map((t) => {
     const Ic = (Icons as unknown as Record<string, LucideIcon>)[t.icon] ?? Icons.HeartPulse;
-    return { key: t.key, label: t.label, icon: Ic };
+    return { key: t.key, label: t.label, icon: Ic, category: t.category };
   });
 
 // ────────────────────────────────────────────────────────────
