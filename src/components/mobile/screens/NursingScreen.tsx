@@ -23,9 +23,11 @@ import { NotesPanel } from "@/components/mobile/nursing/NotesPanel";
 import { RemindersPanel } from "@/components/mobile/nursing/RemindersPanel";
 import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
 import { NurseAiPanel } from "@/components/mobile/nursing/NurseAiPanel";
+import { NursingReferenceHub } from "@/components/mobile/nursing/NursingReferenceHub";
+import { BookMarked } from "lucide-react";
 
 
-type Mode = "home" | "general";
+type Mode = "home" | "general" | "reference";
 
 // ============================================================
 // Color tokens per case category (uses CSS hsl variables only)
@@ -469,11 +471,21 @@ export const NursingScreen = memo(() => {
           >
             <GraduationCap className="h-4 w-4" /> عام
           </button>
+          <button
+            onClick={() => setMode("reference")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-extrabold transition-bounce ${
+              mode === "reference" ? "bg-white text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
+            }`}
+          >
+            <BookMarked className="h-4 w-4" /> مرجع
+          </button>
         </div>
       </header>
 
       <div className="px-4 pt-4">
-        {mode === "home" ? <HomeNursingView /> : <GeneralNursingView />}
+        {mode === "home" && <HomeNursingView />}
+        {mode === "general" && <GeneralNursingView />}
+        {mode === "reference" && <NursingReferenceHub />}
       </div>
 
       {aiOpen && <NurseAiPanel onClose={() => setAiOpen(false)} />}
