@@ -23,9 +23,11 @@ import { NotesPanel } from "@/components/mobile/nursing/NotesPanel";
 import { RemindersPanel } from "@/components/mobile/nursing/RemindersPanel";
 import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
 import { NurseAiPanel } from "@/components/mobile/nursing/NurseAiPanel";
+import { NursingReferenceHub } from "@/components/mobile/nursing/NursingReferenceHub";
+import { BookMarked } from "lucide-react";
 
 
-type Mode = "home" | "general";
+type Mode = "home" | "general" | "reference";
 
 // ============================================================
 // Color tokens per case category (uses CSS hsl variables only)
