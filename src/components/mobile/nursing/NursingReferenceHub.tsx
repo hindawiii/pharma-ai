@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Activity, FlaskConical, BookOpen, Calculator, FileText } from "lucide-react";
+import { Search, Activity, FlaskConical, BookOpen, Calculator, FileText, Stethoscope } from "lucide-react";
 import {
   VITAL_SIGNS_BY_AGE,
   LAB_VALUES,
@@ -7,10 +7,12 @@ import {
   NANDA_DIAGNOSES,
 } from "@/data/nursingReference";
 import { NursingCalculators } from "./NursingCalculators";
+import { SopsPanel } from "./SopsPanel";
 
-type RefTab = "vitals" | "labs" | "abbr" | "nanda" | "calc";
+type RefTab = "sops" | "vitals" | "labs" | "abbr" | "nanda" | "calc";
 
 const TABS: { id: RefTab; label: string; icon: typeof Activity }[] = [
+  { id: "sops", label: "إجراءات", icon: Stethoscope },
   { id: "vitals", label: "علامات حيوية", icon: Activity },
   { id: "labs", label: "قيم مخبرية", icon: FlaskConical },
   { id: "abbr", label: "اختصارات", icon: FileText },
@@ -200,7 +202,7 @@ const NandaView = () => {
 };
 
 export const NursingReferenceHub = () => {
-  const [tab, setTab] = useState<RefTab>("vitals");
+  const [tab, setTab] = useState<RefTab>("sops");
   return (
     <div className="space-y-4 pb-8">
       {/* Tab bar */}
@@ -224,6 +226,7 @@ export const NursingReferenceHub = () => {
       </div>
 
       {/* Content */}
+      {tab === "sops" && <SopsPanel />}
       {tab === "vitals" && <VitalsView />}
       {tab === "labs" && <LabsView />}
       {tab === "abbr" && <AbbrView />}
