@@ -206,7 +206,7 @@ const NandaView = () => {
 };
 
 export const NursingReferenceHub = () => {
-  const [tab, setTab] = useState<RefTab>("sops");
+  const [tab, setTab] = useState<RefTab>("protocols");
   return (
     <div className="space-y-4 pb-8">
       {/* Tab bar */}
