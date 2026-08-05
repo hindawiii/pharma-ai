@@ -230,7 +230,9 @@ export const NursingReferenceHub = () => {
       </div>
 
       {/* Content */}
+      {tab === "protocols" && <ProtocolsPanel />}
       {tab === "sops" && <SopsPanel />}
+      {tab === "path" && <LearningPathPanel />}
       {tab === "vitals" && <VitalsView />}
       {tab === "labs" && <LabsView />}
       {tab === "abbr" && <AbbrView />}
