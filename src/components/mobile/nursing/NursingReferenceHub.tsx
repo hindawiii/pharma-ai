@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search, Activity, FlaskConical, BookOpen, Calculator, FileText, Stethoscope } from "lucide-react";
+import { Search, Activity, FlaskConical, BookOpen, Calculator, FileText, Stethoscope, Siren, GraduationCap } from "lucide-react";
 import {
   VITAL_SIGNS_BY_AGE,
   LAB_VALUES,
@@ -8,11 +8,15 @@ import {
 } from "@/data/nursingReference";
 import { NursingCalculators } from "./NursingCalculators";
 import { SopsPanel } from "./SopsPanel";
+import { ProtocolsPanel } from "./ProtocolsPanel";
+import { LearningPathPanel } from "./LearningPathPanel";
 
-type RefTab = "sops" | "vitals" | "labs" | "abbr" | "nanda" | "calc";
+type RefTab = "protocols" | "sops" | "path" | "vitals" | "labs" | "abbr" | "nanda" | "calc";
 
 const TABS: { id: RefTab; label: string; icon: typeof Activity }[] = [
+  { id: "protocols", label: "بروتوكولات", icon: Siren },
   { id: "sops", label: "إجراءات", icon: Stethoscope },
+  { id: "path", label: "مسار التعلّم", icon: GraduationCap },
   { id: "vitals", label: "علامات حيوية", icon: Activity },
   { id: "labs", label: "قيم مخبرية", icon: FlaskConical },
   { id: "abbr", label: "اختصارات", icon: FileText },
@@ -202,7 +206,7 @@ const NandaView = () => {
 };
 
 export const NursingReferenceHub = () => {
-  const [tab, setTab] = useState<RefTab>("sops");
+  const [tab, setTab] = useState<RefTab>("protocols");
   return (
     <div className="space-y-4 pb-8">
       {/* Tab bar */}
@@ -226,7 +230,9 @@ export const NursingReferenceHub = () => {
       </div>
 
       {/* Content */}
+      {tab === "protocols" && <ProtocolsPanel />}
       {tab === "sops" && <SopsPanel />}
+      {tab === "path" && <LearningPathPanel />}
       {tab === "vitals" && <VitalsView />}
       {tab === "labs" && <LabsView />}
       {tab === "abbr" && <AbbrView />}
