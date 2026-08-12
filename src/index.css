@@ -68,6 +68,13 @@
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
+    /* Clinical accents (first-aid / blood / nursing) */
+    --fa-red: 0 65% 46%;
+    --fa-red-dark: 0 68% 32%;
+    --fa-navy: 213 48% 23%;
+    --fa-orange: 22 100% 45%;
+    --fa-teal: 174 100% 21%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -104,6 +111,12 @@
     --border: 220 18% 20%;
     --input: 220 18% 20%;
     --ring: 160 75% 50%;
+
+    --fa-red: 0 75% 62%;
+    --fa-red-dark: 0 65% 48%;
+    --fa-navy: 210 45% 72%;
+    --fa-orange: 28 95% 60%;
+    --fa-teal: 174 60% 52%;
 
     --gradient-primary: linear-gradient(135deg, hsl(160 75% 38%) 0%, hsl(170 80% 45%) 50%, hsl(155 80% 55%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(220 30% 12%) 0%, hsl(180 50% 22%) 50%, hsl(160 70% 35%) 100%);
