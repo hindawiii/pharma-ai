@@ -177,21 +177,21 @@ const EncyclopediaSection = () => {
   const info = BLOOD_DB[selected];
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-8 gap-1">
         {BLOOD_TYPES.map((t) => {
           const active = t === selected;
           return (
             <button
               key={t}
               onClick={() => setSelected(t)}
-              className={`relative aspect-square rounded-2xl flex flex-col items-center justify-center font-extrabold transition-bounce active:scale-90 border-2 ${
+              className={`relative h-12 rounded-xl flex flex-col items-center justify-center font-extrabold transition-bounce active:scale-90 border-2 ${
                 active
                   ? "bg-[#C62828] text-white border-[#C62828] shadow-elegant scale-105"
                   : "bg-white text-[#C62828] border-[#C62828]/30 hover:border-[#C62828]"
               }`}
             >
-              <Droplet className={`h-4 w-4 mb-0.5 ${active ? "text-white" : "text-[#C62828]"}`} fill="currentColor" />
-              <span className="text-base">{t}</span>
+              <Droplet className={`h-3 w-3 ${active ? "text-white" : "text-[#C62828]"}`} fill="currentColor" />
+              <span className="text-[11px] leading-none mt-0.5">{t}</span>
             </button>
           );
         })}

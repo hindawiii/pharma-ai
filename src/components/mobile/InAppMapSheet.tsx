@@ -100,7 +100,7 @@ export const InAppMapSheet = ({ open, onClose, user, target }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 backdrop-blur-sm" dir="rtl">
-      <div className="w-full max-w-md bg-card rounded-t-3xl shadow-elegant overflow-hidden animate-in slide-in-from-bottom duration-200">
+      <div className="app-shell bg-card rounded-t-3xl shadow-elegant overflow-hidden animate-in slide-in-from-bottom duration-200">
         <div className="flex items-center justify-between p-3 border-b border-border">
           <div className="flex items-center gap-2 min-w-0">
             <div className="h-9 w-9 rounded-xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
