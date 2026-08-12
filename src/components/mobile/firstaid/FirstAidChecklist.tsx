@@ -32,14 +32,14 @@ export const FirstAidChecklist = ({
   const doneCount = Object.values(checked).filter(Boolean).length;
 
   return (
-    <div className="rounded-2xl border-2 border-[#00695C] bg-white p-4 mt-3">
+    <div className="rounded-2xl border-2 border-fa-teal bg-card p-4 mt-3">
       <div className="flex items-center gap-2 mb-2">
-        <ListChecks className="h-4 w-4 text-[#00695C]" />
-        <h4 className="text-sm font-extrabold text-[#00695C]">{title}</h4>
-        <span className="mr-auto text-[10px] font-bold text-[#00695C]">{doneCount}/{items.length}</span>
+        <ListChecks className="h-4 w-4 text-fa-teal" />
+        <h4 className="text-sm font-extrabold text-fa-teal">{title}</h4>
+        <span className="mr-auto text-[10px] font-bold text-fa-teal">{doneCount}/{items.length}</span>
         <button
           onClick={reset}
-          className="text-[10px] text-muted-foreground flex items-center gap-1 hover:text-[#00695C]"
+          className="text-[10px] text-muted-foreground flex items-center gap-1 hover:text-fa-teal"
           aria-label="إعادة تعيين"
         >
           <RotateCcw className="h-3 w-3" /> إعادة
@@ -54,7 +54,7 @@ export const FirstAidChecklist = ({
                 type="checkbox"
                 checked={!!checked[i]}
                 onChange={() => toggle(i)}
-                className="mt-1 h-4 w-4 accent-[#00695C] flex-shrink-0"
+                className="mt-1 h-4 w-4 accent-fa-teal flex-shrink-0"
               />
               <span className={`text-sm leading-relaxed flex-1 ${checked[i] ? "line-through text-muted-foreground" : "text-foreground"}`}>
                 {t}

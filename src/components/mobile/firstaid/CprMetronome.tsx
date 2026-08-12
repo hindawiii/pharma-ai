@@ -64,23 +64,23 @@ export const CprMetronome = () => {
   };
 
   return (
-    <div className="rounded-2xl border-2 border-[#C62828] bg-white p-4 mt-3">
+    <div className="rounded-2xl border-2 border-fa-red bg-card p-4 mt-3">
       <div className="flex items-center gap-2 mb-3">
-        <Music2 className="h-4 w-4 text-[#C62828]" />
-        <h4 className="text-sm font-extrabold text-[#C62828]">مؤقّت إيقاع CPR</h4>
+        <Music2 className="h-4 w-4 text-fa-red" />
+        <h4 className="text-sm font-extrabold text-fa-red">مؤقّت إيقاع CPR</h4>
         <span className="mr-auto text-[10px] text-muted-foreground">{bpm} نبضة/د · 30:2</span>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-3 text-center">
-        <div className="rounded-xl bg-[#C62828]/5 p-2">
+        <div className="rounded-xl bg-fa-red/5 p-2">
           <div className="text-[10px] text-muted-foreground">المرحلة</div>
-          <div className="text-sm font-extrabold text-[#C62828]">{phase === "compress" ? "ضغط" : "تنفّس"}</div>
+          <div className="text-sm font-extrabold text-fa-red">{phase === "compress" ? "ضغط" : "تنفّس"}</div>
         </div>
-        <div className="rounded-xl bg-[#C62828]/5 p-2">
+        <div className="rounded-xl bg-fa-red/5 p-2">
           <div className="text-[10px] text-muted-foreground">العدّ</div>
           <div className="text-lg font-extrabold text-foreground">{count}/{phase === "compress" ? 30 : 2}</div>
         </div>
-        <div className="rounded-xl bg-[#C62828]/5 p-2">
+        <div className="rounded-xl bg-fa-red/5 p-2">
           <div className="text-[10px] text-muted-foreground">دورات</div>
           <div className="text-lg font-extrabold text-foreground">{cycles}</div>
         </div>
@@ -89,14 +89,14 @@ export const CprMetronome = () => {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setRunning((r) => !r)}
-          className="flex-1 h-10 rounded-xl bg-[#C62828] text-white font-extrabold flex items-center justify-center gap-2 active:scale-95 transition-bounce"
+          className="flex-1 h-10 rounded-xl bg-fa-red text-white font-extrabold flex items-center justify-center gap-2 active:scale-95 transition-bounce"
         >
           {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           {running ? "إيقاف" : "تشغيل"}
         </button>
         <button
           onClick={reset}
-          className="h-10 px-3 rounded-xl border-2 border-[#C62828] text-[#C62828] font-bold flex items-center gap-1 active:scale-95"
+          className="h-10 px-3 rounded-xl border-2 border-fa-red text-fa-red font-bold flex items-center gap-1 active:scale-95"
         >
           <RotateCcw className="h-4 w-4" /> صفر
         </button>
@@ -110,9 +110,9 @@ export const CprMetronome = () => {
           max={120}
           value={bpm}
           onChange={(e) => setBpm(Number(e.target.value))}
-          className="flex-1 accent-[#C62828]"
+          className="flex-1 accent-fa-red"
         />
-        <span className="text-[10px] font-bold text-[#C62828]">{bpm}</span>
+        <span className="text-[10px] font-bold text-fa-red">{bpm}</span>
       </div>
       <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
         المعدّل الموصى به من AHA: 100–120 نبضة/د بعمق 5–6 سم للبالغ.

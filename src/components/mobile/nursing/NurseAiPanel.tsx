@@ -167,7 +167,7 @@ export const NurseAiPanel = ({ onClose }: Props) => {
             <div>
               <p className="font-extrabold text-sm">ممرض Pharma-i الذكي</p>
               <p className="text-[10px] opacity-80 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-card animate-pulse" />
                 نص + صور جروح/حروق
               </p>
             </div>
