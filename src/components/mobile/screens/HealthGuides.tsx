@@ -19,13 +19,13 @@ const Sheet = ({ open, onClose, title, accent, children }: SheetProps) => {
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in-0"
+      className="fixed inset-0 z-[100] flex items-stretch sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in-0"
       onClick={onClose}
       dir="rtl"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full sm:max-w-2xl h-[95dvh] sm:h-[90dvh] bg-background rounded-t-3xl sm:rounded-3xl shadow-elegant overflow-hidden flex flex-col animate-in slide-in-from-bottom-8 duration-300"
+        className="relative app-sheet bg-background shadow-elegant animate-in slide-in-from-bottom-8 duration-300"
         style={{ fontFamily: "'Cairo','Noto Sans Arabic',system-ui,sans-serif" }}
       >
         {/* Header */}

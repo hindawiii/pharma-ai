@@ -158,7 +158,7 @@ export const NurseAiPanel = ({ onClose }: Props) => {
         onClick={onClose}
         aria-hidden
       />
-      <div className="fixed inset-x-3 top-16 bottom-20 z-[60] mx-auto max-w-md rounded-3xl bg-card border border-border shadow-elegant overflow-hidden animate-fade-up flex flex-col">
+      <div className="fixed inset-x-3 top-16 bottom-20 z-[60] app-shell rounded-3xl bg-card border border-border shadow-elegant overflow-hidden animate-fade-up flex flex-col">
         <div className="gradient-primary p-3 text-white flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">

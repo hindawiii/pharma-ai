@@ -215,3 +215,51 @@
 .animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .animate-scan-line { animation: scan-line 2.5s ease-in-out infinite; }
 .animate-fade-up { animation: fade-up 0.6s ease-out forwards; }
+
+/* ────────────────────────────────────────────────
+   Premium app sizing tokens — single source of truth
+   for the mobile shell width and full-screen sheets.
+   ──────────────────────────────────────────────── */
+:root {
+  --app-max-w: 30rem;   /* 480px  — phones */
+  --sheet-max-w: 30rem;
+}
+@media (min-width: 640px) {
+  :root { --app-max-w: 34rem; --sheet-max-w: 40rem; }
+}
+@media (min-width: 1024px) {
+  :root { --app-max-w: 38rem; --sheet-max-w: 44rem; }
+}
+
+@layer utilities {
+  .app-shell {
+    width: 100%;
+    max-width: var(--app-max-w);
+    margin-inline: auto;
+  }
+  /* Full-bleed sheet on phones, centered premium card on larger screens */
+  .app-sheet {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .app-sheet {
+      max-width: var(--sheet-max-w);
+      height: 94dvh;
+      border-radius: 1.75rem;
+    }
+  }
+  /* Bottom sheet that never exceeds the shell width */
+  .app-bottom-sheet {
+    width: 100%;
+    max-width: var(--app-max-w);
+    margin-inline: auto;
+    max-height: 92dvh;
+    overflow-y: auto;
+  }
+}

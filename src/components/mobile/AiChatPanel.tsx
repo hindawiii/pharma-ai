@@ -17,7 +17,7 @@ const SUGGESTIONS = ["ما بدائل البنادول؟", "موعد جرعتي 
 export const AiChatPanel = ({ onClose, variant = "fab" }: Props) => {
   const positionClass =
     variant === "centered"
-      ? "fixed inset-x-3 top-20 bottom-24 z-[60] mx-auto max-w-md"
+      ? "fixed inset-x-3 top-20 bottom-24 z-[60] app-shell"
       : "fixed bottom-24 left-3 z-50 w-[calc(100%-1.5rem)] max-w-sm";
 
   const [messages, setMessages] = useState<Msg[]>([]);

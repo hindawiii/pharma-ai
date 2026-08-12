@@ -57,7 +57,7 @@ const AddSheet = ({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end" onClick={onClose}>
-      <div className="w-full max-w-md mx-auto bg-card rounded-t-3xl p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+      <div className="app-bottom-sheet bg-card rounded-t-3xl p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-extrabold">قياس جديد</h3>
           <button onClick={onClose} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">

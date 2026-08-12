@@ -36,7 +36,7 @@ const Inner = () => {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-md h-dvh flex items-center justify-center bg-background">
+      <div className="app-shell h-dvh flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 text-primary animate-spin" />
       </div>
     );
@@ -47,7 +47,7 @@ const Inner = () => {
   const isFixedLayout = active === "scanner";
 
   return (
-    <div className="relative mx-auto max-w-md h-dvh overflow-hidden bg-background shadow-elegant flex flex-col">
+    <div className="relative app-shell h-dvh overflow-hidden bg-background shadow-elegant flex flex-col">
       <MobileTopBar title={titles[active]} />
 
       <main className={`flex-1 min-h-0 ${isFixedLayout ? "overflow-hidden" : "overflow-y-auto overscroll-contain"}`}>

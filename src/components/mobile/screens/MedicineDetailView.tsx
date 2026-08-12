@@ -101,7 +101,7 @@ export const MedicineDetailView = ({ drug, onClose, onAddReminder }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-stretch justify-center bg-black/40 backdrop-blur-sm" dir="rtl">
-      <div className="relative mx-auto w-full max-w-md h-dvh bg-background flex flex-col animate-in slide-in-from-bottom duration-300">
+      <div className="relative app-shell h-dvh bg-background flex flex-col animate-in slide-in-from-bottom duration-300">
         {/* Hero header */}
         <div className="relative gradient-primary text-white px-5 pt-5 pb-6 rounded-b-[2rem] shadow-elegant">
           <button
