@@ -65,7 +65,7 @@ const CategoryGrid = ({
   items,
   active,
   onSelect,
-  accent = "#C62828",
+  accent = "hsl(var(--fa-red))",
   markCritical = false,
 }: {
   items: GridItem[];
@@ -84,7 +84,7 @@ const CategoryGrid = ({
           key={c.key}
           onClick={() => onSelect(c.key)}
           className={`relative flex flex-col items-center justify-center gap-1 px-2 py-2.5 rounded-xl border text-center transition-bounce active:scale-95 ${
-            isActive ? "text-white shadow-soft" : "bg-white hover:bg-[#C62828]/5"
+            isActive ? "text-white shadow-soft" : "bg-card hover:bg-fa-red/5"
           }`}
           style={{
             borderColor: accent,
@@ -129,13 +129,13 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title="🔴 دليل الإسعافات الأولية" accent="from-[#C62828] to-[#8B1A1A]">
-      <div className="p-5 bg-white" dir="rtl">
+    <Sheet open={open} onClose={onClose} title="🔴 دليل الإسعافات الأولية" accent="from-fa-red to-fa-red-dark">
+      <div className="p-5 bg-card" dir="rtl">
         <FirstAidIntro />
       </div>
 
       {/* Search bar */}
-      <div className="px-4 pt-2 pb-2 bg-white" dir="rtl">
+      <div className="px-4 pt-2 pb-2 bg-card" dir="rtl">
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -143,7 +143,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ابحث عن حالة (مثل: اختناق، حرق، سكتة)..."
-            className="w-full h-10 pr-10 pl-3 rounded-xl border-2 border-[#C62828]/20 focus:border-[#C62828] focus:outline-none text-sm bg-white text-foreground"
+            className="w-full h-10 pr-10 pl-3 rounded-xl border-2 border-fa-red/20 focus:border-fa-red focus:outline-none text-sm bg-card text-foreground"
           />
         </div>
         {query && filtered.length === 0 && (
@@ -152,7 +152,7 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
       </div>
 
       {/* Category grid */}
-      <div className="px-4 pb-2 bg-white" dir="rtl">
+      <div className="px-4 pb-2 bg-card" dir="rtl">
         <CategoryGrid
           items={filtered as unknown as GridItem[]}
           active={active}
@@ -162,9 +162,9 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
       </div>
 
       {/* Selected content */}
-      <div ref={contentRef} className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2 scroll-mt-4" dir="rtl">
+      <div ref={contentRef} className="p-5 space-y-4 bg-card border-t border-fa-red/10 mt-2 scroll-mt-4" dir="rtl">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
+          <div className="h-12 w-12 rounded-2xl bg-fa-red/10 text-fa-red flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
           </div>
           <div>
@@ -175,9 +175,9 @@ const FirstAidModal = ({ open, onClose }: { open: boolean; onClose: () => void }
 
         <FirstAidContent section={active} />
 
-        <div className="rounded-2xl bg-[#C62828]/10 border border-[#C62828]/30 p-4 flex items-start gap-3">
-          <Siren className="h-5 w-5 text-[#C62828] flex-shrink-0 mt-0.5" />
-          <p className="text-sm font-bold text-[#C62828] leading-relaxed">
+        <div className="rounded-2xl bg-fa-red/10 border border-fa-red/30 p-4 flex items-start gap-3">
+          <Siren className="h-5 w-5 text-fa-red flex-shrink-0 mt-0.5" />
+          <p className="text-sm font-bold text-fa-red leading-relaxed">
             في حالة الطوارئ، اتصل فوراً برقم الإسعاف. هذا الدليل لا يغني عن المساعدة الطبية المتخصصة.
           </p>
         </div>
@@ -198,8 +198,8 @@ const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =
   const ActiveIcon = activeCat.icon;
 
   return (
-    <Sheet open={open} onClose={onClose} title="🩸 فصائل الدم والموسوعة" accent="from-[#C62828] to-[#8B1A1A]">
-      <div className="px-4 pt-4 pb-2 bg-white" dir="rtl">
+    <Sheet open={open} onClose={onClose} title="🩸 فصائل الدم والموسوعة" accent="from-fa-red to-fa-red-dark">
+      <div className="px-4 pt-4 pb-2 bg-card" dir="rtl">
         <CategoryGrid
           items={BLOOD_TABS as unknown as GridItem[]}
           active={active}
@@ -207,9 +207,9 @@ const BloodModal = ({ open, onClose }: { open: boolean; onClose: () => void }) =
         />
       </div>
 
-      <div className="p-5 space-y-4 bg-white border-t border-[#C62828]/10 mt-2" dir="rtl">
+      <div className="p-5 space-y-4 bg-card border-t border-fa-red/10 mt-2" dir="rtl">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#C62828]/10 text-[#C62828] flex items-center justify-center">
+          <div className="h-12 w-12 rounded-2xl bg-fa-red/10 text-fa-red flex items-center justify-center">
             <ActiveIcon className="h-6 w-6" />
           </div>
           <div>
@@ -238,7 +238,7 @@ export const HealthGuidesSection = memo(() => {
         <button
           onClick={() => setOpenFirstAid(true)}
           className="relative overflow-hidden rounded-2xl p-4 text-right text-white shadow-elegant transition-bounce active:scale-95 min-h-[110px] flex flex-col justify-between"
-          style={{ background: "linear-gradient(135deg,#C62828 0%,#8B1A1A 100%)" }}
+          style={{ background: "linear-gradient(135deg,hsl(var(--fa-red)) 0%,hsl(var(--fa-red-dark)) 100%)" }}
         >
           <div className="flex items-center justify-between">
             <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
@@ -256,7 +256,7 @@ export const HealthGuidesSection = memo(() => {
         <button
           onClick={() => setOpenBlood(true)}
           className="relative overflow-hidden rounded-2xl p-4 text-right text-white shadow-elegant transition-bounce active:scale-95 min-h-[110px] flex flex-col justify-between"
-          style={{ background: "linear-gradient(135deg,#1D3557 0%,#2A9D8F 100%)" }}
+          style={{ background: "linear-gradient(135deg,hsl(var(--fa-navy)) 0%,#2A9D8F 100%)" }}
         >
           <div className="flex items-center justify-between">
             <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">

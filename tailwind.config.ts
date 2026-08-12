@@ -4,6 +4,7 @@ export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   safelist: [
+    { pattern: /(bg|text|border|from|to|accent)-(fa-red|fa-red-dark|fa-navy|fa-orange|fa-teal)(\/\d+)?/ },
     { pattern: /(bg|text|border)-(primary|secondary|accent|destructive|warning|success|muted)(\/\d+)?/ },
   ],
   prefix: "",
@@ -19,6 +20,11 @@ export default {
         display: ['Space Grotesk', 'Cairo', 'sans-serif'],
       },
       colors: {
+        "fa-red": "hsl(var(--fa-red))",
+        "fa-red-dark": "hsl(var(--fa-red-dark))",
+        "fa-navy": "hsl(var(--fa-navy))",
+        "fa-orange": "hsl(var(--fa-orange))",
+        "fa-teal": "hsl(var(--fa-teal))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

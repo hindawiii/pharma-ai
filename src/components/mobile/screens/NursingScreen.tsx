@@ -101,7 +101,7 @@ const AddPatientSheet = ({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="w-full max-w-md bg-card rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom"
+        className="app-bottom-sheet bg-card rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -458,7 +458,7 @@ export const NursingScreen = memo(() => {
           <button
             onClick={() => setMode("home")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-extrabold transition-bounce ${
-              mode === "home" ? "bg-white text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
+              mode === "home" ? "bg-card text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
             }`}
           >
             <HomeIcon className="h-4 w-4" /> منزلي
@@ -466,7 +466,7 @@ export const NursingScreen = memo(() => {
           <button
             onClick={() => setMode("general")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-extrabold transition-bounce ${
-              mode === "general" ? "bg-white text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
+              mode === "general" ? "bg-card text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
             }`}
           >
             <GraduationCap className="h-4 w-4" /> عام
@@ -474,7 +474,7 @@ export const NursingScreen = memo(() => {
           <button
             onClick={() => setMode("reference")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-extrabold transition-bounce ${
-              mode === "reference" ? "bg-white text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
+              mode === "reference" ? "bg-card text-[hsl(215_60%_22%)] shadow-soft" : "text-white/85"
             }`}
           >
             <BookMarked className="h-4 w-4" /> مرجع

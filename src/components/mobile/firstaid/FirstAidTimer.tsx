@@ -51,10 +51,10 @@ export const FirstAidTimer = ({
   const pct = ((total - left) / total) * 100;
 
   return (
-    <div className="rounded-2xl border-2 border-[#E65100] bg-white p-4 mt-3">
+    <div className="rounded-2xl border-2 border-fa-orange bg-card p-4 mt-3">
       <div className="flex items-center gap-2 mb-2">
-        <TimerIcon className="h-4 w-4 text-[#E65100]" />
-        <h4 className="text-sm font-extrabold text-[#E65100]">{label}</h4>
+        <TimerIcon className="h-4 w-4 text-fa-orange" />
+        <h4 className="text-sm font-extrabold text-fa-orange">{label}</h4>
         <span className="mr-auto text-[10px] text-muted-foreground">{minutes} دقيقة</span>
       </div>
 
@@ -62,21 +62,21 @@ export const FirstAidTimer = ({
         <div className="text-4xl font-extrabold text-foreground tabular-nums" dir="ltr">{mm}:{ss}</div>
       </div>
 
-      <div className="h-2 rounded-full bg-[#E65100]/15 overflow-hidden mb-3">
-        <div className="h-full bg-[#E65100] transition-all" style={{ width: `${pct}%` }} />
+      <div className="h-2 rounded-full bg-fa-orange/15 overflow-hidden mb-3">
+        <div className="h-full bg-fa-orange transition-all" style={{ width: `${pct}%` }} />
       </div>
 
       <div className="flex items-center gap-2">
         <button
           onClick={() => setRunning((r) => !r)}
-          className="flex-1 h-10 rounded-xl bg-[#E65100] text-white font-extrabold flex items-center justify-center gap-2 active:scale-95"
+          className="flex-1 h-10 rounded-xl bg-fa-orange text-white font-extrabold flex items-center justify-center gap-2 active:scale-95"
         >
           {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           {running ? "إيقاف" : "بدء"}
         </button>
         <button
           onClick={reset}
-          className="h-10 px-3 rounded-xl border-2 border-[#E65100] text-[#E65100] font-bold flex items-center gap-1 active:scale-95"
+          className="h-10 px-3 rounded-xl border-2 border-fa-orange text-fa-orange font-bold flex items-center gap-1 active:scale-95"
         >
           <RotateCcw className="h-4 w-4" /> صفر
         </button>

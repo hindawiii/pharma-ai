@@ -186,19 +186,19 @@ const EncyclopediaSection = () => {
               onClick={() => setSelected(t)}
               className={`relative h-12 rounded-xl flex flex-col items-center justify-center font-extrabold transition-bounce active:scale-90 border-2 ${
                 active
-                  ? "bg-[#C62828] text-white border-[#C62828] shadow-elegant scale-105"
-                  : "bg-white text-[#C62828] border-[#C62828]/30 hover:border-[#C62828]"
+                  ? "bg-fa-red text-white border-fa-red shadow-elegant scale-105"
+                  : "bg-card text-fa-red border-fa-red/30 hover:border-fa-red"
               }`}
             >
-              <Droplet className={`h-3 w-3 ${active ? "text-white" : "text-[#C62828]"}`} fill="currentColor" />
+              <Droplet className={`h-3 w-3 ${active ? "text-white" : "text-fa-red"}`} fill="currentColor" />
               <span className="text-[11px] leading-none mt-0.5">{t}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="rounded-3xl overflow-hidden border-2 border-[#C62828]/20 bg-white shadow-soft">
-        <div className="bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white px-5 py-4 flex items-center justify-between">
+      <div className="rounded-3xl overflow-hidden border-2 border-fa-red/20 bg-card shadow-soft">
+        <div className="bg-gradient-to-l from-fa-red to-fa-red-dark text-white px-5 py-4 flex items-center justify-between">
           <div>
             <div className="text-xs opacity-90 font-bold">{info.arabicName}</div>
             <div className="text-3xl font-black mt-0.5">{info.type}</div>
@@ -219,7 +219,7 @@ const EncyclopediaSection = () => {
 
 const Field = ({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) => (
   <div>
-    <div className={`text-xs font-extrabold mb-1 ${accent ? "text-[#C62828]" : "text-foreground"}`}>{label}</div>
+    <div className={`text-xs font-extrabold mb-1 ${accent ? "text-fa-red" : "text-foreground"}`}>{label}</div>
     <div className="text-sm text-muted-foreground leading-relaxed">{value}</div>
   </div>
 );
@@ -234,8 +234,8 @@ const CalculatorSection = () => {
 
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="rounded-2xl border-2 border-[#C62828]/20 bg-white p-4 shadow-soft">
-        <div className="text-xs font-extrabold text-[#C62828] mb-3 flex items-center gap-1.5">
+      <div className="rounded-2xl border-2 border-fa-red/20 bg-card p-4 shadow-soft">
+        <div className="text-xs font-extrabold text-fa-red mb-3 flex items-center gap-1.5">
           <Calculator className="h-4 w-4" />
           أدخل فصيلة دم الوالدين
         </div>
@@ -245,17 +245,17 @@ const CalculatorSection = () => {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white p-4 shadow-elegant">
+      <div className="rounded-2xl bg-gradient-to-l from-fa-red to-fa-red-dark text-white p-4 shadow-elegant">
         <div className="text-xs font-bold opacity-90 mb-2">الفصائل المحتملة للأبناء</div>
         <div className="space-y-2">
           {results.map((r) => (
             <div key={r.type} className="flex items-center gap-3">
-              <div className="h-9 w-12 rounded-lg bg-white text-[#C62828] flex items-center justify-center font-black text-sm flex-shrink-0">
+              <div className="h-9 w-12 rounded-lg bg-card text-fa-red flex items-center justify-center font-black text-sm flex-shrink-0">
                 {r.type}
               </div>
               <div className="flex-1 h-3 bg-white/20 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-white rounded-full transition-all duration-500"
+                  className="h-full bg-card rounded-full transition-all duration-500"
                   style={{ width: `${r.pct}%` }}
                 />
               </div>
@@ -285,8 +285,8 @@ const ParentPicker = ({ label, value, onChange }: { label: string; value: BloodT
           onClick={() => onChange(t)}
           className={`py-2 rounded-lg text-xs font-extrabold transition-bounce active:scale-90 ${
             value === t
-              ? "bg-[#C62828] text-white shadow-soft"
-              : "bg-[#C62828]/5 text-[#C62828] hover:bg-[#C62828]/10"
+              ? "bg-fa-red text-white shadow-soft"
+              : "bg-fa-red/5 text-fa-red hover:bg-fa-red/10"
           }`}
         >
           {t}
@@ -303,11 +303,11 @@ const LabSection = () => {
   const [tab, setTab] = useState<"sample" | "testing">("sample");
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="grid grid-cols-2 gap-2 p-1 bg-[#C62828]/10 rounded-2xl">
+      <div className="grid grid-cols-2 gap-2 p-1 bg-fa-red/10 rounded-2xl">
         <button
           onClick={() => setTab("sample")}
           className={`py-2.5 rounded-xl text-xs font-extrabold transition-bounce ${
-            tab === "sample" ? "bg-[#C62828] text-white shadow-soft" : "text-[#C62828]"
+            tab === "sample" ? "bg-fa-red text-white shadow-soft" : "text-fa-red"
           }`}
         >
           أخذ العينة
@@ -315,7 +315,7 @@ const LabSection = () => {
         <button
           onClick={() => setTab("testing")}
           className={`py-2.5 rounded-xl text-xs font-extrabold transition-bounce ${
-            tab === "testing" ? "bg-[#C62828] text-white shadow-soft" : "text-[#C62828]"
+            tab === "testing" ? "bg-fa-red text-white shadow-soft" : "text-fa-red"
           }`}
         >
           طريقة الفحص
@@ -352,8 +352,8 @@ const LabSection = () => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             يتم وضع ثلاث قطرات من دم المريض على شريحة، ثم إضافة كاشف Anti-A على القطرة الأولى، Anti-B على الثانية، و Anti-D على الثالثة، ومراقبة حدوث التجلط (Agglutination).
           </p>
-          <div className="rounded-2xl border-2 border-[#C62828]/20 bg-white overflow-hidden">
-            <div className="grid grid-cols-4 text-center text-xs font-extrabold bg-[#C62828] text-white">
+          <div className="rounded-2xl border-2 border-fa-red/20 bg-card overflow-hidden">
+            <div className="grid grid-cols-4 text-center text-xs font-extrabold bg-fa-red text-white">
               <div className="py-2">Anti-A</div>
               <div className="py-2">Anti-B</div>
               <div className="py-2">Anti-D</div>
@@ -369,16 +369,16 @@ const LabSection = () => {
               { a: false, b: false, d: true, t: "O+" },
               { a: false, b: false, d: false, t: "O-" },
             ].map((row, i) => (
-              <div key={i} className={`grid grid-cols-4 text-center text-xs ${i % 2 ? "bg-[#C62828]/5" : "bg-white"}`}>
+              <div key={i} className={`grid grid-cols-4 text-center text-xs ${i % 2 ? "bg-fa-red/5" : "bg-card"}`}>
                 <Cell agg={row.a} />
                 <Cell agg={row.b} />
                 <Cell agg={row.d} />
-                <div className="py-2.5 font-black text-[#C62828]">{row.t}</div>
+                <div className="py-2.5 font-black text-fa-red">{row.t}</div>
               </div>
             ))}
           </div>
-          <div className="rounded-xl bg-[#C62828]/5 border border-[#C62828]/20 p-3">
-            <div className="text-[11px] font-extrabold text-[#C62828] mb-1">📌 ما هو التجلط (Agglutination)؟</div>
+          <div className="rounded-xl bg-fa-red/5 border border-fa-red/20 p-3">
+            <div className="text-[11px] font-extrabold text-fa-red mb-1">📌 ما هو التجلط (Agglutination)؟</div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               تكتل الكريات الحمراء على شكل حبيبات أو رواسب مرئية بالعين المجردة عند تفاعل المستضد مع الجسم المضاد، ويعني وجود المستضد على الكريات.
             </p>
@@ -392,7 +392,7 @@ const LabSection = () => {
 const Cell = ({ agg }: { agg: boolean }) => (
   <div className="py-2.5 flex items-center justify-center">
     {agg ? (
-      <span className="inline-flex items-center gap-1 text-[#C62828] font-extrabold">
+      <span className="inline-flex items-center gap-1 text-fa-red font-extrabold">
         <CheckCircle2 className="h-3.5 w-3.5" /> تجلط
       </span>
     ) : (
@@ -404,7 +404,7 @@ const Cell = ({ agg }: { agg: boolean }) => (
 );
 
 const SubHeader = ({ title }: { title: string }) => (
-  <h4 className="text-sm font-extrabold text-[#C62828] flex items-center gap-2">
+  <h4 className="text-sm font-extrabold text-fa-red flex items-center gap-2">
     <FlaskConical className="h-4 w-4" /> {title}
   </h4>
 );
@@ -412,8 +412,8 @@ const SubHeader = ({ title }: { title: string }) => (
 const Steps = ({ items }: { items: string[] }) => (
   <ol className="space-y-2">
     {items.map((s, i) => (
-      <li key={i} className="flex gap-3 items-start rounded-xl bg-white border border-[#C62828]/15 p-3 shadow-soft">
-        <div className="h-6 w-6 rounded-full bg-[#C62828] text-white flex items-center justify-center text-[11px] font-black flex-shrink-0">
+      <li key={i} className="flex gap-3 items-start rounded-xl bg-card border border-fa-red/15 p-3 shadow-soft">
+        <div className="h-6 w-6 rounded-full bg-fa-red text-white flex items-center justify-center text-[11px] font-black flex-shrink-0">
           {i + 1}
         </div>
         <p className="text-xs text-foreground leading-relaxed flex-1">{s}</p>
@@ -430,7 +430,7 @@ const DonorSection = () => {
   const info = BLOOD_DB[selected];
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="text-xs font-extrabold text-[#C62828] flex items-center gap-1.5">
+      <div className="text-xs font-extrabold text-fa-red flex items-center gap-1.5">
         <ArrowLeftRight className="h-4 w-4" /> اختر فصيلتك لمعرفة التوافق
       </div>
       <div className="grid grid-cols-4 gap-2">
@@ -440,8 +440,8 @@ const DonorSection = () => {
             onClick={() => setSelected(t)}
             className={`py-3 rounded-xl font-extrabold transition-bounce active:scale-90 ${
               selected === t
-                ? "bg-[#C62828] text-white shadow-elegant scale-105"
-                : "bg-white text-[#C62828] border-2 border-[#C62828]/20"
+                ? "bg-fa-red text-white shadow-elegant scale-105"
+                : "bg-card text-fa-red border-2 border-fa-red/20"
             }`}
           >
             {t}
@@ -483,15 +483,15 @@ const CompatCard = ({
 }) => (
   <div
     className={`rounded-2xl p-4 shadow-soft border-2 ${
-      inverse ? "bg-white border-[#C62828]/30 text-foreground" : "bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white border-transparent"
+      inverse ? "bg-card border-fa-red/30 text-foreground" : "bg-gradient-to-l from-fa-red to-fa-red-dark text-white border-transparent"
     }`}
   >
     <div className="flex items-center gap-2 mb-3">
-      <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${inverse ? "bg-[#C62828]/10 text-[#C62828]" : "bg-white/20"}`}>
+      <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${inverse ? "bg-fa-red/10 text-fa-red" : "bg-white/20"}`}>
         {icon}
       </div>
       <div>
-        <div className={`text-sm font-extrabold ${inverse ? "text-[#C62828]" : "text-white"}`}>{title}</div>
+        <div className={`text-sm font-extrabold ${inverse ? "text-fa-red" : "text-white"}`}>{title}</div>
         <div className={`text-[11px] ${inverse ? "text-muted-foreground" : "text-white/80"}`}>{subtitle}</div>
       </div>
     </div>
@@ -500,7 +500,7 @@ const CompatCard = ({
         <span
           key={t}
           className={`px-3 py-1.5 rounded-lg text-xs font-black ${
-            inverse ? "bg-[#C62828] text-white" : "bg-white text-[#C62828]"
+            inverse ? "bg-fa-red text-white" : "bg-card text-fa-red"
           }`}
         >
           {t}
@@ -535,7 +535,7 @@ const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) =>
 
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="rounded-2xl bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white p-4 shadow-elegant">
+      <div className="rounded-2xl bg-gradient-to-l from-fa-red to-fa-red-dark text-white p-4 shadow-elegant">
         <div className="flex items-center gap-2 mb-1">
           <Siren className="h-5 w-5" />
           <div className="text-sm font-extrabold">حالة طوارئ - تحتاج دم؟</div>
@@ -563,7 +563,7 @@ const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) =>
                 key={t}
                 onClick={() => setType(t)}
                 className={`py-2 rounded-lg text-xs font-extrabold transition-bounce ${
-                  type === t ? "bg-[#C62828] text-white shadow-soft" : "bg-[#C62828]/5 text-[#C62828]"
+                  type === t ? "bg-fa-red text-white shadow-soft" : "bg-fa-red/5 text-fa-red"
                 }`}
               >
                 {t}
@@ -580,7 +580,7 @@ const UrgentSection = ({ onRequestUrgent }: { onRequestUrgent?: () => void }) =>
       <button
         onClick={handleSubmit}
         disabled={!city || !hospital || !phone || submitted}
-        className="w-full h-14 rounded-2xl bg-[#C62828] text-white font-extrabold text-sm shadow-elegant transition-bounce active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
+        className="w-full h-14 rounded-2xl bg-fa-red text-white font-extrabold text-sm shadow-elegant transition-bounce active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
       >
         <Siren className="h-5 w-5" />
         {submitted ? `تم إرسال الطلب (${type}) إلى ${city} ✓` : `🚨 طلب تبرع عاجل · ${city || "حدد المدينة"}`}
@@ -608,7 +608,7 @@ const UrgentInput = ({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       dir="rtl"
-      className="w-full h-11 rounded-xl border-2 border-[#C62828]/20 bg-white px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-[#C62828] transition-colors"
+      className="w-full h-11 rounded-xl border-2 border-fa-red/20 bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-fa-red transition-colors"
     />
   </div>
 );

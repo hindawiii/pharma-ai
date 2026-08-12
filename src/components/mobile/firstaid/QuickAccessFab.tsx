@@ -24,7 +24,7 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
         onClick={() => setOpen(true)}
         aria-label="طوارئ سريعة"
         className="fixed bottom-6 left-6 z-[105] h-14 w-14 rounded-full text-white shadow-elegant flex items-center justify-center active:scale-90 transition-bounce"
-        style={{ background: "linear-gradient(135deg,#C62828 0%,#8B1A1A 100%)" }}
+        style={{ background: "linear-gradient(135deg,hsl(var(--fa-red)) 0%,hsl(var(--fa-red-dark)) 100%)" }}
       >
         <Zap className="h-6 w-6" fill="currentColor" strokeWidth={2.5} />
         <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 border-2 border-white animate-pulse" />
@@ -38,9 +38,9 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden animate-in slide-in-from-bottom-8"
+            className="app-bottom-sheet bg-card rounded-t-3xl sm:rounded-3xl overflow-hidden animate-in slide-in-from-bottom-8"
           >
-            <div className="px-4 py-3 flex items-center justify-between text-white" style={{ background: "linear-gradient(135deg,#C62828 0%,#8B1A1A 100%)" }}>
+            <div className="px-4 py-3 flex items-center justify-between text-white" style={{ background: "linear-gradient(135deg,hsl(var(--fa-red)) 0%,hsl(var(--fa-red-dark)) 100%)" }}>
               <div className="flex items-center gap-2">
                 <Siren className="h-5 w-5" />
                 <h3 className="text-base font-extrabold">وضع الطوارئ السريع</h3>
@@ -53,7 +53,7 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
             <div className="p-4 space-y-3">
               <a
                 href={`tel:${country.numbers.ambulance}`}
-                className="w-full flex items-center gap-3 rounded-2xl bg-[#C62828] text-white px-4 py-3 shadow-soft active:scale-[0.98] transition-bounce"
+                className="w-full flex items-center gap-3 rounded-2xl bg-fa-red text-white px-4 py-3 shadow-soft active:scale-[0.98] transition-bounce"
               >
                 <Phone className="h-5 w-5" />
                 <div className="flex-1 text-right">
@@ -72,10 +72,10 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
                       onSelect(t.key);
                       setOpen(false);
                     }}
-                    className="rounded-2xl border-2 border-[#C62828]/30 bg-[#C62828]/5 hover:bg-[#C62828]/10 p-3 text-right active:scale-95 transition-bounce"
+                    className="rounded-2xl border-2 border-fa-red/30 bg-fa-red/5 hover:bg-fa-red/10 p-3 text-right active:scale-95 transition-bounce"
                   >
                     <div className="text-2xl mb-1">{t.emoji}</div>
-                    <div className="text-sm font-extrabold text-[#C62828]">{t.label}</div>
+                    <div className="text-sm font-extrabold text-fa-red">{t.label}</div>
                   </button>
                 ))}
               </div>

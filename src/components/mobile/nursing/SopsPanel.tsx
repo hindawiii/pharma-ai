@@ -16,7 +16,7 @@ const CategoryChip = ({ active, onClick, children }: { active: boolean; onClick:
 const SopSheet = ({ sop, onClose }: { sop: NursingSop; onClose: () => void }) => (
   <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end" onClick={onClose}>
     <div
-      className="w-full max-w-md mx-auto bg-card rounded-t-3xl max-h-[88vh] overflow-y-auto"
+      className="app-bottom-sheet bg-card rounded-t-3xl"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="sticky top-0 bg-card/95 backdrop-blur border-b border-border p-4 flex items-center gap-3 z-10">

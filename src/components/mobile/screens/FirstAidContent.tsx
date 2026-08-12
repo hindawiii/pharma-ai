@@ -32,8 +32,8 @@ export const FIRST_AID_TABS: { key: FirstAidKey; label: string; icon: LucideIcon
 // Reusable presentational pieces
 // ────────────────────────────────────────────────────────────
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h4 className="text-sm font-extrabold text-[#C62828] mt-4 mb-2 flex items-center gap-2">
-    <span className="h-1.5 w-1.5 rounded-full bg-[#C62828]" />
+  <h4 className="text-sm font-extrabold text-fa-red mt-4 mb-2 flex items-center gap-2">
+    <span className="h-1.5 w-1.5 rounded-full bg-fa-red" />
     {children}
   </h4>
 );
@@ -42,7 +42,7 @@ const Steps = ({ items }: { items: string[] }) => (
   <ol className="space-y-2 text-sm leading-relaxed text-foreground">
     {items.map((s, i) => (
       <li key={i} className="flex gap-2">
-        <span className="flex-shrink-0 h-6 w-6 rounded-full bg-[#C62828] text-white text-[11px] font-bold flex items-center justify-center">
+        <span className="flex-shrink-0 h-6 w-6 rounded-full bg-fa-red text-white text-[11px] font-bold flex items-center justify-center">
           {i + 1}
         </span>
         <span className="flex-1 pt-0.5">{s}</span>
@@ -53,7 +53,7 @@ const Steps = ({ items }: { items: string[] }) => (
 
 const Bullets = ({ items, tone = "default" }: { items: string[]; tone?: "default" | "do" | "dont" }) => {
   const Icon = tone === "dont" ? XCircle : tone === "do" ? CheckCircle2 : Info;
-  const color = tone === "dont" ? "text-[#C62828]" : tone === "do" ? "text-emerald-600" : "text-[#1D3557]";
+  const color = tone === "dont" ? "text-fa-red" : tone === "do" ? "text-emerald-600" : "text-fa-navy";
   return (
     <ul className="space-y-1.5 text-sm leading-relaxed text-foreground">
       {items.map((s, i) => (
@@ -67,22 +67,22 @@ const Bullets = ({ items, tone = "default" }: { items: string[]; tone?: "default
 };
 
 const Warning = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl bg-[#C62828]/10 border border-[#C62828]/30 p-3 flex items-start gap-2 mt-3">
-    <AlertTriangle className="h-4 w-4 text-[#C62828] flex-shrink-0 mt-0.5" />
-    <div className="text-xs font-bold text-[#C62828] leading-relaxed">{children}</div>
+  <div className="rounded-2xl bg-fa-red/10 border border-fa-red/30 p-3 flex items-start gap-2 mt-3">
+    <AlertTriangle className="h-4 w-4 text-fa-red flex-shrink-0 mt-0.5" />
+    <div className="text-xs font-bold text-fa-red leading-relaxed">{children}</div>
   </div>
 );
 
 const InfoBox = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl bg-[#1D3557]/5 border border-[#1D3557]/20 p-3 text-xs text-[#1D3557] leading-relaxed mt-3">
+  <div className="rounded-2xl bg-fa-navy/5 border border-fa-navy/20 p-3 text-xs text-fa-navy leading-relaxed mt-3">
     {children}
   </div>
 );
 
 const SimpleTable = ({ headers, rows }: { headers: string[]; rows: string[][] }) => (
-  <div className="rounded-2xl border border-[#C62828]/20 overflow-hidden mt-3">
+  <div className="rounded-2xl border border-fa-red/20 overflow-hidden mt-3">
     <table className="w-full text-xs" dir="rtl">
-      <thead className="bg-[#C62828] text-white">
+      <thead className="bg-fa-red text-white">
         <tr>
           {headers.map((h, i) => (
             <th key={i} className="px-2 py-2 text-right font-bold">{h}</th>
@@ -91,9 +91,9 @@ const SimpleTable = ({ headers, rows }: { headers: string[]; rows: string[][] })
       </thead>
       <tbody>
         {rows.map((r, ri) => (
-          <tr key={ri} className={ri % 2 ? "bg-[#C62828]/5" : "bg-white"}>
+          <tr key={ri} className={ri % 2 ? "bg-fa-red/5" : "bg-card"}>
             {r.map((c, ci) => (
-              <td key={ci} className="px-2 py-2 text-foreground border-t border-[#C62828]/10">{c}</td>
+              <td key={ci} className="px-2 py-2 text-foreground border-t border-fa-red/10">{c}</td>
             ))}
           </tr>
         ))}
@@ -140,7 +140,7 @@ export const FirstAidIntro = memo(() => {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-2xl bg-gradient-to-l from-[#C62828] to-[#8B1A1A] text-white p-4 shadow-soft">
+      <div className="rounded-2xl bg-gradient-to-l from-fa-red to-fa-red-dark text-white p-4 shadow-soft">
         <h3 className="text-base font-extrabold mb-2">أهمية الإسعافات الأولية</h3>
         <p className="text-xs leading-relaxed text-white/95">
           الإسعافات الأولية هي المساعدة الطبية الفورية التي تُقدَّم لمصاب قبل وصول المساعدة الطبية المتخصصة.
@@ -150,8 +150,8 @@ export const FirstAidIntro = memo(() => {
         </p>
       </div>
 
-      <div className="rounded-2xl border-r-4 border-[#C62828] bg-[#C62828]/5 p-3">
-        <p className="text-sm font-bold text-[#C62828] leading-relaxed">"كل دقيقة لها أهميتها"</p>
+      <div className="rounded-2xl border-r-4 border-fa-red bg-fa-red/5 p-3">
+        <p className="text-sm font-bold text-fa-red leading-relaxed">"كل دقيقة لها أهميتها"</p>
         <p className="text-xs text-foreground mt-1 leading-relaxed">
           السرعة في التدخل هي الفرق بين الحياة والوفاة.
         </p>
@@ -170,11 +170,11 @@ export const FirstAidIntro = memo(() => {
               <a
                 key={x.label}
                 href={`tel:${x.num}`}
-                className="rounded-2xl bg-white border-2 border-[#C62828] p-3 flex flex-col items-center gap-1 transition-bounce active:scale-95 hover:bg-[#C62828]/5"
+                className="rounded-2xl bg-card border-2 border-fa-red p-3 flex flex-col items-center gap-1 transition-bounce active:scale-95 hover:bg-fa-red/5"
               >
-                <Icon className="h-4 w-4 text-[#C62828]" />
+                <Icon className="h-4 w-4 text-fa-red" />
                 <span className="text-[11px] font-bold text-foreground">{x.label}</span>
-                <span className="text-base font-extrabold text-[#C62828] tracking-wider">{x.num}</span>
+                <span className="text-base font-extrabold text-fa-red tracking-wider">{x.num}</span>
               </a>
             );
           })}
@@ -254,7 +254,7 @@ export const FirstAidContent = memo(({ section }: { section: FirstAidKey }) => {
           <button
             onClick={() => setChecklistMode((v) => !v)}
             className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border-2 flex items-center gap-1 transition-bounce active:scale-95 ${
-              checklistMode ? "bg-[#00695C] text-white border-[#00695C]" : "bg-white text-[#00695C] border-[#00695C]"
+              checklistMode ? "bg-fa-teal text-white border-fa-teal" : "bg-card text-fa-teal border-fa-teal"
             }`}
           >
             <ListChecks className="h-3.5 w-3.5" />
@@ -268,7 +268,7 @@ export const FirstAidContent = memo(({ section }: { section: FirstAidKey }) => {
       ) : (
         <>
           {TOPIC_ILLUSTRATIONS[topic.key] && (
-            <figure className="mt-3 rounded-2xl border border-[#C62828]/20 bg-white p-2">
+            <figure className="mt-3 rounded-2xl border border-fa-red/20 bg-card p-2">
               {(() => {
                 const Ill = TOPIC_ILLUSTRATIONS[topic.key];
                 return <Ill />;
