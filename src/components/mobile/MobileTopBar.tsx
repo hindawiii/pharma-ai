@@ -156,7 +156,7 @@ export const MobileTopBar = memo(({ title }: Props) => {
           className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-fade-up"
           onClick={() => setModal(null)}
         >
-          <div className="w-full max-w-md bg-card rounded-3xl shadow-elegant overflow-hidden border border-border" onClick={(e) => e.stopPropagation()}>
+          <div className="app-bottom-sheet bg-card rounded-3xl shadow-elegant overflow-hidden border border-border" onClick={(e) => e.stopPropagation()}>
             <div className="gradient-primary p-5 text-white relative">
               <button onClick={() => setModal(null)} aria-label="إغلاق" className="absolute top-3 left-3 h-9 w-9 rounded-full bg-white/15 flex items-center justify-center">
                 <X className="h-5 w-5" />
@@ -197,7 +197,7 @@ export const MobileTopBar = memo(({ title }: Props) => {
           className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-fade-up"
           onClick={() => setModal(null)}
         >
-          <div className="w-full max-w-md bg-card rounded-3xl shadow-elegant overflow-hidden border border-border" onClick={(e) => e.stopPropagation()}>
+          <div className="app-bottom-sheet bg-card rounded-3xl shadow-elegant overflow-hidden border border-border" onClick={(e) => e.stopPropagation()}>
             <div className="gradient-primary p-5 text-white relative">
               <button onClick={() => setModal(null)} aria-label="إغلاق" className="absolute top-3 left-3 h-9 w-9 rounded-full bg-white/15 flex items-center justify-center">
                 <X className="h-5 w-5" />

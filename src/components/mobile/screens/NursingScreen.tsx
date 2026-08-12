@@ -101,7 +101,7 @@ const AddPatientSheet = ({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="w-full max-w-md bg-card rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom"
+        className="app-bottom-sheet bg-card rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">

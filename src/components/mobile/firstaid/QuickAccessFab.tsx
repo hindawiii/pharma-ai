@@ -38,7 +38,7 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-3xl overflow-hidden animate-in slide-in-from-bottom-8"
+            className="app-bottom-sheet bg-card rounded-t-3xl sm:rounded-3xl overflow-hidden animate-in slide-in-from-bottom-8"
           >
             <div className="px-4 py-3 flex items-center justify-between text-white" style={{ background: "linear-gradient(135deg,hsl(var(--fa-red)) 0%,hsl(var(--fa-red-dark)) 100%)" }}>
               <div className="flex items-center gap-2">
