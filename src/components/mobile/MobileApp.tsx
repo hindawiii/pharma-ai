@@ -1,12 +1,10 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useState, lazy, Suspense } from "react";
 import { BottomNav, TabKey } from "./BottomNav";
 import { MobileTopBar } from "./MobileTopBar";
 import { ScannerScreen } from "./screens/ScannerScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { RecordScreen } from "./screens/RecordScreen";
-import { MedicationScreen } from "./screens/MedicationScreen";
 import { HomeScreen } from "./screens/HomeScreen";
-import { NursingScreen } from "./screens/NursingScreen";
 import { AiFab } from "./AiFab";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthScreen } from "./AuthScreen";
@@ -23,10 +21,16 @@ const titles: Record<TabKey, string> = {
 
 const MemoHome = memo(HomeScreen);
 const MemoScanner = memo(ScannerScreen);
-const MemoNursing = memo(NursingScreen);
-const MemoMedication = memo(MedicationScreen);
+const MemoNursing = lazy(() => import("./screens/NursingScreen").then((m) => ({ default: m.NursingScreen })));
+const MemoMedication = lazy(() => import("./screens/MedicationScreen").then((m) => ({ default: m.MedicationScreen })));
 const MemoMap = memo(MapScreen);
 const MemoRecord = memo(RecordScreen);
+
+const ScreenFallback = () => (
+  <div className="py-16 flex items-center justify-center" role="status" aria-live="polite">
+    <Loader2 className="h-6 w-6 text-primary animate-spin" />
+  </div>
+);
 
 const Inner = () => {
   const { user, loading } = useAuth();
@@ -55,8 +59,10 @@ const Inner = () => {
         <div className={active === "scanner" ? "h-full" : "hidden"}>
           <MemoScanner isActive={active === "scanner"} />
         </div>
-        {active === "nursing" && <MemoNursing />}
-        {active === "medication" && <MemoMedication />}
+        <Suspense fallback={<ScreenFallback />}>
+          {active === "nursing" && <MemoNursing />}
+          {active === "medication" && <MemoMedication />}
+        </Suspense>
         {active === "map" && <MemoMap />}
         {active === "profile" && <MemoRecord />}
       </main>
