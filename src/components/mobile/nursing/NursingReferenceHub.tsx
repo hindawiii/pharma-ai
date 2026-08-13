@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import { Search, Activity, FlaskConical, BookOpen, Calculator, FileText, Stethoscope, Siren, GraduationCap } from "lucide-react";
 import {
   VITAL_SIGNS_BY_AGE,
@@ -6,10 +6,17 @@ import {
   ABBREVIATIONS,
   NANDA_DIAGNOSES,
 } from "@/data/nursingReference";
-import { NursingCalculators } from "./NursingCalculators";
-import { SopsPanel } from "./SopsPanel";
-import { ProtocolsPanel } from "./ProtocolsPanel";
-import { LearningPathPanel } from "./LearningPathPanel";
+// Each tab pulls a large static dataset — load them only when opened.
+const NursingCalculators = lazy(() => import("./NursingCalculators").then((m) => ({ default: m.NursingCalculators })));
+const SopsPanel = lazy(() => import("./SopsPanel").then((m) => ({ default: m.SopsPanel })));
+const ProtocolsPanel = lazy(() => import("./ProtocolsPanel").then((m) => ({ default: m.ProtocolsPanel })));
+const LearningPathPanel = lazy(() => import("./LearningPathPanel").then((m) => ({ default: m.LearningPathPanel })));
+
+const TabFallback = () => (
+  <div className="py-10 text-center text-xs text-muted-foreground" role="status" aria-live="polite">
+    جارٍ التحميل…
+  </div>
+);
 
 type RefTab = "protocols" | "sops" | "path" | "vitals" | "labs" | "abbr" | "nanda" | "calc";
 
@@ -230,14 +237,14 @@ export const NursingReferenceHub = () => {
       </div>
 
       {/* Content */}
-      {tab === "protocols" && <ProtocolsPanel />}
-      {tab === "sops" && <SopsPanel />}
-      {tab === "path" && <LearningPathPanel />}
+      {tab === "protocols" && <Suspense fallback={<TabFallback />}><ProtocolsPanel /></Suspense>}
+      {tab === "sops" && <Suspense fallback={<TabFallback />}><SopsPanel /></Suspense>}
+      {tab === "path" && <Suspense fallback={<TabFallback />}><LearningPathPanel /></Suspense>}
       {tab === "vitals" && <VitalsView />}
       {tab === "labs" && <LabsView />}
       {tab === "abbr" && <AbbrView />}
       {tab === "nanda" && <NandaView />}
-      {tab === "calc" && <NursingCalculators />}
+      {tab === "calc" && <Suspense fallback={<TabFallback />}><NursingCalculators /></Suspense>}
 
       {/* Sources */}
       <section className="rounded-2xl bg-muted/50 border border-border p-3 mt-4">

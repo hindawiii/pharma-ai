@@ -45,7 +45,7 @@ export const QuickAccessFab = memo(({ onSelect }: { onSelect: (k: string) => voi
                 <Siren className="h-5 w-5" />
                 <h3 className="text-base font-extrabold">وضع الطوارئ السريع</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+              <button onClick={() => setOpen(false)} aria-label="إغلاق" className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
                 <X className="h-4 w-4" />
               </button>
             </div>
