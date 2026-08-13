@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useState, lazy, Suspense } from "react";
 import {
   Stethoscope,
   Home as HomeIcon,
@@ -21,9 +21,22 @@ import { useNursingPatients, type NursingPatient } from "@/hooks/useNursingPatie
 import { VitalsPanel } from "@/components/mobile/nursing/VitalsPanel";
 import { NotesPanel } from "@/components/mobile/nursing/NotesPanel";
 import { RemindersPanel } from "@/components/mobile/nursing/RemindersPanel";
-import { SpecialtyDetailSheet } from "@/components/mobile/nursing/SpecialtyDetailSheet";
-import { NurseAiPanel } from "@/components/mobile/nursing/NurseAiPanel";
-import { NursingReferenceHub } from "@/components/mobile/nursing/NursingReferenceHub";
+// Heavy, rarely-opened views are code-split so the initial bundle stays light.
+const SpecialtyDetailSheet = lazy(() =>
+  import("@/components/mobile/nursing/SpecialtyDetailSheet").then((m) => ({ default: m.SpecialtyDetailSheet })),
+);
+const NurseAiPanel = lazy(() =>
+  import("@/components/mobile/nursing/NurseAiPanel").then((m) => ({ default: m.NurseAiPanel })),
+);
+const NursingReferenceHub = lazy(() =>
+  import("@/components/mobile/nursing/NursingReferenceHub").then((m) => ({ default: m.NursingReferenceHub })),
+);
+
+const PanelFallback = () => (
+  <div className="py-10 text-center text-xs text-muted-foreground" role="status" aria-live="polite">
+    جارٍ التحميل…
+  </div>
+);
 import { BookMarked } from "lucide-react";
 
 
@@ -414,7 +427,11 @@ const GeneralNursingView = () => {
         </p>
       </section>
 
-      <SpecialtyDetailSheet specialty={selected} onClose={() => setSelected(null)} />
+      {selected && (
+        <Suspense fallback={null}>
+          <SpecialtyDetailSheet specialty={selected} onClose={() => setSelected(null)} />
+        </Suspense>
+      )}
     </div>
   );
 };
@@ -485,10 +502,18 @@ export const NursingScreen = memo(() => {
       <div className="px-4 pt-4">
         {mode === "home" && <HomeNursingView />}
         {mode === "general" && <GeneralNursingView />}
-        {mode === "reference" && <NursingReferenceHub />}
+        {mode === "reference" && (
+          <Suspense fallback={<PanelFallback />}>
+            <NursingReferenceHub />
+          </Suspense>
+        )}
       </div>
 
-      {aiOpen && <NurseAiPanel onClose={() => setAiOpen(false)} />}
+      {aiOpen && (
+        <Suspense fallback={null}>
+          <NurseAiPanel onClose={() => setAiOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 });
