@@ -2,8 +2,6 @@ import { memo, useCallback, useState, lazy, Suspense } from "react";
 import { BottomNav, TabKey } from "./BottomNav";
 import { MobileTopBar } from "./MobileTopBar";
 import { ScannerScreen } from "./screens/ScannerScreen";
-import { MapScreen } from "./screens/MapScreen";
-import { RecordScreen } from "./screens/RecordScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { AiFab } from "./AiFab";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
@@ -23,8 +21,8 @@ const MemoHome = memo(HomeScreen);
 const MemoScanner = memo(ScannerScreen);
 const MemoNursing = lazy(() => import("./screens/NursingScreen").then((m) => ({ default: m.NursingScreen })));
 const MemoMedication = lazy(() => import("./screens/MedicationScreen").then((m) => ({ default: m.MedicationScreen })));
-const MemoMap = memo(MapScreen);
-const MemoRecord = memo(RecordScreen);
+const MemoMap = lazy(() => import("./screens/MapScreen").then((m) => ({ default: m.MapScreen })));
+const MemoRecord = lazy(() => import("./screens/RecordScreen").then((m) => ({ default: m.RecordScreen })));
 
 const ScreenFallback = () => (
   <div className="py-16 flex items-center justify-center" role="status" aria-live="polite">
@@ -62,9 +60,9 @@ const Inner = () => {
         <Suspense fallback={<ScreenFallback />}>
           {active === "nursing" && <MemoNursing />}
           {active === "medication" && <MemoMedication />}
+          {active === "map" && <MemoMap />}
+          {active === "profile" && <MemoRecord />}
         </Suspense>
-        {active === "map" && <MemoMap />}
-        {active === "profile" && <MemoRecord />}
       </main>
 
       <AiFab />
