@@ -276,7 +276,8 @@ export const MedicationScreen = () => {
             }
           }
           const delay = next.getTime() - now.getTime();
-          if (delay > 0 && delay < 24 * 3600 * 1000 * 2) {
+          // setTimeout overflows past ~24.8 days; schedule anything within a week.
+          if (delay > 0 && delay < 7 * 24 * 3600 * 1000) {
             const id = window.setTimeout(() => fire(r.drug_name, `الموعد: ${t}`), delay);
             timers.push(id);
           }
