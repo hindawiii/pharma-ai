@@ -106,7 +106,7 @@ const AddPatientSheet = ({
       >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-extrabold">إضافة مريض جديد</h3>
-          <button onClick={onClose} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+          <button onClick={onClose} aria-label="إغلاق" className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
             <X className="h-4 w-4" />
           </button>
         </div>

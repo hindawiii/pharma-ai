@@ -11,7 +11,7 @@ export const CountrySelector = ({ compact = false }: { compact?: boolean }) => {
   return (
     <div className="relative" dir="rtl">
       <div className="flex items-center gap-2">
-        <button
+        <button aria-label="اختيار الدولة"
           onClick={() => setOpen((o) => !o)}
           className={`flex items-center gap-1.5 rounded-full bg-white border-2 border-[#C62828]/30 px-3 ${
             compact ? "h-8 text-[11px]" : "h-9 text-xs"

@@ -23,7 +23,7 @@ export const SpecialtyDetailSheet = memo(
               <h3 className="text-base font-extrabold text-foreground leading-tight">{specialty.name_ar}</h3>
               <p className="text-[11px] text-muted-foreground">{specialty.name_en}</p>
             </div>
-            <button onClick={onClose} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+            <button onClick={onClose} aria-label="إغلاق" className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
               <X className="h-4 w-4" />
             </button>
           </div>

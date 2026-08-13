@@ -25,7 +25,7 @@ const SopSheet = ({ sop, onClose }: { sop: NursingSop; onClose: () => void }) =>
           <h3 className="text-sm font-extrabold text-foreground leading-tight">{sop.name_ar}</h3>
           <p className="text-[10px] text-muted-foreground" dir="ltr">{sop.name_en}</p>
         </div>
-        <button onClick={onClose} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+        <button onClick={onClose} aria-label="إغلاق" className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
           <X className="h-4 w-4" />
         </button>
       </div>
