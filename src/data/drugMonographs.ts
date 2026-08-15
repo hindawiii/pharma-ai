@@ -4361,3 +4361,16 @@ export const searchMonographs = (q: string) => {
       .some((f) => f?.toLowerCase().includes(s))
   );
 };
+
+const norm = (s?: string) =>
+  (s ?? "").toLowerCase().replace(/[\u064B-\u0652]/g, "").replace(/[^a-z\u0621-\u064A]/g, "");
+
+/** مطابقة دواء من قاعدة البيانات مع بطاقته السريرية (بالاسم التجاري أو العلمي) */
+export const matchMonograph = (...names: (string | undefined)[]) => {
+  const keys = names.map(norm).filter((k) => k.length > 2);
+  if (!keys.length) return undefined;
+  return drugMonographs.find((d) => {
+    const fields = [d.id, d.nameAr, d.nameEn, d.scientificAr, d.scientificEn].map(norm);
+    return keys.some((k) => fields.some((f) => f && (f === k || f.includes(k) || k.includes(f))));
+  });
+};
