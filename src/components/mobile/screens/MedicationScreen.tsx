@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { MedicineDetailView } from "./MedicineDetailView";
 import { PulseAlert } from "../PulseAlert";
+import { PharmacyTools } from "../pharmacy/PharmacyTools";
 import {
   getReminders,
   addReminder as addLocalReminder,
@@ -95,7 +96,7 @@ export const MedicationScreen = () => {
   const speak = useSpeak();
   const { user } = useAuth();
   const { profile } = useProfile();
-  const [tab, setTab] = useState<"library" | "interactions" | "reminders">("library");
+  const [tab, setTab] = useState<"library" | "interactions" | "tools" | "reminders">("library");
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
 
   // ---- Library: live search ----
@@ -358,10 +359,11 @@ export const MedicationScreen = () => {
       </div>
 
       <div className="px-4 mt-3">
-        <div className="grid grid-cols-3 rounded-2xl bg-muted p-1">
+        <div className="grid grid-cols-4 rounded-2xl bg-muted p-1">
           {[
             { k: "library", label: "بحث" },
             { k: "interactions", label: "تداخلات" },
+            { k: "tools", label: "أدوات" },
             { k: "reminders", label: "تذكير" },
           ].map((t) => (
             <button
@@ -376,6 +378,12 @@ export const MedicationScreen = () => {
           ))}
         </div>
       </div>
+
+      {tab === "tools" && (
+        <div className="px-4 mt-4 pb-4">
+          <PharmacyTools />
+        </div>
+      )}
 
       {/* LIBRARY */}
       {tab === "library" && (
