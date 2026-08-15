@@ -89,8 +89,21 @@ export const MedicineDetailView = ({ drug, onClose, onAddReminder }: Props) => {
   const speak = useSpeak();
   const [tab, setTab] = useState<TabKey>("overview");
 
+  const raw = drug as unknown as Record<string, string> | null;
+  const mono = drug
+    ? matchMonograph(
+        drug.name,
+        raw?.brand_ar,
+        raw?.brand_en,
+        raw?.scientific_ar,
+        raw?.scientific_en,
+      )
+    : undefined;
+
   if (!drug) return null;
+  if (mono) return <MonographView mono={mono} onClose={onClose} onAddReminder={onAddReminder} />;
   const detail = buildMockDetail(drug);
+
 
   const tabs: { k: TabKey; label: string; icon: typeof Info }[] = [
     { k: "overview", label: "نظرة عامة", icon: Info },
