@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import { useSpeak } from "@/hooks/useSpeak";
 import { toast } from "sonner";
+import { matchMonograph } from "@/data/drugMonographs";
+import { MonographView } from "./MonographView";
+
 
 export type MedicineDetail = {
   id: string;
