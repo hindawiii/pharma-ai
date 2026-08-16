@@ -145,6 +145,7 @@ export const importHealthBackup = async (file: File): Promise<boolean> => {
     if (Array.isArray(parsed.vitals)) write("vitals", parsed.vitals);
     if (Array.isArray(parsed.reminders)) write("reminders", parsed.reminders);
     if (Array.isArray(parsed.notes)) write("notes", parsed.notes);
+    if (Array.isArray(parsed.symptoms)) write("symptoms", parsed.symptoms);
     return true;
   } catch {
     return false;
