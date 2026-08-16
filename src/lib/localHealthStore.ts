@@ -6,6 +6,7 @@ const KEYS = {
   vitals: "pharma-i:health:vitals:v1",
   reminders: "pharma-i:health:reminders:v1",
   notes: "pharma-i:health:notes:v1",
+  symptoms: "pharma-i:health:symptoms:v1",
 } as const;
 
 export type HealthKey = keyof typeof KEYS;
@@ -97,6 +98,23 @@ export const addNote = (n: Omit<DailyNote, "id" | "date">) => {
 export const removeNote = (id: string) =>
   write("notes", getNotes().filter((n) => n.id !== id));
 
+// --- Symptom checker sessions (local only) ---
+export interface SymptomSession {
+  id: string;
+  date: string;
+  summary: string;
+  severity: "low" | "medium" | "high";
+  transcript: { role: "user" | "assistant"; content: string }[];
+}
+export const getSymptomSessions = () => read<SymptomSession[]>("symptoms", []);
+export const addSymptomSession = (s: Omit<SymptomSession, "id" | "date">) => {
+  const list = getSymptomSessions();
+  list.unshift({ ...s, id: crypto.randomUUID(), date: new Date().toISOString() });
+  write("symptoms", list.slice(0, 30));
+};
+export const removeSymptomSession = (id: string) =>
+  write("symptoms", getSymptomSessions().filter((s) => s.id !== id));
+
 // --- Export / Import / Wipe ---
 export const exportAllHealthData = () => ({
   exported_at: new Date().toISOString(),
@@ -104,7 +122,9 @@ export const exportAllHealthData = () => ({
   vitals: getVitals(),
   reminders: getReminders(),
   notes: getNotes(),
+  symptoms: getSymptomSessions(),
 });
+
 
 export const downloadHealthBackup = () => {
   const blob = new Blob([JSON.stringify(exportAllHealthData(), null, 2)], {
@@ -125,6 +145,7 @@ export const importHealthBackup = async (file: File): Promise<boolean> => {
     if (Array.isArray(parsed.vitals)) write("vitals", parsed.vitals);
     if (Array.isArray(parsed.reminders)) write("reminders", parsed.reminders);
     if (Array.isArray(parsed.notes)) write("notes", parsed.notes);
+    if (Array.isArray(parsed.symptoms)) write("symptoms", parsed.symptoms);
     return true;
   } catch {
     return false;
