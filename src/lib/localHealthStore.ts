@@ -6,6 +6,7 @@ const KEYS = {
   vitals: "pharma-i:health:vitals:v1",
   reminders: "pharma-i:health:reminders:v1",
   notes: "pharma-i:health:notes:v1",
+  symptoms: "pharma-i:health:symptoms:v1",
 } as const;
 
 export type HealthKey = keyof typeof KEYS;
