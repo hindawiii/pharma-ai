@@ -1,18 +1,31 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { Sparkles, X, Send, Loader2 } from "lucide-react";
+import { Sparkles, X, Send, Loader2, Stethoscope, MessageCircle, ImagePlus, History, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import {
+  addSymptomSession,
+  getSymptomSessions,
+  removeSymptomSession,
+  type SymptomSession,
+} from "@/lib/localHealthStore";
 
 interface Props {
   onClose: () => void;
   variant?: "fab" | "centered";
 }
 
-type Msg = { role: "user" | "assistant"; content: string };
+type Mode = "chat" | "symptom";
+type Msg = { role: "user" | "assistant"; content: string; image?: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-const SUGGESTIONS = ["ما بدائل البنادول؟", "موعد جرعتي القادمة", "أقرب صيدلية"];
+const SUGGESTIONS: Record<Mode, string[]> = {
+  chat: ["ما بدائل البنادول؟", "موعد جرعتي القادمة", "أقرب صيدلية"],
+  symptom: ["عندي صداع وحرارة منذ يومين", "ألم في البطن بعد الأكل", "طفح جلدي مع حكة"],
+};
+
+const severityOf = (text: string): SymptomSession["severity"] =>
+  /مرتفع|شديد|طارئ/.test(text) ? "high" : /متوسط/.test(text) ? "medium" : "low";
 
 export const AiChatPanel = ({ onClose, variant = "fab" }: Props) => {
   const positionClass =
@@ -20,23 +33,78 @@ export const AiChatPanel = ({ onClose, variant = "fab" }: Props) => {
       ? "fixed inset-x-3 top-20 bottom-24 z-[60] app-shell"
       : "fixed bottom-24 left-3 z-50 w-[calc(100%-1.5rem)] max-w-sm";
 
+  const [mode, setMode] = useState<Mode>("chat");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+  const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [sessions, setSessions] = useState<SymptomSession[]>([]);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const savedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
+  useEffect(() => {
+    if (showHistory) setSessions(getSymptomSessions());
+  }, [showHistory]);
+
+  const switchMode = (m: Mode) => {
+    if (m === mode) return;
+    persistSession();
+    setMode(m);
+    setMessages([]);
+    setImage(null);
+    setShowHistory(false);
+    savedRef.current = false;
+  };
+
+  const persistSession = () => {
+    if (mode !== "symptom" || savedRef.current) return;
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+    const firstUser = messages.find((m) => m.role === "user");
+    if (!lastAssistant || !firstUser) return;
+    addSymptomSession({
+      summary: firstUser.content.slice(0, 90),
+      severity: severityOf(lastAssistant.content),
+      transcript: messages.map(({ role, content }) => ({ role, content })),
+    });
+    savedRef.current = true;
+  };
+
+  useEffect(() => () => persistSession()); // save on unmount
+
+  const pickImage = async (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => setImage(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
   const send = async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || loading) return;
-    const userMsg: Msg = { role: "user", content: trimmed };
+    if ((!trimmed && !image) || loading) return;
+    const userMsg: Msg = { role: "user", content: trimmed || "حلّل هذه الصورة", image: image ?? undefined };
     const next = [...messages, userMsg];
     setMessages(next);
     setInput("");
+    setImage(null);
     setLoading(true);
+    savedRef.current = false;
+
+    const payload = next.map((m) =>
+      m.image
+        ? {
+            role: m.role,
+            content: [
+              { type: "text", text: m.content },
+              { type: "image_url", image_url: { url: m.image } },
+            ],
+          }
+        : { role: m.role, content: m.content },
+    );
 
     let accum = "";
     const upsertAssistant = (chunk: string) => {
@@ -57,7 +125,7 @@ export const AiChatPanel = ({ onClose, variant = "fab" }: Props) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${ANON_KEY}`,
         },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: payload, mode }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -115,105 +183,234 @@ export const AiChatPanel = ({ onClose, variant = "fab" }: Props) => {
     }
   };
 
+  const sevStyle: Record<SymptomSession["severity"], string> = {
+    low: "bg-secondary/15 text-secondary",
+    medium: "bg-amber-500/15 text-amber-600",
+    high: "bg-destructive/15 text-destructive",
+  };
+  const sevLabel: Record<SymptomSession["severity"], string> = {
+    low: "منخفض",
+    medium: "متوسط",
+    high: "مرتفع",
+  };
+
   return (
     <>
       {variant === "centered" && (
         <div
           className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm animate-fade-up"
-          onClick={onClose}
+          onClick={() => { persistSession(); onClose(); }}
           aria-hidden
         />
       )}
       <div
         className={`${positionClass} rounded-3xl bg-card border border-border shadow-elegant overflow-hidden animate-fade-up flex flex-col`}
       >
-        <div className="gradient-ai p-3 text-white flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-              <Sparkles className="h-4 w-4" />
+        <div className="gradient-ai p-3 text-white flex-shrink-0 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-bold text-xs">{mode === "symptom" ? "فاحص الأعراض" : "مساعد Pharma-i"}</p>
+                <p className="text-[10px] opacity-80 flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-secondary-glow animate-pulse" />
+                  متاح الآن
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-xs">مساعد Pharma-i</p>
-              <p className="text-[10px] opacity-80 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-secondary-glow animate-pulse" />
-                متاح الآن
-              </p>
+            <div className="flex items-center gap-1">
+              {mode === "symptom" && (
+                <button
+                  onClick={() => setShowHistory((v) => !v)}
+                  aria-label="سجل الفحوصات"
+                  className="p-1.5 hover:bg-white/10 rounded-lg"
+                >
+                  <History className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                onClick={() => { persistSession(); onClose(); }}
+                aria-label="إغلاق"
+                className="p-1.5 hover:bg-white/10 rounded-lg"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           </div>
-          <button onClick={onClose} aria-label="إغلاق" className="p-1 hover:bg-white/10 rounded-lg">
-            <X className="h-4 w-4" />
-          </button>
+
+          <div className="flex gap-1 bg-white/15 rounded-full p-1">
+            {([
+              { id: "chat" as Mode, label: "محادثة", icon: MessageCircle },
+              { id: "symptom" as Mode, label: "فحص الأعراض", icon: Stethoscope },
+            ]).map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => switchMode(id)}
+                className={`flex-1 flex items-center justify-center gap-1.5 text-[11px] font-bold py-1.5 rounded-full transition-smooth ${
+                  mode === id ? "bg-white text-primary shadow-soft" : "text-white/85"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div ref={scrollRef} className="p-3 space-y-2 overflow-y-auto flex-1 min-h-0">
-          {messages.length === 0 && (
-            <>
-              <div className="bg-muted rounded-2xl rounded-tr-sm p-3 max-w-[85%] text-xs leading-relaxed">
-                مرحباً! أنا مساعد Pharma-i الطبي. اسألني عن أي دواء، جرعة، أو بديل علاجي.
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {SUGGESTIONS.map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => send(q)}
-                    className="text-[11px] px-3 py-1.5 rounded-full bg-primary/10 text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition-smooth"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`rounded-2xl p-3 max-w-[85%] text-xs leading-relaxed ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-tl-sm mr-auto"
-                  : "bg-muted text-foreground rounded-tr-sm"
-              }`}
-            >
-              {m.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2">
-                  <ReactMarkdown>{m.content || "..."}</ReactMarkdown>
+        {showHistory ? (
+          <div className="p-3 space-y-2 overflow-y-auto flex-1 min-h-0">
+            <p className="text-[11px] text-muted-foreground">
+              سجل الفحوصات محفوظ على جهازك فقط.
+            </p>
+            {sessions.length === 0 && (
+              <p className="text-xs text-muted-foreground py-6 text-center">لا توجد فحوصات محفوظة بعد.</p>
+            )}
+            {sessions.map((s) => (
+              <div key={s.id} className="rounded-2xl border border-border p-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${sevStyle[s.severity]}`}>
+                    خطورة {sevLabel[s.severity]}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(s.date).toLocaleDateString("ar-EG")}
+                    </span>
+                    <button
+                      aria-label="حذف الفحص"
+                      onClick={() => {
+                        removeSymptomSession(s.id);
+                        setSessions(getSymptomSessions());
+                      }}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                m.content
-              )}
-            </div>
-          ))}
-          {loading && messages[messages.length - 1]?.role === "user" && (
-            <div className="bg-muted rounded-2xl rounded-tr-sm p-3 max-w-[85%] text-xs flex items-center gap-2">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <span>جاري الرد...</span>
-            </div>
-          )}
-        </div>
+                <p className="text-xs font-semibold">{s.summary}</p>
+                <button
+                  onClick={() => {
+                    setMessages(s.transcript);
+                    savedRef.current = true;
+                    setShowHistory(false);
+                  }}
+                  className="text-[11px] text-primary font-bold"
+                >
+                  فتح الفحص
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div ref={scrollRef} className="p-3 space-y-2 overflow-y-auto flex-1 min-h-0">
+            {mode === "symptom" && (
+              <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-2.5 text-[10px] leading-relaxed text-amber-700 dark:text-amber-400">
+                ⚠️ هذا الفحص إرشادي فقط ولا يُعد تشخيصاً طبياً. في حالات الطوارئ اتصل بالإسعاف فوراً.
+              </div>
+            )}
+            {messages.length === 0 && (
+              <>
+                <div className="bg-muted rounded-2xl rounded-tr-sm p-3 max-w-[85%] text-xs leading-relaxed">
+                  {mode === "symptom"
+                    ? "صف لي أعراضك بالتفصيل (المدة، الشدة، الأعراض المصاحبة)، ويمكنك إرفاق صورة للطفح أو الجرح."
+                    : "مرحباً! أنا مساعد Pharma-i الطبي. اسألني عن أي دواء، جرعة، أو بديل علاجي."}
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {SUGGESTIONS[mode].map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => send(q)}
+                      className="text-[11px] px-3 py-1.5 rounded-full bg-primary/10 text-primary font-semibold hover:bg-primary hover:text-primary-foreground transition-smooth"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`rounded-2xl p-3 max-w-[85%] text-xs leading-relaxed ${
+                  m.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-tl-sm mr-auto"
+                    : "bg-muted text-foreground rounded-tr-sm"
+                }`}
+              >
+                {m.image && (
+                  <img
+                    src={m.image}
+                    alt="صورة مرفقة من المستخدم للفحص"
+                    className="rounded-xl mb-2 max-h-40 object-cover w-full"
+                  />
+                )}
+                {m.role === "assistant" ? (
+                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 dark:prose-invert">
+                    <ReactMarkdown>{m.content || "..."}</ReactMarkdown>
+                  </div>
+                ) : (
+                  m.content
+                )}
+              </div>
+            ))}
+            {loading && messages[messages.length - 1]?.role === "user" && (
+              <div className="bg-muted rounded-2xl rounded-tr-sm p-3 max-w-[85%] text-xs flex items-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>جاري الرد...</span>
+              </div>
+            )}
+          </div>
+        )}
 
-        <form
-          className="p-3 border-t border-border flex items-center gap-2 flex-shrink-0"
-          onSubmit={(e) => {
-            e.preventDefault();
-            send(input);
-          }}
-        >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKey}
-            placeholder="اكتب سؤالك..."
-            disabled={loading}
-            className="flex-1 bg-muted rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-60"
-          />
-          <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="h-8 w-8 rounded-full gradient-primary text-white flex items-center justify-center shadow-soft disabled:opacity-50"
-            aria-label="إرسال"
+        {!showHistory && (
+          <form
+            className="p-3 border-t border-border flex items-center gap-2 flex-shrink-0"
+            onSubmit={(e) => {
+              e.preventDefault();
+              send(input);
+            }}
           >
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-          </button>
-        </form>
+            {mode === "symptom" && (
+              <>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && pickImage(e.target.files[0])}
+                />
+                <button
+                  type="button"
+                  aria-label="إرفاق صورة"
+                  onClick={() => fileRef.current?.click()}
+                  className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    image ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <ImagePlus className="h-3.5 w-3.5" />
+                </button>
+              </>
+            )}
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKey}
+              placeholder={mode === "symptom" ? "صف أعراضك..." : "اكتب سؤالك..."}
+              disabled={loading}
+              className="flex-1 bg-muted rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-60"
+            />
+            <button
+              type="submit"
+              disabled={loading || (!input.trim() && !image)}
+              className="h-8 w-8 rounded-full gradient-primary text-white flex items-center justify-center shadow-soft disabled:opacity-50 flex-shrink-0"
+              aria-label="إرسال"
+            >
+              {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            </button>
+          </form>
+        )}
       </div>
     </>
   );
