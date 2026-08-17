@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, lazy, Suspense } from "react";
 import {
   ScanLine,
   MapPin,
