@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, lazy, Suspense } from "react";
 import {
   ScanLine,
   MapPin,
@@ -18,6 +18,10 @@ import {
 import { AiChatPanel } from "../AiChatPanel";
 import { HealthGuidesSection } from "./HealthGuides";
 import logo from "@/assets/pharma-i-logo.png";
+
+const AcademySection = lazy(() =>
+  import("../academy/AcademySection").then((m) => ({ default: m.AcademySection })),
+);
 
 // Social brand icons (inline SVGs for crisp rendering)
 const WhatsAppIcon = ({ className = "" }: { className?: string }) => (
@@ -210,6 +214,11 @@ export const HomeScreen = memo(({ onOpenScanner: _, onOpenNursing }: Props) => {
             </div>
           </button>
         </section>
+
+        {/* ===== Medical Academy ===== */}
+        <Suspense fallback={<div className="h-24 rounded-3xl bg-card border border-border animate-pulse" />}>
+          <AcademySection />
+        </Suspense>
 
         {/* ===== Health Guides: First Aid + Blood Types (moved up) ===== */}
         <HealthGuidesSection />
