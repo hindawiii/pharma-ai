@@ -19,6 +19,10 @@ import { AiChatPanel } from "../AiChatPanel";
 import { HealthGuidesSection } from "./HealthGuides";
 import logo from "@/assets/pharma-i-logo.png";
 
+const AcademySection = lazy(() =>
+  import("../academy/AcademySection").then((m) => ({ default: m.AcademySection })),
+);
+
 // Social brand icons (inline SVGs for crisp rendering)
 const WhatsAppIcon = ({ className = "" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
