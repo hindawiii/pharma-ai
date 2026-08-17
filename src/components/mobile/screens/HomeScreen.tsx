@@ -211,6 +211,11 @@ export const HomeScreen = memo(({ onOpenScanner: _, onOpenNursing }: Props) => {
           </button>
         </section>
 
+        {/* ===== Medical Academy ===== */}
+        <Suspense fallback={<div className="h-24 rounded-3xl bg-card border border-border animate-pulse" />}>
+          <AcademySection />
+        </Suspense>
+
         {/* ===== Health Guides: First Aid + Blood Types (moved up) ===== */}
         <HealthGuidesSection />
 
